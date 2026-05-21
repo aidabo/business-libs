@@ -1,0 +1,1783 @@
+{
+  "pages": [
+    {
+      "id": "page-estate-home",
+      "type": "page",
+      "status": "published",
+      "title": "ホーム",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": ""
+      },
+      "source": {
+        "lists": [],
+        "dataSources": [
+          {
+            "id": "estate-home-properties",
+            "name": "おすすめ物件",
+            "type": "static",
+            "data": {
+              "title": "おすすめ物件",
+              "description": "厳選された最新の物件情報をご紹介します。",
+              "items": [
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥58,000,000",
+                  "address": "東京都世田谷区xxx町1-2-3",
+                  "beds": 3,
+                  "baths": 1,
+                  "sqft": 75,
+                  "tag": "売買",
+                  "transport": "京王線 某某駅 徒歩8分",
+                  "floorPlan": "3LDK",
+                  "areaSize": "75.4㎡",
+                  "yearBuilt": "2019",
+                  "features": [
+                    "駅から徒歩8分の好立地",
+                    "南向きで日当たり良好",
+                    "システムキッチン完備",
+                    "駐車場あり（月額15,000円）"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥128,000",
+                  "address": "東京都三鷹市xxx町5-6-7",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 55,
+                  "tag": "賃貸",
+                  "transport": "JR中央線 三鷹駅 徒歩12分",
+                  "floorPlan": "2DK",
+                  "areaSize": "55.2㎡",
+                  "expectedRent": "¥128,000",
+                  "yearBuilt": "2020",
+                  "features": [
+                    "バルコニーあり",
+                    "オートロック",
+                    "宅配ボックス"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥8,800,000",
+                  "address": "東京都大田区xxx町9-10-11",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 30,
+                  "tag": "投資",
+                  "transport": "東急池上線 某某駅 徒歩3分",
+                  "floorPlan": "1R",
+                  "areaSize": "30.8㎡",
+                  "expectedRent": "¥68,000",
+                  "yearBuilt": "2018",
+                  "features": [
+                    "駅近で安定入居見込み",
+                    "表面利回り9.2%",
+                    "新耐震基準適合"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 30,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-herosection-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 36,
+            "content": "{\"name\":\"HeroSection\",\"props\":{\"title\":\"理想の住まいを探しませんか\",\"subtitle\":\"世田谷区・三鷹市・大田区を中心に、最適な物件をご提案します。\",\"backgroundImage\":\"https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80\",\"showSearch\":true}}"
+          },
+          {
+            "id": "widget-propertygrid-0-36",
+            "x": 0,
+            "y": 36,
+            "w": 12,
+            "h": 30,
+            "content": "{\"name\":\"PropertyGrid\",\"props\":{\"title\":\"おすすめ物件\",\"description\":\"厳選された最新の物件情報をご紹介します。\",\"columns\":3,\"layout\":\"grid\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"keywordKey\":\"estate.keyword\",\"intentKey\":\"estate.filter.intent\",\"searchableFields\":[\"address\",\"price\",\"tag\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\",\"yearBuilt\"],\"detailPageId\":\"page-estate-detail\",\"__bindings\":{\"properties\":{\"sourceId\":\"estate-home-properties\",\"path\":\"$.items\",\"targetType\":\"array\",\"selector\":{\"type\":\"all\"}},\"title\":{\"sourceId\":\"estate-home-properties\",\"path\":\"$.title\"},\"description\":{\"sourceId\":\"estate-home-properties\",\"path\":\"$.description\"}},\"__interactions\":[{\"id\":\"estate-grid-select\",\"event\":\"estate:property:selected\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.selectedPropertyId\",\"valueFrom\":\"$.id\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-newsfeed-0-66",
+            "x": 0,
+            "y": 66,
+            "w": 12,
+            "h": 28,
+            "content": "{\"name\":\"NewsFeed\",\"props\":{\"title\":\"お知らせ\",\"description\":\"最新の情報をお届けします。\",\"maxItems\":3,\"showAllLink\":\"/pages/view/page-estate-news\",\"showAllLabel\":\"すべてを見る\"}}"
+          },
+          {
+            "id": "widget-companyfeatures-0-94",
+            "x": 0,
+            "y": 94,
+            "w": 12,
+            "h": 24,
+            "content": "{\"name\":\"CompanyFeatures\",\"props\":{\"title\":\"私たちの強み\",\"subtitle\":\"お客様満足を第一に、充実のサービスをご提供いたします。\"}}"
+          },
+          {
+            "id": "widget-contactsection-0-118",
+            "x": 0,
+            "y": 118,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"株式会社Think Estate\",\"address\":\"〒123-4567 東京都世田谷区xxx町1-2-3\",\"phone\":\"03-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "ホーム",
+        "excerpt": "理想の住まいを探しませんか",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-rental",
+      "type": "page",
+      "status": "published",
+      "title": "賃貸物件一覧",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": "",
+        "estate.filter.intent": "rent"
+      },
+      "source": {
+        "lists": [],
+        "dataSources": [
+          {
+            "id": "estate-rental-properties",
+            "name": "賃貸物件",
+            "type": "static",
+            "data": {
+              "title": "賃貸物件",
+              "description": "お部屋探しは当社にお任せください。",
+              "items": [
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥128,000",
+                  "address": "東京都三鷹市xxx町5-6-7",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 55,
+                  "tag": "賃貸",
+                  "transport": "JR中央線 三鷹駅 徒歩12分",
+                  "floorPlan": "2DK",
+                  "areaSize": "55.2㎡",
+                  "expectedRent": "¥128,000",
+                  "yearBuilt": "2020",
+                  "features": [
+                    "バルコニーあり",
+                    "オートロック",
+                    "宅配ボックス"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥98,000",
+                  "address": "東京都世田谷区xxx町10-20-30",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 40,
+                  "tag": "賃貸",
+                  "transport": "小田急線 某某駅 徒歩5分",
+                  "floorPlan": "1DK",
+                  "areaSize": "40.5㎡",
+                  "expectedRent": "¥98,000",
+                  "yearBuilt": "2021",
+                  "features": [
+                    "フローリング",
+                    "エアコン完備",
+                    "即入居可"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥250,000",
+                  "address": "東京都大田区xxx町15-25-35",
+                  "beds": 3,
+                  "baths": 2,
+                  "sqft": 80,
+                  "tag": "賃貸",
+                  "transport": "東急目黒線 某某駅 徒歩7分",
+                  "floorPlan": "3LDK",
+                  "areaSize": "80.0㎡",
+                  "expectedRent": "¥250,000",
+                  "yearBuilt": "2022",
+                  "features": [
+                    "ペット可",
+                    "駐車場あり",
+                    "リビング20畳以上"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 24,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-searchbar-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 10,
+            "content": "{\"name\":\"SearchBar\",\"props\":{\"placeholder\":\"エリアや沿線で検索... 例: 「三鷹 2DK」\",\"buttonLabel\":\"検索\",\"keywordKey\":\"estate.keyword\",\"searchableFields\":[\"address\",\"price\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\"],\"searchTargetLabel\":\"エリア・沿線・間取り\",\"__interactions\":[{\"id\":\"search-set-state\",\"event\":\"estate:search:changed\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.keyword\",\"valueFrom\":\"$.keyword\",\"enabled\":true},{\"id\":\"search-emit-event\",\"event\":\"estate:search:changed\",\"action\":\"emit-event\",\"targetPath\":\"estate:search:changed\",\"valueFrom\":\"$\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-propertygrid-0-10",
+            "x": 0,
+            "y": 10,
+            "w": 12,
+            "h": 40,
+            "content": "{\"name\":\"PropertyGrid\",\"props\":{\"title\":\"賃貸物件\",\"description\":\"お部屋探しは当社にお任せください。\",\"columns\":3,\"layout\":\"grid\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"keywordKey\":\"estate.keyword\",\"intentKey\":\"estate.filter.intent\",\"searchableFields\":[\"address\",\"price\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\"],\"detailPageId\":\"page-estate-detail\",\"__bindings\":{\"properties\":{\"sourceId\":\"estate-rental-properties\",\"path\":\"$.items\",\"targetType\":\"array\",\"selector\":{\"type\":\"all\"}},\"title\":{\"sourceId\":\"estate-rental-properties\",\"path\":\"$.title\"},\"description\":{\"sourceId\":\"estate-rental-properties\",\"path\":\"$.description\"}},\"__interactions\":[{\"id\":\"estate-rental-grid-select\",\"event\":\"estate:property:selected\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.selectedPropertyId\",\"valueFrom\":\"$.id\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-contactsection-0-50",
+            "x": 0,
+            "y": 50,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"株式会社Think Estate\",\"address\":\"〒123-4567 東京都世田谷区xxx町1-2-3\",\"phone\":\"03-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "賃貸物件一覧",
+        "excerpt": "賃貸物件を探す",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-sale",
+      "type": "page",
+      "status": "published",
+      "title": "売買物件一覧",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": "",
+        "estate.filter.intent": "sale"
+      },
+      "source": {
+        "lists": [],
+        "dataSources": [
+          {
+            "id": "estate-sale-properties",
+            "name": "売買物件",
+            "type": "static",
+            "data": {
+              "title": "売買物件",
+              "description": "新築・中古物件の売買情報です。",
+              "items": [
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥58,000,000",
+                  "address": "東京都世田谷区xxx町1-2-3",
+                  "beds": 3,
+                  "baths": 1,
+                  "sqft": 75,
+                  "tag": "売買",
+                  "transport": "京王線 某某駅 徒歩8分",
+                  "floorPlan": "3LDK",
+                  "areaSize": "75.4㎡",
+                  "yearBuilt": "2019",
+                  "features": [
+                    "駅から徒歩8分の好立地",
+                    "南向きで日当たり良好",
+                    "システムキッチン完備",
+                    "駐車場あり（月額15,000円）"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥38,000,000",
+                  "originalPrice": "¥42,000,000",
+                  "address": "東京都三鷹市xxx町20-30-40",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 60,
+                  "tag": "売買",
+                  "transport": "JR中央線 三鷹駅 徒歩15分",
+                  "floorPlan": "2LDK",
+                  "areaSize": "60.0㎡",
+                  "yearBuilt": "2015",
+                  "features": [
+                    "リノベーション済み",
+                    "ペット相談可",
+                    "角部屋で採光良好"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥128,000,000",
+                  "address": "東京都世田谷区xxx町25-35-45",
+                  "beds": 4,
+                  "baths": 2,
+                  "sqft": 120,
+                  "tag": "売買",
+                  "transport": "東急田園都市線 某某駅 徒歩10分",
+                  "floorPlan": "4LDK",
+                  "areaSize": "120.5㎡",
+                  "yearBuilt": "2023",
+                  "features": [
+                    "築浅物件",
+                    "広々リビング",
+                    "ウォークインクローゼット",
+                    "床暖房完備"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 24,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-searchbar-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 10,
+            "content": "{\"name\":\"SearchBar\",\"props\":{\"placeholder\":\"エリアや価格帯で検索... 例: 「世田谷 3LDK」\",\"buttonLabel\":\"検索\",\"keywordKey\":\"estate.keyword\",\"searchableFields\":[\"address\",\"price\",\"tag\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\",\"yearBuilt\"],\"searchTargetLabel\":\"エリア・価格・間取り\",\"__interactions\":[{\"id\":\"search-set-state\",\"event\":\"estate:search:changed\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.keyword\",\"valueFrom\":\"$.keyword\",\"enabled\":true},{\"id\":\"search-emit-event\",\"event\":\"estate:search:changed\",\"action\":\"emit-event\",\"targetPath\":\"estate:search:changed\",\"valueFrom\":\"$\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-propertygrid-0-10",
+            "x": 0,
+            "y": 10,
+            "w": 12,
+            "h": 40,
+            "content": "{\"name\":\"PropertyGrid\",\"props\":{\"title\":\"売買物件\",\"description\":\"新築・中古物件の売買情報です。\",\"columns\":3,\"layout\":\"grid\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"keywordKey\":\"estate.keyword\",\"intentKey\":\"estate.filter.intent\",\"searchableFields\":[\"address\",\"price\",\"tag\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\",\"yearBuilt\"],\"detailPageId\":\"page-estate-detail\",\"__bindings\":{\"properties\":{\"sourceId\":\"estate-sale-properties\",\"path\":\"$.items\",\"targetType\":\"array\",\"selector\":{\"type\":\"all\"}},\"title\":{\"sourceId\":\"estate-sale-properties\",\"path\":\"$.title\"},\"description\":{\"sourceId\":\"estate-sale-properties\",\"path\":\"$.description\"}},\"__interactions\":[{\"id\":\"estate-sale-grid-select\",\"event\":\"estate:property:selected\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.selectedPropertyId\",\"valueFrom\":\"$.id\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-contactsection-0-50",
+            "x": 0,
+            "y": 50,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"株式会社Think Estate\",\"address\":\"〒123-4567 東京都世田谷区xxx町1-2-3\",\"phone\":\"03-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "売買物件一覧",
+        "excerpt": "売買物件を探す",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-investment",
+      "type": "page",
+      "status": "published",
+      "title": "投資物件一覧",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": "",
+        "estate.filter.intent": "investment"
+      },
+      "source": {
+        "lists": [],
+        "dataSources": [
+          {
+            "id": "estate-investment-properties",
+            "name": "投資物件",
+            "type": "static",
+            "data": {
+              "title": "投資物件",
+              "description": "収益物件・投資用不動産情報です。",
+              "items": [
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥8,800,000",
+                  "address": "東京都大田区xxx町9-10-11",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 30,
+                  "tag": "投資",
+                  "transport": "東急池上線 某某駅 徒歩3分",
+                  "floorPlan": "1R",
+                  "areaSize": "30.8㎡",
+                  "expectedRent": "¥68,000",
+                  "yearBuilt": "2018",
+                  "features": [
+                    "駅近で安定入居見込み",
+                    "表面利回り9.2%",
+                    "新耐震基準適合"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥15,000,000",
+                  "address": "東京都世田谷区xxx町5-15-25",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 45,
+                  "tag": "投資",
+                  "transport": "京王線 某某駅 徒歩10分",
+                  "floorPlan": "2DK",
+                  "areaSize": "45.0㎡",
+                  "expectedRent": "¥98,000",
+                  "yearBuilt": "2017",
+                  "features": [
+                    "満室稼働中",
+                    "表面利回り7.8%",
+                    "管理費低額"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥5,800,000",
+                  "address": "東京都三鷹市xxx町30-40-50",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 25,
+                  "tag": "投資",
+                  "transport": "JR中央線 三鷹駅 徒歩8分",
+                  "floorPlan": "1R",
+                  "areaSize": "25.2㎡",
+                  "expectedRent": "¥55,000",
+                  "yearBuilt": "2020",
+                  "features": [
+                    "駅近",
+                    "都心アクセス良好",
+                    "利回り11%"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 24,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-searchbar-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 10,
+            "content": "{\"name\":\"SearchBar\",\"props\":{\"placeholder\":\"エリアや利回りで検索... 例: 「大田 1R」\",\"buttonLabel\":\"検索\",\"keywordKey\":\"estate.keyword\",\"searchableFields\":[\"address\",\"price\",\"tag\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\",\"yearBuilt\"],\"searchTargetLabel\":\"エリア・価格・間取り\",\"__interactions\":[{\"id\":\"search-set-state\",\"event\":\"estate:search:changed\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.keyword\",\"valueFrom\":\"$.keyword\",\"enabled\":true},{\"id\":\"search-emit-event\",\"event\":\"estate:search:changed\",\"action\":\"emit-event\",\"targetPath\":\"estate:search:changed\",\"valueFrom\":\"$\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-propertygrid-0-10",
+            "x": 0,
+            "y": 10,
+            "w": 12,
+            "h": 40,
+            "content": "{\"name\":\"PropertyGrid\",\"props\":{\"title\":\"投資物件\",\"description\":\"収益物件・投資用不動産情報です。\",\"columns\":3,\"layout\":\"grid\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"keywordKey\":\"estate.keyword\",\"intentKey\":\"estate.filter.intent\",\"searchableFields\":[\"address\",\"price\",\"tag\",\"transport\",\"floorPlan\",\"areaSize\",\"expectedRent\",\"yearBuilt\"],\"detailPageId\":\"page-estate-detail\",\"__bindings\":{\"properties\":{\"sourceId\":\"estate-investment-properties\",\"path\":\"$.items\",\"targetType\":\"array\",\"selector\":{\"type\":\"all\"}},\"title\":{\"sourceId\":\"estate-investment-properties\",\"path\":\"$.title\"},\"description\":{\"sourceId\":\"estate-investment-properties\",\"path\":\"$.description\"}},\"__interactions\":[{\"id\":\"estate-investment-grid-select\",\"event\":\"estate:property:selected\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.selectedPropertyId\",\"valueFrom\":\"$.id\",\"enabled\":true}]}}"
+          },
+          {
+            "id": "widget-contactsection-0-50",
+            "x": 0,
+            "y": 50,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"株式会社Think Estate\",\"address\":\"〒123-4567 東京都世田谷区xxx町1-2-3\",\"phone\":\"03-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "投資物件一覧",
+        "excerpt": "投資物件を探す",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-detail",
+      "type": "page",
+      "status": "published",
+      "title": "物件詳細",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": ""
+      },
+      "source": {
+        "lists": [],
+        "dataSources": [
+          {
+            "id": "estate-all-properties",
+            "name": "全物件",
+            "type": "static",
+            "data": {
+              "items": [
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥58,000,000",
+                  "address": "東京都世田谷区xxx町1-2-3",
+                  "beds": 3,
+                  "baths": 1,
+                  "sqft": 75,
+                  "tag": "売買",
+                  "transport": "京王線 某某駅 徒歩8分",
+                  "floorPlan": "3LDK",
+                  "areaSize": "75.4㎡",
+                  "yearBuilt": "2019",
+                  "features": [
+                    "駅から徒歩8分の好立地",
+                    "南向きで日当たり良好",
+                    "システムキッチン完備",
+                    "駐車場あり（月額15,000円）"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥128,000",
+                  "address": "東京都三鷹市xxx町5-6-7",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 55,
+                  "tag": "賃貸",
+                  "transport": "JR中央線 三鷹駅 徒歩12分",
+                  "floorPlan": "2DK",
+                  "areaSize": "55.2㎡",
+                  "expectedRent": "¥128,000",
+                  "yearBuilt": "2020",
+                  "features": [
+                    "バルコニーあり",
+                    "オートロック",
+                    "宅配ボックス"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥8,800,000",
+                  "address": "東京都大田区xxx町9-10-11",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 30,
+                  "tag": "投資",
+                  "transport": "東急池上線 某某駅 徒歩3分",
+                  "floorPlan": "1R",
+                  "areaSize": "30.8㎡",
+                  "expectedRent": "¥68,000",
+                  "yearBuilt": "2018",
+                  "features": [
+                    "駅近で安定入居見込み",
+                    "表面利回り9.2%",
+                    "新耐震基準適合"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥38,000,000",
+                  "originalPrice": "¥42,000,000",
+                  "address": "東京都三鷹市xxx町20-30-40",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 60,
+                  "tag": "売買",
+                  "transport": "JR中央線 三鷹駅 徒歩15分",
+                  "floorPlan": "2LDK",
+                  "areaSize": "60.0㎡",
+                  "yearBuilt": "2015",
+                  "features": [
+                    "リノベーション済み",
+                    "ペット相談可",
+                    "角部屋で採光良好"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥128,000,000",
+                  "address": "東京都世田谷区xxx町25-35-45",
+                  "beds": 4,
+                  "baths": 2,
+                  "sqft": 120,
+                  "tag": "売買",
+                  "transport": "東急田園都市線 某某駅 徒歩10分",
+                  "floorPlan": "4LDK",
+                  "areaSize": "120.5㎡",
+                  "yearBuilt": "2023",
+                  "features": [
+                    "築浅物件",
+                    "広々リビング",
+                    "ウォークインクローゼット",
+                    "床暖房完備"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥98,000",
+                  "address": "東京都世田谷区xxx町10-20-30",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 40,
+                  "tag": "賃貸",
+                  "transport": "小田急線 某某駅 徒歩5分",
+                  "floorPlan": "1DK",
+                  "areaSize": "40.5㎡",
+                  "expectedRent": "¥98,000",
+                  "yearBuilt": "2021",
+                  "features": [
+                    "フローリング",
+                    "エアコン完備",
+                    "即入居可"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥250,000",
+                  "address": "東京都大田区xxx町15-25-35",
+                  "beds": 3,
+                  "baths": 2,
+                  "sqft": 80,
+                  "tag": "賃貸",
+                  "transport": "東急目黒線 某某駅 徒歩7分",
+                  "floorPlan": "3LDK",
+                  "areaSize": "80.0㎡",
+                  "expectedRent": "¥250,000",
+                  "yearBuilt": "2022",
+                  "features": [
+                    "ペット可",
+                    "駐車場あり",
+                    "リビング20畳以上"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥15,000,000",
+                  "address": "東京都世田谷区xxx町5-15-25",
+                  "beds": 2,
+                  "baths": 1,
+                  "sqft": 45,
+                  "tag": "投資",
+                  "transport": "京王線 某某駅 徒歩10分",
+                  "floorPlan": "2DK",
+                  "areaSize": "45.0㎡",
+                  "expectedRent": "¥98,000",
+                  "yearBuilt": "2017",
+                  "features": [
+                    "満室稼働中",
+                    "表面利回り7.8%",
+                    "管理費低額"
+                  ]
+                },
+                {
+                  "image": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+                  "price": "¥5,800,000",
+                  "address": "東京都三鷹市xxx町30-40-50",
+                  "beds": 1,
+                  "baths": 1,
+                  "sqft": 25,
+                  "tag": "投資",
+                  "transport": "JR中央線 三鷹駅 徒歩8分",
+                  "floorPlan": "1R",
+                  "areaSize": "25.2㎡",
+                  "expectedRent": "¥55,000",
+                  "yearBuilt": "2020",
+                  "features": [
+                    "駅近",
+                    "都心アクセス良好",
+                    "利回り11%"
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 20,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-propertydetail-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 50,
+            "content": "{\"name\":\"PropertyDetail\",\"props\":{\"title\":\"物件詳細\",\"description\":\"選択された物件の詳細情報です。\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"itemIdKey\":\"address\",\"__bindings\":{\"items\":{\"sourceId\":\"estate-all-properties\",\"path\":\"$.items\",\"targetType\":\"array\",\"selector\":{\"type\":\"all\"}}}}}"
+          },
+          {
+            "id": "widget-inquiryform-0-50",
+            "x": 0,
+            "y": 50,
+            "w": 12,
+            "h": 24,
+            "content": "{\"name\":\"InquiryForm\",\"props\":{\"title\":\"この物件に関するお問い合わせ\",\"submitLabel\":\"送信する\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"__interactions\":[{\"id\":\"estate-detail-inquiry-submit\",\"event\":\"estate:inquiry:submitted\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.lastInquiry\",\"valueFrom\":\"$\",\"enabled\":true}]}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "物件詳細",
+        "excerpt": "物件の詳細情報",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-company",
+      "type": "page",
+      "status": "published",
+      "title": "会社案内",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": ""
+      },
+      "source": {
+        "lists": [],
+        "dataSources": []
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 20,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-company-profile-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 60,
+            "sizeToContent": true,
+            "content": "{\"name\":\"CompanyProfile\",\"props\":{\"title\":\"会社案内\",\"description\":\"当社についてご紹介いたします。\"}}"
+          },
+          {
+            "id": "widget-contactsection-0-60",
+            "x": 0,
+            "y": 60,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"株式会社Think Estate\",\"address\":\"〒123-4567 東京都世田谷区xxx町1-2-3\",\"phone\":\"03-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "会社案内",
+        "excerpt": "当社について",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-contact",
+      "type": "page",
+      "status": "published",
+      "title": "お問い合わせ",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": ""
+      },
+      "source": {
+        "lists": [],
+        "dataSources": []
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 20,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-contactsection-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"株式会社Think Estate\",\"address\":\"〒123-4567 東京都世田谷区xxx町1-2-3\",\"phone\":\"03-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          },
+          {
+            "id": "widget-inquiryform-0-20",
+            "x": 0,
+            "y": 20,
+            "w": 12,
+            "h": 30,
+            "content": "{\"name\":\"InquiryForm\",\"props\":{\"title\":\"お問い合わせフォーム\",\"submitLabel\":\"送信する\",\"selectedPropertyIdKey\":\"estate.selectedPropertyId\",\"__interactions\":[{\"id\":\"estate-contact-inquiry-submit\",\"event\":\"estate:inquiry:submitted\",\"action\":\"set-shared-state\",\"targetPath\":\"estate.lastInquiry\",\"valueFrom\":\"$\",\"enabled\":true}]}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "お問い合わせ",
+        "excerpt": "お気軽にお問い合わせください",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-news",
+      "type": "page",
+      "status": "published",
+      "title": "お知らせ",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false,
+        "estate.selectedPropertyId": "",
+        "estate.keyword": ""
+      },
+      "source": {
+        "lists": [],
+        "dataSources": [
+          {
+            "id": "estate-news-items",
+            "name": "お知らせ",
+            "type": "static",
+            "data": {
+              "title": "お知らせ",
+              "description": "最新の情報をお届けします。",
+              "items": [
+                {
+                  "id": "news-1",
+                  "date": "2024-09-26",
+                  "title": "サイトをリニューアルしました",
+                  "excerpt": "より使いやすく、情報が探しやすいサイトに生まれ変わりました。",
+                  "category": "お知らせ"
+                },
+                {
+                  "id": "news-2",
+                  "date": "2024-08-15",
+                  "title": "夏季休業のお知らせ",
+                  "excerpt": "誠に勝手ながら、8月13日から8月16日まで夏季休業とさせていただきます。",
+                  "category": "お知らせ"
+                },
+                {
+                  "id": "news-3",
+                  "date": "2024-07-01",
+                  "title": "新着物件のお知らせ",
+                  "excerpt": "世田谷区・三鷹市・大田区に新着物件が追加されました。",
+                  "category": "物件情報"
+                },
+                {
+                  "id": "news-4",
+                  "date": "2024-06-20",
+                  "title": "不動産相場についてのコラムを公開しました",
+                  "excerpt": "世田谷区における不動産相場の動向について詳しく解説しています。",
+                  "category": "コラム"
+                },
+                {
+                  "id": "news-5",
+                  "date": "2024-05-10",
+                  "title": "ゴールデンウィーク休業のお知らせ",
+                  "excerpt": "5月3日から5月6日まで休業とさせていただきます。",
+                  "category": "お知らせ"
+                },
+                {
+                  "id": "news-6",
+                  "date": "2024-04-01",
+                  "title": "新年度のご挨拶",
+                  "excerpt": "新年度を迎え、スタッフ一同より一層努力してまいります。",
+                  "category": "お知らせ"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 20,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-news-feed-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 40,
+            "sizeToContent": true,
+            "content": "{\"name\":\"NewsFeed\",\"props\":{\"title\":\"お知らせ\",\"description\":\"最新の情報をお届けします。\",\"maxItems\":20,\"__bindings\":{\"items\":{\"sourceId\":\"estate-news-items\",\"path\":\"$.items\",\"targetType\":\"array\",\"selector\":{\"type\":\"all\"}},\"title\":{\"sourceId\":\"estate-news-items\",\"path\":\"$.title\"},\"description\":{\"sourceId\":\"estate-news-items\",\"path\":\"$.description\"}}}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "お知らせ",
+        "excerpt": "最新情報",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-overseas",
+      "type": "page",
+      "status": "published",
+      "title": "海外・中国の方へ",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false
+      },
+      "source": {
+        "lists": [],
+        "dataSources": []
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 12,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-herosection-0-0",
+            "x": 0,
+            "y": 0,
+            "w": 12,
+            "h": 40,
+            "content": "{\"name\":\"HeroSection\",\"props\":{\"title\":\"海外・中国の方へ\",\"subtitle\":\"日本の不動産投資に関する情報を多言語でご提供しています。\\nWe provide real estate investment information in multiple languages.\",\"backgroundImage\":\"https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80\",\"showSearch\":false}}"
+          },
+          {
+            "id": "widget-companyfeatures-0-40",
+            "x": 0,
+            "y": 40,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"CompanyFeatures\",\"props\":{\"title\":\"For Our International Clients\",\"subtitle\":\"We provide comprehensive support for overseas investors looking to invest in Japanese real estate. Our multilingual team can assist you in English, Chinese, and Japanese.\"}}"
+          },
+          {
+            "id": "widget-contactsection-0-60",
+            "x": 0,
+            "y": 60,
+            "w": 12,
+            "h": 20,
+            "content": "{\"name\":\"ContactSection\",\"props\":{\"companyName\":\"Think Estate Co., Ltd.\",\"address\":\"1-2-3 xxx-cho, Setagaya-ku, Tokyo 123-4567 Japan\",\"phone\":\"+81-3-1234-5678\",\"email\":\"info@thinkestate-jp.com\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "海外・中国の方へ",
+        "excerpt": "For International Clients",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-privacy",
+      "type": "page",
+      "status": "published",
+      "title": "プライバシーポリシー",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false
+      },
+      "source": {
+        "lists": [],
+        "dataSources": []
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 30,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-herosection-1-0",
+            "x": 1,
+            "y": 0,
+            "w": 10,
+            "h": 8,
+            "content": "{\"name\":\"HeroSection\",\"props\":{\"title\":\"プライバシーポリシー\",\"subtitle\":\"当社は、お客様の個人情報の保護に関する法令を遵守し、適切に取り扱います。\",\"backgroundImage\":\"\",\"showSearch\":false}}"
+          },
+          {
+            "id": "widget-companyfeatures-2-8",
+            "x": 2,
+            "y": 8,
+            "w": 8,
+            "h": 60,
+            "content": "{\"name\":\"CompanyFeatures\",\"props\":{\"title\":\"個人情報の取り扱いについて\",\"subtitle\":\"株式会社Think Estate（以下「当社」）は、以下のとおり個人情報保護方針を定め、個人情報保護の仕組みを構築し、全従業員に個人情報保護の重要性の認識と取組みを徹底させることにより、個人情報の保護を推進いたします。\\n\\n■個人情報の管理\\n当社は、お客様の個人情報を正確かつ最新の状態に保ち、個人情報への不正アクセス・紛失・破損・改ざん・漏洩などを防止するため、セキュリティシステムの維持・管理体制の整備・社員教育の徹底等の必要な措置を講じ、安全対策を実施し個人情報の厳重な管理を行います。\\n\\n■個人情報の利用目的\\nお客様からお預かりした個人情報は、当社からのご連絡や業務のご案内、またはお客様からのお問い合わせへの回答として利用いたします。\\n\\n■個人情報の第三者提供\\n当社は、お客様よりお預かりした個人情報を適切に管理し、次のいずれかに該当する場合を除き、個人情報を第三者に開示いたしません。\\n・お客様の同意がある場合\\n・法令に基づき開示することが必要である場合\\n\\n■個人情報の開示・訂正・削除\\nお客様からお預かりした個人情報の開示・訂正・削除をご希望される場合は、お客様ご本人であることを確認の上、対応させていただきます。\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "プライバシーポリシー",
+        "excerpt": "個人情報保護方針",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    },
+    {
+      "id": "page-estate-sitemap",
+      "type": "page",
+      "status": "published",
+      "title": "サイトマップ",
+      "image": "",
+      "pageState": {
+        "selectedId": null,
+        "keyword": "",
+        "activeTab": "components",
+        "dialogOpen": false
+      },
+      "source": {
+        "lists": [],
+        "dataSources": []
+      },
+      "layout": {
+        "acceptWidgets": true,
+        "removable": "#trash",
+        "sizeToContent": true,
+        "resizable": {
+          "handles": "all"
+        },
+        "minRow": 20,
+        "columnOpts": {
+          "breakpointForWindow": true,
+          "breakpoints": [
+            {
+              "c": 6,
+              "w": 1024
+            },
+            {
+              "c": 3,
+              "w": 800
+            },
+            {
+              "c": 1,
+              "w": 500
+            }
+          ],
+          "layout": "moveScale",
+          "columnMax": 12
+        },
+        "margin": 5,
+        "cellHeightUnit": "rem",
+        "cellHeight": 1,
+        "subGridDynamic": true,
+        "subGridOpts": {
+          "acceptWidgets": true,
+          "removable": "#trash",
+          "resizable": {
+            "handles": "se"
+          },
+          "sizeToContent": true,
+          "subGridDynamic": true,
+          "columnOpts": {
+            "breakpoints": [
+              {
+                "c": 1,
+                "w": 500
+              },
+              {
+                "c": 3,
+                "w": 800
+              },
+              {
+                "c": 6,
+                "w": 1024
+              }
+            ],
+            "layout": "moveScale"
+          },
+          "margin": 5,
+          "minRow": 1,
+          "cellHeight": "1rem"
+        },
+        "children": [
+          {
+            "id": "widget-herosection-1-0",
+            "x": 1,
+            "y": 0,
+            "w": 10,
+            "h": 6,
+            "content": "{\"name\":\"HeroSection\",\"props\":{\"title\":\"サイトマップ\",\"subtitle\":\"サイト内のページ一覧\",\"backgroundImage\":\"\",\"showSearch\":false}}"
+          },
+          {
+            "id": "widget-companyfeatures-2-6",
+            "x": 2,
+            "y": 6,
+            "w": 8,
+            "h": 30,
+            "content": "{\"name\":\"CompanyFeatures\",\"props\":{\"title\":\"ページ一覧\",\"subtitle\":\"ホーム\\n賃貸物件一覧\\n売買物件一覧\\n投資物件一覧\\n物件詳細\\n会社案内\\nお問い合わせ\\nお知らせ\\n海外・中国の方へ\\nプライバシーポリシー\"}}"
+          }
+        ]
+      },
+      "attributes": {
+        "type": "page",
+        "title": "サイトマップ",
+        "excerpt": "ページ一覧",
+        "image": "",
+        "status": "published",
+        "published_at": null,
+        "margin": "0px",
+        "padding": "0px",
+        "background": "#ffffff",
+        "showMenubar": true
+      },
+      "published_at": null
+    }
+  ]
+}
