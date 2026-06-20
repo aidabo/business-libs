@@ -44,11 +44,6 @@ const AgentCard: React.FC<AgentCardProps> = ({
         <img
           src={image}
           alt={name}
-          className="w-full h-full object-cover absolute inset-0 md:relative"
-        />
-        <img
-          src={image}
-          alt={name}
           className="w-full h-full object-cover absolute inset-0"
         />
       </div>

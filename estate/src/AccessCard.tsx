@@ -61,7 +61,7 @@ export default function AccessCard({
       className={`overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm ${className}`}
       style={{ backgroundColor, fontSize, ...style }}
     >
-      <div className="bg-gradient-to-r from-blue-50 via-white to-cyan-50 px-5 py-4">
+      <div className="bg-gradient-to-r from-blue-50 via-white to-blue-50/80 px-5 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">

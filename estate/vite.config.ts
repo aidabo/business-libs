@@ -10,6 +10,16 @@ export default defineConfig({
       include: ['src'],
       insertTypesEntry: true,
     }),
+    {
+      name: 'inject-use-client',
+      generateBundle(_, bundle) {
+        for (const chunk of Object.values(bundle)) {
+          if (chunk.type === 'chunk' && chunk.isEntry) {
+            chunk.code = '"use client";\n' + chunk.code;
+          }
+        }
+      },
+    },
   ],
   build: {
     lib: {

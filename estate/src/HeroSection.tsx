@@ -14,8 +14,8 @@ export interface HeroSectionProps {
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
-  title = "Find Your Dream Home",
-  subtitle = "Discover the perfect property in the best locations.",
+  title = "理想の住まいを見つけよう",
+  subtitle = "あなたにぴったりの物件を、最新のラインナップから検索できます。",
   backgroundImage = "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
   showSearch = true,
   backgroundColor,

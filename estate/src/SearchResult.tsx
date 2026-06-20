@@ -7,8 +7,10 @@ import { ESTATE_STATE_KEYS, ESTATE_EVENTS, getPageState, setPageState, buildProp
 import {
   DEFAULT_SEARCHABLE_FIELDS,
   parseSearchQuery,
+  propertyMatchesDetailFilters,
   propertyMatchesSearch,
 } from "./utils/search";
+import { ESTATE_FILTER_STATE_KEYS } from "./PropertyFilterBar";
 
 export interface SearchResultProps {
   title?: string;
@@ -26,7 +28,9 @@ export interface SearchResultProps {
   __stackpage?: StackPageRuntimeApi;
 }
 
-const FALLBACK_RESULTS = Array(9).fill({
+const FALLBACK_RESULTS = Array.from({ length: 9 }, (_, index) => ({
+  id: `fallback-property-${index + 1}`,
+  itemId: `fallback-property-${index + 1}`,
   image:
     "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
   price: "$850,000",
@@ -35,7 +39,7 @@ const FALLBACK_RESULTS = Array(9).fill({
   baths: 2,
   sqft: 2400,
   tag: "FOR SALE",
-});
+}));
 
 const SearchResult: React.FC<SearchResultProps> = ({
   title = "Search Results",
@@ -62,6 +66,19 @@ const SearchResult: React.FC<SearchResultProps> = ({
 
   const keyword = String(getPageState(__stackpage, keywordKey, "")).trim();
   const selectedId = String(getPageState(__stackpage, selectedPropertyIdKey, ""));
+  const detailFilters = {
+    stationKeyword: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.stationKeyword, "") || ""),
+    floorPlan: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.floorPlan, "") || ""),
+    minArea: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.areaMin, "") || ""),
+    maxArea: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.areaMax, "") || ""),
+    minYearBuilt: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yearBuiltMin, "") || ""),
+    maxYearBuilt: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yearBuiltMax, "") || ""),
+    petsAllowed: (() => {
+      const raw = getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.petsAllowed, null);
+      if (raw == null || raw === "") return null;
+      return String(raw) === "true" ? true : null;
+    })(),
+  };
 
   const isPreview = results.length === 0;
   const displayResults = isPreview ? FALLBACK_RESULTS : results;
@@ -70,18 +87,22 @@ const SearchResult: React.FC<SearchResultProps> = ({
 
   const filteredResults = keyword
     ? displayResults.filter((prop) =>
-        propertyMatchesSearch(prop as Record<string, unknown>, searchQuery, searchableFields)
+        propertyMatchesSearch(prop as Record<string, unknown>, searchQuery, searchableFields) &&
+        propertyMatchesDetailFilters(prop as Record<string, unknown>, detailFilters)
       )
-    : displayResults;
+    : displayResults.filter((prop) =>
+        propertyMatchesDetailFilters(prop as Record<string, unknown>, detailFilters)
+      );
 
   const handleCardClick = (prop: PropertyCardProps) => {
     if (__stackpage) {
-      const item = { id: prop.address || "", price: prop.price, address: prop.address, tag: prop.tag };
+      const itemId = prop.id || prop.itemId || prop.address || "";
+      const item = { id: itemId, price: prop.price, address: prop.address, tag: prop.tag };
       setPageState(__stackpage, selectedPropertyIdKey, item.id);
       __stackpage.emit(ESTATE_EVENTS.propertySelected, buildPropertySelectionEvent(item, "search"));
     }
     if (detailPageId) {
-      const id = prop.address || "";
+      const id = prop.id || prop.itemId || prop.address || "";
       window.location.href = `/view/${detailPageId}?item=${encodeURIComponent(id)}`;
     }
   };
@@ -114,18 +135,21 @@ const SearchResult: React.FC<SearchResultProps> = ({
 
         {filteredResults.length > 0 ? (
           <div className={`grid grid-cols-1 ${gridColsClass[columns]} gap-8`}>
-            {filteredResults.map((prop, index) => (
-              <PropertyCard
-                key={index}
-                {...prop}
-                variant="vertical"
-                selected={!!prop.address && prop.address === selectedId}
-                onCardClick={() => handleCardClick(prop)}
-                detailPageId={detailPageId}
-                itemId={prop.address || ""}
-                __stackpage={__stackpage}
-              />
-            ))}
+          {filteredResults.map((prop, index) => {
+              const resolvedItemId = prop.id || prop.itemId || prop.address || "";
+              return (
+                <PropertyCard
+                  key={resolvedItemId || index}
+                  {...prop}
+                  variant="vertical"
+                  selected={!!resolvedItemId && resolvedItemId === selectedId}
+                  onCardClick={() => handleCardClick(prop)}
+                  detailPageId={detailPageId}
+                  itemId={resolvedItemId}
+                  __stackpage={__stackpage}
+                />
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-20 bg-gray-50 rounded-lg">

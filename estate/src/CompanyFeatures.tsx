@@ -14,8 +14,8 @@ export interface CompanyFeaturesProps {
 
 
 const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
-  title = "Why Choose Us",
-  subtitle = "We provide full-service real estate solutions with a focus on client satisfaction.",
+  title = "当社の強み",
+  subtitle = "お客様満足度を最優先に、不動産に関するワンストップサービスを提供しています。",
   backgroundColor,
   fontSize,
   className = "",
@@ -31,23 +31,23 @@ const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
 
   const features = [
     {
-      name: t("Trusted by Thousands"),
-      description: t("We are the most trusted agency in the region with over 5,000 happy clients."),
+      name: t("豊富な実績"),
+      description: t("地域で5,000件以上の取引実績。多くのお客様から信頼をいただいています。"),
       icon: UserGroupIcon,
     },
     {
-      name: t("Premium Properties"),
-      description: t("Access to exclusive listings and high-end luxury homes not available elsewhere."),
+      name: t("厳選物件"),
+      description: t("一般には公開されない限定物件や高級物件など、多数の優良物件をご紹介できます。"),
       icon: HomeModernIcon,
     },
     {
-      name: t("Secure Transactions"),
-      description: t("Our legal team ensures every transaction is transparent, secure, and hassle-free."),
+      name: t("安心の取引"),
+      description: t("提携の司法書士・税理士が取引の透明性と安全性を確保。初めての方も安心です。"),
       icon: ShieldCheckIcon,
     },
     {
-      name: t("Best Value Guarantee"),
-      description: t("We negotiate the best deals to ensure you get the most value for your investment."),
+      name: t("最適な価格提案"),
+      description: t("市場分析に基づいた適正価格でのご提案。お客様の資産価値を最大化します。"),
       icon: CurrencyDollarIcon,
     },
   ];
@@ -56,7 +56,7 @@ const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="relative z-10 text-center max-w-2xl mx-auto mb-16">
           <h2 className="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wide">
-            {t("Our Benefits")}
+            {t("当社の特長")}
           </h2>
           <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
             {title}

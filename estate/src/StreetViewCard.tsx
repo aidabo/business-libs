@@ -66,19 +66,19 @@ export default function StreetViewCard({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-emerald-200 bg-white shadow-sm ${className}`}
+      className={`overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm ${className}`}
       style={{ backgroundColor, fontSize, ...style }}
     >
-      <div className="bg-gradient-to-r from-emerald-50 via-white to-cyan-50 px-5 py-4">
+      <div className="bg-gradient-to-r from-blue-50 via-white to-blue-50/80 px-5 py-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
               {t("Location lane")}
             </div>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
             <p className="mt-1 text-sm text-slate-600">{t(subtitle)}</p>
           </div>
-          <span className="rounded-full border border-emerald-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+          <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
             {t("street view")}
           </span>
         </div>

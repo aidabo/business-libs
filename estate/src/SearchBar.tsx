@@ -61,6 +61,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         tokens: query.tokens,
         target: searchableFields ?? DEFAULT_SEARCHABLE_FIELDS,
         targetLabel: searchTargetLabel ?? "",
+        searchableFields: searchableFields ?? DEFAULT_SEARCHABLE_FIELDS,
         keywordKey,
         submitted,
       };

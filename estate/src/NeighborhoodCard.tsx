@@ -95,52 +95,52 @@ export default function NeighborhoodCard({
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm ${className}`}
+      className={`overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm ${className}`}
       style={{ backgroundColor, fontSize, ...style }}
     >
-      <div className="bg-gradient-to-r from-amber-50 via-white to-orange-50 px-5 py-4">
+      <div className="bg-gradient-to-r from-blue-50 via-white to-blue-50/80 px-5 py-4">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">
+            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
               {t("Area context")}
             </div>
             <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
             <p className="mt-1 text-sm text-slate-600">{t(description)}</p>
           </div>
-          <span className="rounded-full border border-amber-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-700">
+          <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
             {selectedItem.locationLabel || t("Neighborhood")}
           </span>
         </div>
       </div>
       <div className="grid gap-4 p-5 md:grid-cols-2">
         <div className="space-y-3">
-          <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-500">
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
               {t("Commute")}
             </div>
             <div className="mt-1 text-sm font-semibold text-slate-900">{t(profile.commute)}</div>
           </div>
-          <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-500">
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
               {t("Walk time")}
             </div>
             <div className="mt-1 text-sm font-semibold text-slate-900">{t(profile.walk)}</div>
           </div>
         </div>
         <div className="space-y-3">
-          <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-500">
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
               {t("Vibe")}
             </div>
             <div className="mt-1 text-sm font-semibold text-slate-900">{t(profile.vibe)}</div>
           </div>
-          <div className="rounded-xl border border-amber-100 bg-amber-50/60 p-4">
-            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-amber-500">
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+            <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
               {t("Nearby")}
             </div>
             <div className="mt-1 flex flex-wrap gap-1.5">
               {profile.nearby.map((poi) => (
-                <span key={poi} className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                <span key={poi} className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700">
                   {t(poi)}
                 </span>
               ))}

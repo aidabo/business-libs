@@ -23,6 +23,7 @@ export const PortalDefaultProps = {
     showSummary: true,
     moreLabel: "もっと見る",
     moreUrl: "/portal/news",
+    _componentDesc: "Latest announcements feed with title, date, and summary",
     items: [
       {
         title: "全社朝会のお知らせ",
@@ -41,6 +42,7 @@ export const PortalDefaultProps = {
   PortalAppLinks: {
     title: "リンク集",
     columns: 2,
+    _componentDesc: "Grid of portal links with optional descriptions",
     links: [
       { label: "Wadaxメール", url: "https://example.com/mail", description: "メールシステム" },
       { label: "LineWorks", url: "https://example.com/lineworks", description: "社内チャット" },
@@ -49,6 +51,7 @@ export const PortalDefaultProps = {
   PortalFileLibrary: {
     title: "マニュアル・規定集",
     sectionType: "manuals",
+    _componentDesc: "Downloadable file library for manuals, templates, or general files",
     files: [
       { title: "就業規則", fileUrl: "/files/work-rule.pdf", category: "rule" },
       { title: "組織図", fileUrl: "/files/org-chart.pdf", category: "org" },
@@ -62,17 +65,20 @@ export const PortalDefaultProps = {
     submitLabel: "送信",
     endpoint: "/api/portal/contact",
     recipient: "support@example.com",
+    _componentDesc: "Contact form for portal inquiries",
   },
   PortalSupportForm: {
     title: "サポート依頼",
     endpoint: "/api/portal/support",
     priorityOptions: ["low", "normal", "high"],
+    _componentDesc: "Support request form with priority selection",
   },
   PortalEmailForm: {
     title: "メール送信",
     endpoint: "/api/portal/send-email",
     to: "",
     cc: "",
+    _componentDesc: "Email sending form for portal workflows",
   },
 };
 

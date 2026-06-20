@@ -48,8 +48,30 @@ export interface EstateProperty {
   current_yield?: number | null;
   expected_rent?: number | null;
 
+  // REINS / listing metadata
+  building_name?: string | null;
+  management_company?: string | null;
+  current_rent?: number | null;
+  price_valuation?: number | null;
+  registration_date?: string | null;
+  expiry_date?: string | null;
+  land_leasehold?: string | null;
+  fixtures_and_fittings?: string[] | null;
+  reins_listing_number?: string | null;
+
   // Features
   features?: string[] | null;
+
+  // Neighborhood info
+  street_view_url?: string | null;
+  hazard_map_url?: string | null;
+  nearby_stores?: string | null;
+  nearby_hospitals?: string | null;
+  nearby_schools?: string | null;
+  nearby_parks?: string | null;
+  building_auto_lock?: boolean | null;
+  building_manager?: string | null;
+  mlit_data?: string | null;
 
   // Metadata
   featured?: boolean;
