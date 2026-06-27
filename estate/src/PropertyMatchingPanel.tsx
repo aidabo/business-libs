@@ -21,7 +21,7 @@ interface PreferenceData {
   search_count: number;
 }
 
-interface PropertyMatchingPanelProps {
+export interface PropertyMatchingPanelProps {
   userId?: string;
   /** Host app API base URL (default: "") */
   apiBase?: string;

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import type { InvestmentInput, InvestmentResult } from "./types/investment";
 
-interface InvestmentSimulatorProps {
+export interface InvestmentSimulatorProps {
   /** Pre-filled purchase price (when linked to a specific property) */
   purchasePrice?: number;
   /** Pre-filled monthly rent estimate (when linked to a specific property) */
