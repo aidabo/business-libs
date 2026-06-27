@@ -93,6 +93,8 @@ public/static/
 Thumbs.db
 estate/dist/
 portal/dist/
+publish/dist/
 .techs.md
 
+.omc/
 .omx/
