@@ -180,13 +180,19 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
 
       {/* ── Hero Image ── */}
       {image && (
-        <div className={`${isVertical ? 'mb-6 inline-block w-1/3' : 'mb-8'}`}>
+        <figure className={`${isVertical ? 'mb-6 float-right ml-6 w-2/5 md:w-1/3' : 'mb-8 w-full'}`}>
           <img
             src={image}
             alt={title}
-            className="h-auto w-full rounded-lg object-cover"
+            loading="lazy"
+            className="h-auto w-full rounded-lg object-cover shadow-sm"
           />
-        </div>
+          {isVertical && (
+            <figcaption className="mt-1 text-[10px] text-gray-400 text-right">
+              {title}
+            </figcaption>
+          )}
+        </figure>
       )}
 
       {/* ── Article Content ── */}

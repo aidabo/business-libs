@@ -101,6 +101,7 @@ export const PublishComponents = {
 export const PublishDefaultProps = {
   ContentCard: {
     _componentDesc: 'Content card with image and excerpt',
+    __componentSpec: 'component.contentCard.desc',
     title: 'Markets Hit All-Time High as Economy Surges',
     excerpt: 'Global markets reached unprecedented levels driven by strong consumer spending and corporate earnings.',
     image: 'https://images.unsplash.com/photo-1504711434969-e33886168d6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -144,6 +145,7 @@ export const PublishDefaultProps = {
   },
   ContentGrid: {
     _componentDesc: 'Content grid with configurable columns',
+    __componentSpec: 'component.contentGrid.desc',
     title: 'Latest Content',
     description: 'Browse our latest articles, publications, and updates.',
     columns: 3,
@@ -201,6 +203,7 @@ export const PublishDefaultProps = {
   },
   HeroBanner: {
     _componentDesc: 'Hero banner with search and CTA',
+    __componentSpec: 'component.heroBanner.desc',
     title: 'The Daily Chronicle',
     subtitle: 'Your trusted source for news, analysis, and insights across publishing, government, and entertainment.',
     backgroundImage: 'https://images.unsplash.com/photo-1495020689067-958852a7765e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
@@ -242,6 +245,7 @@ export const PublishDefaultProps = {
   },
   SectionNav: {
     _componentDesc: 'Section navigation with content filters',
+    __componentSpec: 'component.sectionNav.desc',
     sections: [
       { id: '1', name: 'News', slug: 'news', icon: '📰', contentType: 'news', count: 120 },
       { id: '2', name: 'Government', slug: 'government', icon: '🏛️', contentType: 'government', count: 45 },
@@ -279,6 +283,7 @@ export const PublishDefaultProps = {
   },
   BreakingNews: {
     _componentDesc: 'Breaking news ticker',
+    __componentSpec: 'component.breakingNews.desc',
     label: 'BREAKING',
     interval: 5000,
     items: [
@@ -289,6 +294,7 @@ export const PublishDefaultProps = {
   },
   FeaturedContent: {
     _componentDesc: 'Featured article card',
+    __componentSpec: 'component.featuredContent.desc',
     title: 'The Future of Digital Publishing: A Comprehensive Analysis',
     excerpt: 'How digital transformation is reshaping newspapers, magazines, and the entire publishing industry.',
     image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
@@ -300,6 +306,7 @@ export const PublishDefaultProps = {
   },
   ContentDetail: {
     _componentDesc: 'Content detail view',
+    __componentSpec: 'component.contentDetail.desc',
     title: 'The Future of Digital Publishing',
     content: '<p>Digital transformation continues to reshape the publishing landscape. From AI-assisted content creation to personalized reader experiences, the industry is evolving at an unprecedented pace.</p><p>Traditional publishers are adapting by embracing digital-first strategies, while new players leverage technology to reach audiences in innovative ways.</p>',
     image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
@@ -313,20 +320,50 @@ export const PublishDefaultProps = {
     price: '$24.99',
   },
   LatestUpdates: {
-    _componentDesc: 'Timeline update list',
+    _componentDesc: 'Timeline update list with content-type badges',
+    __componentSpec: 'component.latestUpdates.desc',
     title: 'Latest Updates',
     maxItems: 10,
-    items: [
-      { id: '1', title: 'Stock markets reach new milestones amid economic recovery', publishedAt: '2h ago', category: 'Business' },
-      { id: '2', title: 'New study reveals breakthrough in cancer research', publishedAt: '3h ago', category: 'Health' },
-      { id: '3', title: 'City council approves major infrastructure project', publishedAt: '5h ago', category: 'Government' },
-      { id: '4', title: 'Popular manga series announces anime adaptation', publishedAt: '6h ago', category: 'Comic' },
-      { id: '5', title: 'Summer music festival lineup revealed', publishedAt: '8h ago', category: 'Entertainment' },
-    ],
     showViewAll: true,
+    selectedContentIdKey: 'publish.selectedContentId',
+    items: [
+      { id: '1', title: 'Stock markets reach new milestones amid economic recovery', publishedAt: '2h ago', category: 'Business', contentType: 'news' },
+      { id: '2', title: 'New study reveals breakthrough in cancer research', publishedAt: '3h ago', category: 'Health', contentType: 'news' },
+      { id: '3', title: 'City council approves major infrastructure project', publishedAt: '5h ago', category: 'Politics', contentType: 'government' },
+      { id: '4', title: 'Popular manga series announces anime adaptation', publishedAt: '6h ago', category: 'Books', contentType: 'comic' },
+      { id: '5', title: 'Summer music festival lineup revealed', publishedAt: '8h ago', category: 'Events', contentType: 'entertainment' },
+    ],
+    __schema: {
+      type: 'object',
+      title: 'LatestUpdates',
+      properties: {
+        title: { type: 'string', title: 'Title' },
+        maxItems: { type: 'number', title: 'Max Items', minimum: 1, maximum: 20 },
+        showViewAll: { type: 'boolean', title: 'Show View All' },
+      },
+    },
+    __interactions: [
+      {
+        id: 'latest-updates-select-state',
+        event: 'select',
+        action: 'set-shared-state',
+        targetPath: 'publish.selectedContentId',
+        valueFrom: '$.id',
+        enabled: true,
+      },
+      {
+        id: 'latest-updates-select-event',
+        event: 'select',
+        action: 'emit-event',
+        targetPath: 'publish:content:selected',
+        valueFrom: '$',
+        enabled: true,
+      },
+    ],
   },
   SubscriptionForm: {
     _componentDesc: 'Email subscription form',
+    __componentSpec: 'component.subscriptionForm.desc',
     title: 'Subscribe to Our Newsletter',
     description: 'Get the latest updates delivered to your inbox every morning.',
     placeholder: 'Enter your email',
@@ -342,6 +379,7 @@ export const PublishDefaultProps = {
   },
   ContentFeed: {
     _componentDesc: 'Timeline feed with date groups',
+    __componentSpec: 'component.contentFeed.desc',
     title: 'Latest Updates',
     description: 'Timeline of recent news and events.',
     maxItems: 5,
@@ -354,6 +392,7 @@ export const PublishDefaultProps = {
   },
   PublicationCard: {
     _componentDesc: 'Book card with rating badge',
+    __componentSpec: 'component.publicationCard.desc',
     title: 'The Great Adventure',
     coverImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
     author: 'John Smith',
@@ -364,6 +403,7 @@ export const PublishDefaultProps = {
   },
   PublicationGrid: {
     _componentDesc: 'Publication card grid',
+    __componentSpec: 'component.publicationGrid.desc',
     title: 'Featured Publications',
     publications: [
       { id: '1', title: 'The Great Adventure', coverImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop', author: 'John Smith', publisher: 'Chronicle Books', format: 'Hardcover', price: '$24.99' },
@@ -374,6 +414,7 @@ export const PublishDefaultProps = {
   },
   EventCard: {
     _componentDesc: 'Event card with date and price',
+    __componentSpec: 'component.eventCard.desc',
     title: 'Summer Music Festival 2026',
     description: 'Three-day outdoor music festival featuring top international artists.',
     image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
@@ -427,12 +468,39 @@ export const PublishDefaultProps = {
     _componentDesc: 'Chapter list with reading progress',
     __componentSpec: 'component.chapterList.desc',
     seriesName: 'Dragon Saga',
+    selectedContentIdKey: 'publish.selectedContentId',
     chapters: [
       { id: 'ch-1', chapterNumber: 1, title: 'The Beginning', pageCount: 24, publishedAt: 'May 1, 2026' },
       { id: 'ch-2', chapterNumber: 2, title: 'The Awakening', pageCount: 28, publishedAt: 'May 8, 2026' },
       { id: 'ch-3', chapterNumber: 3, title: 'The Journey', pageCount: 32, publishedAt: 'May 15, 2026' },
     ],
     currentChapter: 2,
+    __schema: {
+      type: 'object',
+      title: 'ChapterList',
+      properties: {
+        seriesName: { type: 'string', title: 'Series Name' },
+        currentChapter: { type: 'number', title: 'Current Chapter' },
+      },
+    },
+    __interactions: [
+      {
+        id: 'chapter-list-select-state',
+        event: 'select',
+        action: 'set-shared-state',
+        targetPath: 'publish.selectedContentId',
+        valueFrom: '$.id',
+        enabled: true,
+      },
+      {
+        id: 'chapter-list-select-event',
+        event: 'select',
+        action: 'emit-event',
+        targetPath: 'publish:content:selected',
+        valueFrom: '$',
+        enabled: true,
+      },
+    ],
   },
   SeriesHeader: {
     _componentDesc: 'Manga/comic series detail header with cover, metadata, genres, and synopsis',
@@ -541,6 +609,7 @@ export const PublishDefaultProps = {
   },
   DocumentCard: {
     _componentDesc: 'Document card with urgency flag',
+    __componentSpec: 'component.documentCard.desc',
     title: '2026 Annual Budget Report',
     issuingAuthority: 'City Finance Department',
     documentDate: 'May 15, 2026',
@@ -551,6 +620,7 @@ export const PublishDefaultProps = {
   },
   DocumentList: {
     _componentDesc: 'Searchable/filterable document listing for government portals',
+    __componentSpec: 'component.documentList.desc',
     title: 'Documents & Publications',
     description: 'Browse official documents, reports, and publications.',
     showSearch: true,
@@ -581,6 +651,7 @@ export const PublishDefaultProps = {
   },
   ApplicationGuide: {
     _componentDesc: 'Application procedure guide card for government services',
+    __componentSpec: 'component.applicationGuide.desc',
     title: 'Application Guide',
     procedureName: 'Residence Certificate Application',
     description: 'How to apply for a residence certificate (住民票) at your local municipal office.',
@@ -617,6 +688,7 @@ export const PublishDefaultProps = {
   },
   CouncilSchedule: {
     _componentDesc: 'Council/committee schedule with agenda and status',
+    __componentSpec: 'component.councilSchedule.desc',
     title: 'Council Schedule',
     sessions: [
       { id: 'cs1', date: '2026-07-01', title: 'Regular City Council Meeting', status: 'upcoming', time: '10:00–16:00', committee: 'Full Council', agenda: ['Approval of previous minutes', 'Budget amendment proposal', 'Public comment period'] },
@@ -640,6 +712,7 @@ export const PublishDefaultProps = {
   },
   EmergencyAlert: {
     _componentDesc: 'High-severity emergency/disaster alert banner',
+    __componentSpec: 'component.emergencyAlert.desc',
     dismissible: true,
     alerts: [
       { id: 'ea1', title: 'Typhoon Warning: Stay Indoors', description: 'Typhoon No.8 approaching. Strong winds and heavy rain expected through midnight. Please stay indoors and avoid non-essential travel.', severity: 'critical', issuedAt: '2026-06-26 09:00', issuedBy: 'Japan Meteorological Agency', linkUrl: '#', linkLabel: 'Evacuation Info' },
@@ -657,6 +730,7 @@ export const PublishDefaultProps = {
   },
   GovernmentServiceNav: {
     _componentDesc: 'Government service category grid navigation',
+    __componentSpec: 'component.governmentServiceNav.desc',
     title: 'Municipal Services',
     description: 'Find the service you need.',
     columns: 3,
@@ -687,6 +761,7 @@ export const PublishDefaultProps = {
   },
   AnnouncementBanner: {
     _componentDesc: 'Rotating announcement banners',
+    __componentSpec: 'component.announcementBanner.desc',
     announcements: [
       { id: 'a1', text: 'City Hall will be closed on Memorial Day, May 25.', severity: 'info' },
       { id: 'a2', text: 'Emergency road repairs on Main Street through June 1.', severity: 'warning' },
@@ -696,6 +771,7 @@ export const PublishDefaultProps = {
   },
   AuthorProfile: {
     _componentDesc: 'Author profile with photo, bio, and works list',
+    __componentSpec: 'component.authorProfile.desc',
     name: 'Haruki Murakami',
     image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
     bio: 'Internationally acclaimed author known for his surreal and imaginative works. His novels have been translated into over 50 languages and have won numerous literary awards worldwide.',
@@ -724,6 +800,7 @@ export const PublishDefaultProps = {
   },
   ReviewCard: {
     _componentDesc: 'Star rating and review excerpt card for books/publications',
+    __componentSpec: 'component.reviewCard.desc',
     title: 'A Masterpiece of Modern Literature',
     bookTitle: 'Kafka on the Shore',
     reviewer: 'Literary Review',
@@ -752,6 +829,7 @@ export const PublishDefaultProps = {
   },
   SeriesCard: {
     _componentDesc: 'Book series volume listing card',
+    __componentSpec: 'component.seriesCard.desc',
     title: 'The Wind-Up Bird Chronicle',
     author: 'Haruki Murakami',
     description: 'A three-volume epic exploring memory, identity, and the shadows of war.',
@@ -779,6 +857,7 @@ export const PublishDefaultProps = {
   },
   RankingBoard: {
     _componentDesc: 'Top-10 ranking board with rank change indicators',
+    __componentSpec: 'component.rankingBoard.desc',
     title: 'Bestsellers',
     description: 'This week\'s top-selling books',
     category: 'Fiction',
@@ -805,6 +884,7 @@ export const PublishDefaultProps = {
   },
   EventCalendar: {
     _componentDesc: 'Monthly event calendar with date selection',
+    __componentSpec: 'component.eventCalendar.desc',
     title: 'Events Calendar',
     events: [
       { id: 'ec1', title: 'Summer Music Festival', date: '2026-07-15', time: '10:00', category: 'Music', location: 'Central Park' },
@@ -826,6 +906,7 @@ export const PublishDefaultProps = {
   },
   TicketCard: {
     _componentDesc: 'Event ticket type/price/purchase card',
+    __componentSpec: 'component.ticketCard.desc',
     eventTitle: 'Summer Music Festival 2026',
     eventDate: 'July 15–17, 2026',
     venue: 'Central Park, New York',
@@ -850,6 +931,7 @@ export const PublishDefaultProps = {
   },
   VenueCard: {
     _componentDesc: 'Venue information card with map and access details',
+    __componentSpec: 'component.venueCard.desc',
     name: 'Madison Square Garden',
     address: '4 Pennsylvania Plaza, New York, NY 10001',
     capacity: '20,789',
@@ -876,6 +958,7 @@ export const PublishDefaultProps = {
   },
   ScheduleList: {
     _componentDesc: 'Event/festival session timetable with timeline',
+    __componentSpec: 'component.scheduleList.desc',
     title: 'Day 1 Schedule',
     date: 'July 15, 2026',
     showTrackFilter: true,
@@ -902,6 +985,7 @@ export const PublishDefaultProps = {
   },
   EventFilterBar: {
     _componentDesc: 'Event filter bar with date range, category, area, and price',
+    __componentSpec: 'component.eventFilterBar.desc',
     categories: [
       { id: 'music', label: 'Music' },
       { id: 'art', label: 'Art' },
@@ -928,6 +1012,7 @@ export const PublishDefaultProps = {
   },
   BookCard: {
     _componentDesc: 'Book card with star rating',
+    __componentSpec: 'component.bookCard.desc',
     title: 'The Great Adventure',
     coverImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
     author: 'John Smith',
@@ -971,6 +1056,7 @@ export const PublishDefaultProps = {
   },
   VerticalArticle: {
     _componentDesc: 'Full article view for vertical (tategaki) reading',
+    __componentSpec: 'component.verticalArticle.desc',
     title: '近代文学の展望 — Perspectives on Modern Literature',
     content: '<p>In the ever-evolving landscape of Japanese literature, the interplay between traditional narrative forms and contemporary themes has created a rich tapestry of expression that continues to captivate readers worldwide.</p><p>Modern authors increasingly draw upon classical techniques such as <ruby>枕詞<rt>makurakotoba</rt></ruby> and <ruby>掛詞<rt>kakekotoba</rt></ruby>, weaving ancient poetic devices into stories that address pressing contemporary issues. This fusion of old and new represents not merely a stylistic choice but a profound meditation on cultural continuity in an age of rapid change.</p>',
     image: 'https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
@@ -1012,6 +1098,7 @@ export const PublishDefaultProps = {
   },
   WritingModeToggle: {
     _componentDesc: '横書き/縦書き toggle for reading mode',
+    __componentSpec: 'component.writingModeToggle.desc',
     current: 'horizontal-tb',
     variant: 'full',
     label: 'Reading Mode',
@@ -1038,6 +1125,7 @@ export const PublishDefaultProps = {
   },
   RelatedArticles: {
     _componentDesc: 'Related/suggested articles grid',
+    __componentSpec: 'component.relatedArticles.desc',
     title: 'Related Articles',
     articles: [
       { id: 'r1', title: 'The Evolution of Japanese Typography', excerpt: 'From movable type to digital fonts.', category: 'Design', contentType: 'publication', publishedAt: 'May 28', image: 'https://images.unsplash.com/photo-1521587760476-6c12a4b040da?w=400&h=225&fit=crop' },
@@ -1077,6 +1165,7 @@ export const PublishDefaultProps = {
   },
   NewsArticleCard: {
     _componentDesc: 'News article card with source badge',
+    __componentSpec: 'component.newsArticleCard.desc',
     title: 'Markets Hit All-Time High as Economy Surges',
     excerpt: 'Global markets reached unprecedented levels driven by strong consumer spending and corporate earnings, with major indices posting record gains across all sectors.',
     image: 'https://images.unsplash.com/photo-1504711434969-e33886168d6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
