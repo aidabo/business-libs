@@ -162,12 +162,10 @@ export const PublishDefaultProps = {
       {
         id: '3', title: 'Summer Festival 2026 Announced', excerpt: 'Three-day event featuring live music, food stalls, and fireworks.',
         contentType: 'entertainment', category: 'Events', author: 'Event Guide', publishedAt: 'May 20, 2026',
-        image: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&h=400&fit=crop',
       },
       {
         id: '4', title: 'Best-Selling Novel of the Year', excerpt: 'The gripping thriller has sold over 500,000 copies worldwide.',
         contentType: 'publication', category: 'Books', author: 'Lit Review', publishedAt: 'May 19, 2026',
-        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&h=400&fit=crop',
       },
     ],
     __schema: {
