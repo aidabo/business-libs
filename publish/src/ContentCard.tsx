@@ -77,11 +77,9 @@ const ContentCard: React.FC<ContentCardProps> = ({
   const dotClass = contentType ? verticalDotClass(contentType) : 'bg-gray-400';
   const label = contentType ? contentTypeLabels[contentType] || contentType : '';
   const chipClass = contentType ? contentTypeChipBg[contentType] || 'bg-gray-50 text-gray-700' : 'bg-gray-50 text-gray-700';
-  const imageAspect = contentType === 'publication' || contentType === 'comic' ? 'aspect-[3/4]' : 'aspect-[16/9]';
-
   return (
     <article
-      className={`group flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 border-t-[3px] ${borderColor} ${
+      className={`group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 border-t-[3px] ${borderColor} ${
         featured ? 'md:col-span-2 md:row-span-2' : ''
       }`}
       onClick={handleClick}
@@ -90,7 +88,11 @@ const ContentCard: React.FC<ContentCardProps> = ({
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
       {image && (
-        <div className={`relative w-full overflow-hidden ${imageAspect}`}>
+        <div className={`relative w-full overflow-hidden ${
+          contentType === 'publication' || contentType === 'comic'
+            ? 'aspect-[3/4] max-h-64'
+            : 'h-44 sm:h-48 md:h-52'
+        }`}>
           <img
             src={image}
             alt={title}
