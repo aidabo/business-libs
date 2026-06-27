@@ -60,6 +60,26 @@ const SliderSkeleton: React.FC = () => (
   </div>
 );
 
+
+const normalizeFeatureList = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.map((item) => String(item ?? "").trim()).filter(Boolean);
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return normalizeFeatureList(parsed);
+    } catch {
+      // Plain comma/newline separated text below.
+    }
+    return trimmed
+      .split(/\r?\n|、|,|，/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
+
 // ── Main component ────────────────────────────────────────────────
 
 export default function PropertySlider({
@@ -103,7 +123,7 @@ export default function PropertySlider({
           const items: EstateProperty[] = data?.estateproperties || [];
           setFetchedSlides(
             items.map((p: EstateProperty) => {
-              const features: string[] = typeof p.features === 'string' ? JSON.parse(p.features || '[]') : (p.features as any || []);
+              const features = normalizeFeatureList(p.features);
               const featuresImage = (features as string[]).find((f: string) => f.startsWith('__image__:'))?.replace('__image__:', '');
               return {
               id: p.id,
@@ -193,13 +213,13 @@ export default function PropertySlider({
           </span>
         </div>
       </div>
-      <div className="flex gap-4 overflow-x-auto px-5 py-5 [scrollbar-width:thin] snap-x">
+      <div className="flex flex-col gap-4 px-5 py-5 md:flex-row md:overflow-x-auto md:[scrollbar-width:thin] md:snap-x">
         {items.map((item: any) => {
           const isSelected = item.id === selectedId;
           return (
             <div
               key={item.id}
-              className={`min-w-[270px] max-w-[270px] shrink-0 overflow-hidden rounded-2xl border bg-white shadow-sm snap-start transition hover:shadow-md ${
+              className={`w-full min-w-0 overflow-hidden rounded-2xl border bg-white shadow-sm transition hover:shadow-md md:min-w-[270px] md:max-w-[270px] md:shrink-0 md:snap-start ${
                 isSelected
                   ? "border-blue-300 ring-2 ring-blue-300 ring-offset-2"
                   : "border-gray-200"

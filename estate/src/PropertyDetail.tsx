@@ -2,8 +2,13 @@ import React from "react";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
 import { ESTATE_STATE_KEYS, getPageState } from "./types";
-import MapCard from "./MapCard";
-import StreetViewCard from "./StreetViewCard";
+import PropertyBasicInfoCard from "./PropertyBasicInfoCard";
+import PropertyAddressCard from "./PropertyAddressCard";
+import PropertyPriceCard from "./PropertyPriceCard";
+import PropertyDetailsCard from "./PropertyDetailsCard";
+import PropertyFeaturesCard from "./PropertyFeaturesCard";
+import PropertyNeighborhoodCard from "./PropertyNeighborhoodCard";
+import PropertyHazardCard from "./PropertyHazardCard";
 
 
 const EMPTY_FEATURES: string[] = [];
@@ -96,54 +101,6 @@ function normalizeGalleryImages(
   });
 }
 
-function splitMultiline(value: unknown): string[] {
-  if (typeof value !== "string") return [];
-  return value
-    .split(/\r?\n|、|,|，/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
-
-function toShortSummary(value: unknown): string {
-  if (value && typeof value === "object") {
-    try {
-      return toShortSummary(JSON.stringify(value));
-    } catch {
-      return "";
-    }
-  }
-  if (typeof value !== "string") return "";
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-
-  try {
-    const parsed = JSON.parse(trimmed);
-    if (parsed && typeof parsed === "object") {
-      const pairs = Object.entries(parsed as Record<string, unknown>)
-        .flatMap(([key, entry]) => {
-          if (entry == null || entry === "") return [];
-          if (Array.isArray(entry)) {
-            const joined = entry
-              .map((item) => String(item).trim())
-              .filter(Boolean)
-              .join(" / ");
-            return joined ? [`${key}: ${joined}`] : [];
-          }
-          if (typeof entry === "object") {
-            return [`${key}: ${JSON.stringify(entry)}`];
-          }
-          return [`${key}: ${String(entry)}`];
-        });
-      if (pairs.length > 0) {
-        return pairs.slice(0, 3).join(" ・ ");
-      }
-    }
-  } catch {
-    // Keep plain text path below.
-  }
-
-  return trimmed.length > 180 ? `${trimmed.slice(0, 177)}...` : trimmed;
-}
 
 export interface PropertyDetailProps {
   title?: string;
@@ -353,9 +310,6 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   buildingName,
   price,
   address,
-  beds,
-  baths,
-  sqft,
   tag,
   area,
   rooms,
@@ -406,6 +360,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // Loading / error
   loading = false,
   error = null,
+
+  ...restProps
 }) => {
   const t = useT();
 
@@ -490,17 +446,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const resolvedLandRight =
     matchedItem?.land_right ?? matchedItem?.landRight ?? landRight;
   const resolvedFeatures = normalizeFeatureList(matchedItem?.features ?? features ?? EMPTY_FEATURES);
-  const resolvedBeds = matchedItem?.beds ?? beds;
-  const resolvedBaths = matchedItem?.baths ?? baths;
-  const resolvedSqft = matchedItem?.sqft ?? sqft;
 
   // ── Resolve location for map ───────────────────────────────
   const resolvedLat = latitude ?? matchedItem?.latitude ?? matchedItem?.lat ?? null;
   const resolvedLng = longitude ?? matchedItem?.longitude ?? matchedItem?.lng ?? null;
-  const resolvedCenter = (resolvedLat != null && resolvedLng != null)
-    ? `${resolvedLat},${resolvedLng}`
-    : "";
-  const resolvedAddress = resolvedAddressJP || "";
   const resolvedHazardMapUrl =
     matchedItem?.hazard_map_url ??
     hazardMapUrl ??
@@ -547,7 +496,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         style={mergedStyle}
       >
         <h3 className="text-xl font-semibold text-gray-900">{t(title)}</h3>
-        <p className="mt-1 text-sm text-gray-600">{t(description)}</p>
+        <p className="mt-1 break-words text-sm text-gray-600">{t(description)}</p>
         <div className="mt-4 rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-center text-sm text-gray-500">
           <div className="mb-2 text-3xl">🏠</div>
           <p>{t(emptyText)}</p>
@@ -559,59 +508,59 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     );
   }
 
-  // Japan-specific detail rows (always shown for JP data)
-  const japanPrimaryFields: Array<{ label: string; value: string | undefined | null }> = [
-    ...(resolvedAreaSqm ? [{ label: "専有面積", value: resolvedAreaSqm }] : []),
-    ...(resolvedTsubo ? [{ label: "坪数", value: resolvedTsubo }] : []),
-    ...(resolvedFloorPlan ? [{ label: "間取り", value: resolvedFloorPlan }] : []),
-    ...(resolvedFloorNumber != null ? [{ label: "所在階", value: `${resolvedFloorNumber}階` }] : []),
-    ...(resolvedTotalFloors != null ? [{ label: "総階数", value: `${resolvedTotalFloors}階建` }] : []),
-    ...(resolvedYearBuiltJP ? [{ label: "築年月", value: resolvedYearBuiltJP }] : []),
-  ];
 
-  const japanDetailFields: Array<{ label: string; value: string | undefined | null }> = [
-    ...(resolvedTransport ? [{ label: "交通", value: resolvedTransport }] : []),
-    ...(resolvedLandRight ? [{ label: "権利", value: resolvedLandRight }] : []),
-    ...(resolvedPetsAllowed ? [{ label: "ペット", value: resolvedPetsAllowed }] : []),
-  ];
-
-  // Rent-specific fields
-  const rentFields: Array<{ label: string; value: string | undefined | null }> = [
-    ...(resolvedDeposit ? [{ label: "敷金", value: resolvedDeposit }] : []),
-    ...(resolvedKeyMoney ? [{ label: "礼金", value: resolvedKeyMoney }] : []),
-    ...(resolvedManagementFee ? [{ label: "管理費", value: resolvedManagementFee }] : []),
-    ...(resolvedMaintenanceFee ? [{ label: "修繕積立金", value: resolvedMaintenanceFee }] : []),
-  ];
-
-  const isInvestment = resolvedPropertyType === "investment";
-
-  const featureList =
-    resolvedFeatures.length > 0
-      ? resolvedFeatures
-      : [];
-  const nearbyBlocks = [
-    { label: "スーパー", value: resolvedNearbyStores },
-    { label: "病院", value: resolvedNearbyHospitals },
-    { label: "学校", value: resolvedNearbySchools },
-    { label: "公園", value: resolvedNearbyParks },
-  ].filter((item) => String(item.value || "").trim().length > 0);
+  const detailProperty = {
+    ...restProps,
+    ...(matchedItem || {}),
+    id: matchedItem?.id ?? selectedId,
+    building_name: resolvedBuildingName,
+    address: resolvedAddressJP,
+    price_jpy: resolvedPriceJPY,
+    price_usd: resolvedPriceUSD,
+    price_cny: resolvedPriceCNY,
+    tag_jp: resolvedTagJP,
+    property_type: resolvedPropertyType,
+    area_sqm: resolvedAreaSqm,
+    tsubo: resolvedTsubo,
+    floor_plan: resolvedFloorPlan,
+    floor_number: resolvedFloorNumber,
+    floors_total: resolvedTotalFloors,
+    year_built_jp: resolvedYearBuiltJP,
+    transport_info: resolvedTransport,
+    deposit: resolvedDeposit,
+    key_money: resolvedKeyMoney,
+    management_fee: resolvedManagementFee,
+    yieldValue: resolvedYield,
+    maintenance_fee: resolvedMaintenanceFee,
+    pets_allowed: resolvedPetsAllowed,
+    land_right: resolvedLandRight,
+    features: resolvedFeatures,
+    latitude: resolvedLat,
+    longitude: resolvedLng,
+    hazard_map_url: resolvedHazardMapUrl,
+    nearby_stores: resolvedNearbyStores,
+    nearby_hospitals: resolvedNearbyHospitals,
+    nearby_schools: resolvedNearbySchools,
+    nearby_parks: resolvedNearbyParks,
+    neighborhoodSummary: resolvedNeighborhoodSummary,
+  };
 
   return (
     <div
-      className={`overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm ${className}`}
+      className={`w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm ${className}`}
       style={mergedStyle}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-50 via-white to-orange-50 px-5 py-4">
+      <div className="bg-gradient-to-r from-amber-50 via-white to-orange-50 px-3 py-4 sm:px-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">
               {t("Property overview")}
             </div>
-            <h3 className="mt-1 text-2xl font-semibold text-gray-900 sm:text-3xl">
+            <h3 className="mt-1 break-words text-xl font-semibold text-gray-900 sm:text-3xl">
               {t(resolvedBuildingName || title)}
             </h3>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 break-words text-sm text-gray-600">
               {t(resolvedAddressJP || description)}
             </p>
           </div>
@@ -629,10 +578,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         </div>
       </div>
 
-      <div className="grid gap-4 px-5 py-5 lg:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
-        {/* Left: Main image + gallery */}
-        <div className="space-y-4">
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="grid min-w-0 items-start gap-4 px-3 py-4 sm:px-5 sm:py-5 lg:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
+        {/* Left: media + compact context cards */}
+        <div className="min-w-0 space-y-4">
+          <div className="min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
               <div className="relative aspect-[4/3] w-full bg-gray-100">
                 <img
                   src={resolvedImage}
@@ -668,8 +617,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
           </div>
 
           {secondaryGalleryItems.length > 0 && (
-            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-              <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+              <div className="flex min-w-0 items-center justify-between gap-3 border-b border-gray-200 px-3 py-3 sm:px-4">
                 <div>
                   <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
                     {t("Gallery")}
@@ -682,11 +631,11 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                   {secondaryGalleryItems.length}
                 </span>
               </div>
-              <div className="flex gap-3 overflow-x-auto px-4 py-4 [scrollbar-width:thin] snap-x">
+              <div className="flex max-w-full gap-3 overflow-x-auto px-3 py-4 [scrollbar-width:thin] snap-x sm:px-4">
                 {secondaryGalleryItems.map((slide) => (
                   <div
                     key={slide.id}
-                    className="min-w-[220px] max-w-[220px] shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm snap-start"
+                    className="min-w-[180px] max-w-[210px] shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm snap-start sm:min-w-[220px] sm:max-w-[220px]"
                   >
                     <div className="relative h-[170px]">
                       <img
@@ -712,279 +661,25 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
             </div>
           )}
 
-          <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-            <div className="space-y-4 p-4 sm:p-5">
-              {/* Chips */}
-              <div className="flex flex-wrap items-center gap-2">
-                {resolvedTagJP && (
-                  <span className="rounded-full bg-blue-600 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-white">
-                    {t(resolvedTagJP)}
-                  </span>
-                )}
-                {resolvedPriceJPY && (
-                  <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-[10px] font-medium text-amber-800">
-                    {resolvedPriceJPY}
-                  </span>
-                )}
-              </div>
-
-              {resolvedNeighborhoodSummary && (
-                <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-4">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
-                    {t("Overview")}
-                  </div>
-                  <p className="mt-1 text-sm leading-6 text-slate-700">
-                    {t(toShortSummary(resolvedNeighborhoodSummary))}
-                  </p>
-                </div>
-              )}
-
-              {/* Japan primary fields grid */}
-              {japanPrimaryFields.length > 0 && (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {japanPrimaryFields.map((f) => (
-                    <div
-                      key={f.label}
-                      className="rounded-xl border border-gray-200 bg-white p-3"
-                    >
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
-                        {t(f.label)}
-                      </div>
-                      <div className="mt-1 text-sm font-medium text-gray-900">
-                        {f.value}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {(resolvedPriceUSD || resolvedPriceCNY) && (
-                <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
-                  {resolvedPriceUSD && <span>USD {resolvedPriceUSD}</span>}
-                  {resolvedPriceCNY && <span>CNY {resolvedPriceCNY}</span>}
-                </div>
-              )}
-
-              {/* Legacy US fields fallback (only if no JP fields) */}
-              {japanPrimaryFields.length === 0 &&
-                (resolvedBeds != null || resolvedBaths != null || resolvedSqft != null) && (
-                <div className="grid gap-3 sm:grid-cols-3">
-                  {resolvedBeds != null && (
-                    <div className="rounded-xl border border-gray-200 bg-white p-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
-                        {t("Beds")}
-                      </div>
-                      <div className="mt-1 text-sm font-medium text-gray-900">
-                        {resolvedBeds}
-                      </div>
-                    </div>
-                  )}
-                  {resolvedBaths != null && (
-                    <div className="rounded-xl border border-gray-200 bg-white p-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
-                        {t("Baths")}
-                      </div>
-                      <div className="mt-1 text-sm font-medium text-gray-900">
-                        {resolvedBaths}
-                      </div>
-                    </div>
-                  )}
-                  {resolvedSqft != null && (
-                    <div className="rounded-xl border border-gray-200 bg-white p-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
-                        {t("Sqft")}
-                      </div>
-                      <div className="mt-1 text-sm font-medium text-gray-900">
-                        {resolvedSqft}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
         </div>
 
-        {/* Right sidebar: Details */}
-        <div className="space-y-4">
-          {/* Rent-specific fields */}
-          {rentFields.length > 0 && (
-            <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
-                {t("賃貸条件")}
-              </div>
-              <div className="mt-3 space-y-2">
-                {rentFields.map((f) => (
-                  <div key={f.label} className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">{t(f.label)}</span>
-                    <span className="font-medium text-gray-900">{f.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Investment yield */}
-          {isInvestment && resolvedYield && (
-            <div className="rounded-2xl border border-violet-200 bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-violet-600">
-                {t("投資指標")}
-              </div>
-              <div className="mt-2 text-2xl font-bold text-violet-700">
-                {resolvedYield}
-              </div>
-            </div>
-          )}
-
-          {/* Features */}
-          {featureList.length > 0 && (
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                {t("Features")}
-              </div>
-              <ul className="mt-3 space-y-2">
-                {featureList.map((f: string, i: number) => (
-                  <li
-                    key={i}
-                    className="flex items-start gap-2 text-sm text-gray-600"
-                  >
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Japan detail fields */}
-          {japanDetailFields.length > 0 && (
-            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-500">
-                {t("Details")}
-              </div>
-              <div className="mt-3 space-y-2">
-                {japanDetailFields.map((f) => (
-                  <div key={f.label} className="flex items-center justify-between gap-3 text-sm">
-                    <span className="text-gray-500">{t(f.label)}</span>
-                    <span className="font-medium text-gray-900">{f.value}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Property ID */}
-          <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500">
-              {t("Property ID")}
-            </div>
-            <p className="mt-1 text-sm text-gray-600">
-              {selectedId || resolvedAddressJP || t("Not available")}
-            </p>
+        {/* Right sidebar: compact key decision cards */}
+        <div className="min-w-0 space-y-4">
+          <PropertyPriceCard property={detailProperty} showHeader={false} density="compact" mobileTwoColumn />
+          <PropertyDetailsCard property={detailProperty} showHeader={false} density="compact" mobileTwoColumn />
+          <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
+            <PropertyBasicInfoCard property={detailProperty} showHeader={false} density="compact" linkDisplay="chip" showPropertyId={false} showPropertyType={false} showStatus={false} showSource={false} showSourceCompany={false} />
+            <PropertyAddressCard property={detailProperty} showHeader={false} density="compact" linkDisplay="button" />
           </div>
+          <PropertyFeaturesCard property={detailProperty} showHeader={false} density="compact" />
         </div>
       </div>
 
-      {/* Hazard + Neighborhood blocks */}
-      <div className="grid gap-4 border-t border-gray-200 bg-gray-50 px-5 py-5 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-2xl border border-orange-200 bg-white shadow-sm">
-          <div className="bg-gradient-to-r from-orange-50 via-white to-orange-50 px-5 py-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-600">
-              {t("Hazard")}
-            </div>
-            <h4 className="mt-1 text-lg font-semibold text-slate-900">
-              {t("ハザード情報")}
-            </h4>
-            <p className="mt-1 text-sm text-slate-600">
-              {t("洪水・土砂災害・津波などの確認に使うブロックです。")}
-            </p>
-          </div>
-          <div className="space-y-3 p-5">
-            {resolvedHazardMapUrl ? (
-              <a
-                href={resolvedHazardMapUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="block rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-medium text-orange-800 transition hover:bg-orange-100"
-              >
-                {t("ハザードマップを開く")}
-              </a>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-orange-200 bg-orange-50/60 px-4 py-3 text-sm text-orange-700">
-                {t("ハザードマップURLが未設定です。")}
-              </div>
-            )}
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
-              <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">
-                {t("補足")}
-              </div>
-              <p className="mt-2 text-sm leading-6 text-gray-700">
-                {resolvedNeighborhoodSummary
-                  ? t(toShortSummary(resolvedNeighborhoodSummary))
-                  : t("必要に応じて行政・MLIT情報をここに表示できます。")}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-blue-200 bg-white shadow-sm">
-          <div className="bg-gradient-to-r from-blue-50 via-white to-blue-50/80 px-5 py-4">
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-              {t("Nearby")}
-            </div>
-            <h4 className="mt-1 text-lg font-semibold text-slate-900">
-              {t("周辺情報")}
-            </h4>
-            <p className="mt-1 text-sm text-slate-600">
-              {t("生活施設や教育施設など、周辺環境の要点を表示します。")}
-            </p>
-          </div>
-          <div className="grid gap-3 p-5 sm:grid-cols-2">
-            {nearbyBlocks.length > 0 ? nearbyBlocks.map((block) => (
-              <div key={block.label} className="rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
-                <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-blue-500">
-                  {t(block.label)}
-                </div>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {splitMultiline(block.value).length > 0 ? splitMultiline(block.value).map((item) => (
-                    <span key={item} className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-slate-700 shadow-sm">
-                      {t(item)}
-                    </span>
-                  )) : (
-                    <span className="text-sm font-medium text-slate-900">
-                      {t(String(block.value))}
-                    </span>
-                  )}
-                </div>
-              </div>
-            )) : (
-              <div className="rounded-2xl border border-dashed border-blue-200 bg-blue-50/60 p-4 text-sm text-blue-700 sm:col-span-2">
-                {t("周辺情報が未設定です。")}
-              </div>
-            )}
-          </div>
-        </div>
+      {/* Reusable neighborhood + hazard cards */}
+      <div className="grid min-w-0 gap-4 border-t border-gray-200 bg-gray-50 px-3 py-4 sm:px-5 sm:py-5 lg:grid-cols-2">
+        <PropertyNeighborhoodCard property={detailProperty} showHeader={false} density="compact" linkDisplay="button" />
+        <PropertyHazardCard property={detailProperty} showHeader={false} density="compact" linkDisplay="button" />
       </div>
-
-      {/* ── Auto map & street view section ─────────────────────── */}
-      {(resolvedCenter || resolvedAddress) && (
-        <div className="grid gap-4 border-t border-gray-200 px-5 py-5 lg:grid-cols-2">
-          <MapCard
-            center={resolvedCenter || undefined}
-            address={resolvedCenter ? undefined : resolvedAddress || undefined}
-            zoom={16}
-            locationLabel={resolvedAddress}
-          />
-          <StreetViewCard
-            viewpoint={resolvedCenter || undefined}
-            address={resolvedCenter ? undefined : resolvedAddress || undefined}
-            heading={175}
-            pitch={8}
-            fov={75}
-            locationLabel={resolvedAddress}
-          />
-        </div>
-      )}
     </div>
   );
 };

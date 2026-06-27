@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
@@ -90,7 +90,7 @@ export interface PropertyCardProps {
   buildingAutoLock?: boolean;
   building_auto_lock?: boolean;
   deliveryBox?: boolean;
-  features?: string[];
+  features?: string[] | string;
   property_type?: string;
   variant?: "vertical" | "horizontal";
   selected?: boolean;
@@ -117,6 +117,26 @@ const CalendarIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
   </svg>
 );
+
+
+const normalizeFeatureList = (value: unknown): string[] => {
+  if (Array.isArray(value)) return value.map((item) => String(item ?? "").trim()).filter(Boolean);
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (!trimmed) return [];
+    try {
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) return normalizeFeatureList(parsed);
+    } catch {
+      // Plain comma/newline separated text below.
+    }
+    return trimmed
+      .split(/\r?\n|、|,|，/)
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+  return [];
+};
 
 // ── Main Component ─────────────────────────────────────────────────
 
@@ -158,6 +178,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
     fontSize,
     ...style,
   };
+
+  const featureItems = normalizeFeatureList(features);
 
   const handleClick = () => {
     if (onCardClick) {
@@ -268,9 +290,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       {stationRow}
       {transportRow}
       {propertyInfoRow}
-      {features && features.length > 0 && (
+      {featureItems.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-1">
-          {features.slice(0, 4).map((feature) => (
+          {featureItems.slice(0, 4).map((feature) => (
             <span
               key={feature}
               className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500"

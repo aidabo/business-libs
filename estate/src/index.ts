@@ -19,9 +19,17 @@ import PropertyFilterBar from "./PropertyFilterBar";
 import NeighborhoodCard from "./NeighborhoodCard";
 import AccessCard from "./AccessCard";
 import PropertySlider from "./PropertySlider";
+import PropertyGallerySlider from "./PropertyGallerySlider";
 import StreetViewCard from "./StreetViewCard";
 import MapCard from "./MapCard";
 import PropertyTable from "./PropertyTable";
+import PropertyBasicInfoCard from "./PropertyBasicInfoCard";
+import PropertyAddressCard from "./PropertyAddressCard";
+import PropertyPriceCard from "./PropertyPriceCard";
+import PropertyDetailsCard from "./PropertyDetailsCard";
+import PropertyFeaturesCard from "./PropertyFeaturesCard";
+import PropertyNeighborhoodCard from "./PropertyNeighborhoodCard";
+import PropertyHazardCard from "./PropertyHazardCard";
 import { EstateProvider } from "./contexts/EstateContext";
 
 // Map for ComponentsProvider
@@ -48,9 +56,354 @@ export const EstateComponents = {
   NeighborhoodCard,
   AccessCard,
   PropertySlider,
+  PropertyGallerySlider,
   StreetViewCard,
   MapCard,
   PropertyTable,
+  PropertyBasicInfoCard,
+  PropertyAddressCard,
+  PropertyPriceCard,
+  PropertyDetailsCard,
+  PropertyFeaturesCard,
+  PropertyNeighborhoodCard,
+  PropertyHazardCard,
+};
+
+const estateSampleProperty = {
+  id: "estate-sample-001",
+  building_name: "ファミニューナ大森南",
+  buildingName: "ファミニューナ大森南",
+  address: "東京都大田区大森南3-10-4",
+  addressJP: "東京都大田区大森南3-10-4",
+  property_type: "rent",
+  status: "draft",
+  source: "self_owned",
+  source_company: "Think Estate",
+  nearest_station: "東京モノレール 昭和島 徒歩13分",
+  transport_info: "東京モノレール 昭和島 徒歩13分",
+  price_jpy: "1,820万円",
+  price_rent_monthly: "86,000円（税込）",
+  price_deposit: "1ヶ月",
+  price_key_money: "1ヶ月",
+  price_management_fee: "8,000円/月",
+  yieldValue: "4.2%",
+  floor_plan: "1R",
+  floor_area: 16.38,
+  floor_number: 4,
+  floors_total: 6,
+  year_built_jp: "2006/07",
+  structure: "RC造",
+  land_right: "所有権",
+  latitude: 35.5664,
+  longitude: 139.7456,
+  google_map_url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("東京都大田区大森南3-10-4")}`,
+  hazard_map_url: "https://www.gsi.go.jp/bousaichiri/hazardmap.html",
+  hazardSummary: "浸水想定区域と避難場所を確認してください。",
+  floodRisk: "要確認",
+  landslideRisk: "低",
+  tsunamiRisk: "低",
+  nearby_stores: "オーケーストア大森南店 / マルエツ大森町店",
+  nearby_hospitals: "大森赤十字病院 / 東京労災病院",
+  nearby_schools: "大田区立大森第一小学校 / 大森第四中学校",
+  nearby_parks: "大森ふるさとの浜辺公園 / 平和の森公園",
+  neighborhoodSummary: "生活施設が近く、通勤と日常利便性のバランスが良いエリアです。",
+  features: "南向き, 浴室乾燥機, 宅配ボックス, オートロック",
+};
+
+
+
+type JsonSchemaProperty = Record<string, any>;
+
+const textProp = (title: string, extra: JsonSchemaProperty = {}) => ({
+  title,
+  type: "string",
+  ...extra,
+});
+const numberProp = (title: string, extra: JsonSchemaProperty = {}) => ({
+  title,
+  type: "number",
+  ...extra,
+});
+const booleanProp = (title: string, extra: JsonSchemaProperty = {}) => ({
+  title,
+  type: "boolean",
+  ...extra,
+});
+const uriProp = (title: string, extra: JsonSchemaProperty = {}) => ({
+  title,
+  type: "string",
+  format: "uri",
+  ...extra,
+});
+const mediaUriProp = (
+  title: string,
+  mediaType: "image" | "video" | "audio" | "file" = "image",
+  extra: JsonSchemaProperty = {}
+) => uriProp(title, { "x-media-type": mediaType, ...extra });
+const enumProp = (title: string, values: string[], extra: JsonSchemaProperty = {}) =>
+  textProp(title, { enum: values, ...extra });
+const stringArrayProp = (title: string, extra: JsonSchemaProperty = {}) => ({
+  title,
+  type: "array",
+  items: { type: "string" },
+  ...extra,
+});
+const textareaProp = (title: string, extra: JsonSchemaProperty = {}) =>
+  textProp(title, {
+    "x-widget": "textarea",
+    ...extra,
+  });
+const listTextProp = (title: string, extra: JsonSchemaProperty = {}) =>
+  textareaProp(title, {
+    description: "Enter one item per line or separate items with commas.",
+    ...extra,
+  });
+
+const propertyTypeValues = ["rent", "sale", "investment", "land", "building", "other"];
+const propertyStatusValues = ["draft", "published", "archived", "private"];
+const propertySourceValues = ["self_owned", "reins", "others", "others_company"];
+const densityValues = ["compact", "normal", "comfortable"];
+const linkDisplayValues = ["link", "chip", "button"];
+
+const estatePropertyBaseSchemaProperties = {
+  id: textProp("Property ID"),
+  building_name: textProp("Building Name"),
+  buildingName: textProp("Building Name (alias)"),
+  address: textProp("Address"),
+  addressJP: textProp("Address JP"),
+  property_type: enumProp("Property Type", propertyTypeValues),
+  status: enumProp("Status", propertyStatusValues),
+  source: enumProp("Source", propertySourceValues),
+  source_company: textProp("Source Company"),
+  nearest_station: textProp("Nearest Station"),
+  transport_info: textProp("Transport Info"),
+  price_jpy: textProp("Price JPY"),
+  price_rent_monthly: textProp("Monthly Rent"),
+  price_deposit: textProp("Deposit"),
+  price_key_money: textProp("Key Money"),
+  price_management_fee: textProp("Management Fee"),
+  yieldValue: textProp("Yield"),
+  floor_plan: textProp("Floor Plan"),
+  floor_area: numberProp("Floor Area"),
+  floor_number: numberProp("Floor Number"),
+  floors_total: numberProp("Total Floors"),
+  year_built_jp: textProp("Year Built"),
+  structure: textProp("Structure"),
+  land_right: textProp("Land Right"),
+  latitude: numberProp("Latitude"),
+  longitude: numberProp("Longitude"),
+  google_map_url: uriProp("Google Map URL"),
+  hazard_map_url: uriProp("Hazard Map URL"),
+  hazardSummary: textareaProp("Hazard Summary"),
+  floodRisk: textProp("Flood Risk"),
+  landslideRisk: textProp("Landslide Risk"),
+  tsunamiRisk: textProp("Tsunami Risk"),
+  nearby_stores: textareaProp("Nearby Stores"),
+  nearby_hospitals: textareaProp("Nearby Hospitals"),
+  nearby_schools: textareaProp("Nearby Schools"),
+  nearby_parks: textareaProp("Nearby Parks"),
+  neighborhoodSummary: textareaProp("Neighborhood Summary"),
+  features: listTextProp("Features"),
+};
+
+const estateCardControlSchemaProperties = {
+  selectedPropertyIdKey: textProp("Selected Property ID State Key"),
+  showHeader: booleanProp("Show Header"),
+  density: enumProp("Density", densityValues),
+  linkDisplay: enumProp("Link Display", linkDisplayValues),
+  contentPadding: textProp("Content Padding"),
+  rowPaddingY: textProp("Row Padding Y"),
+  rowGap: textProp("Row Gap"),
+  mobileTwoColumn: booleanProp("Mobile Two Column"),
+};
+
+const propertyBasicInfoControlSchemaProperties = {
+  showPropertyId: booleanProp("Show Property ID"),
+  showPropertyType: booleanProp("Show Property Type"),
+  showStatus: booleanProp("Show Status"),
+  showSource: booleanProp("Show Source"),
+  showSourceCompany: booleanProp("Show Source Company"),
+};
+
+const estatePropertyCardSchema = (title: string, extra: Record<string, any> = {}) => ({
+  type: "object",
+  title,
+  properties: {
+    ...estatePropertyBaseSchemaProperties,
+    ...estateCardControlSchemaProperties,
+    ...extra,
+  },
+  required: [],
+});
+
+const propertyListItemSchema = {
+  type: "object",
+  properties: {
+    id: textProp("ID"),
+    itemId: textProp("Item ID"),
+    image: mediaUriProp("Image", "image"),
+    price: textProp("Price"),
+    address: textProp("Address"),
+    building_name: textProp("Building Name"),
+    buildingName: textProp("Building Name (alias)"),
+    nearest_station: textProp("Nearest Station"),
+    nearestStation: textProp("Nearest Station (alias)"),
+    floor_plan: textProp("Floor Plan"),
+    floorPlan: textProp("Floor Plan (alias)"),
+    floor_area: numberProp("Floor Area"),
+    areaSize: textProp("Area Size"),
+    year_built: numberProp("Year Built"),
+    yearBuilt: textProp("Year Built (alias)"),
+    tag: textProp("Tag"),
+    property_type: enumProp("Property Type", propertyTypeValues),
+    transport_info: textProp("Transport Info"),
+    pets_allowed: booleanProp("Pets Allowed"),
+    petsAllowed: booleanProp("Pets Allowed (alias)"),
+    features: listTextProp("Features"),
+  },
+};
+
+const propertyGridSchema = {
+  type: "object",
+  title: "PropertyGrid",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    columns: numberProp("Columns", { minimum: 1, maximum: 4 }),
+    layout: enumProp("Layout", ["grid", "list"]),
+    selectedPropertyIdKey: textProp("Selected Property ID State Key"),
+    keywordKey: textProp("Keyword State Key"),
+    intentKey: textProp("Intent State Key"),
+    detailPageId: textProp("Detail Page ID"),
+    searchableFields: stringArrayProp("Searchable Fields"),
+    properties: {
+      title: "Properties",
+      type: "array",
+      items: propertyListItemSchema,
+      "x-array-binding": true,
+    },
+  },
+  required: [],
+};
+
+const searchResultSchema = {
+  ...propertyGridSchema,
+  title: "SearchResult",
+  properties: {
+    ...propertyGridSchema.properties,
+    totalCount: numberProp("Total Count"),
+    results: {
+      title: "Results",
+      type: "array",
+      items: propertyListItemSchema,
+      "x-array-binding": true,
+    },
+  },
+};
+
+delete (searchResultSchema.properties as Record<string, any>).properties;
+
+const galleryImageItemSchema = {
+  type: "object",
+  properties: {
+    id: textProp("ID"),
+    src: mediaUriProp("Image URL", "image"),
+    title: textProp("Title"),
+    caption: textProp("Caption"),
+  },
+};
+
+const propertyDetailSchema = {
+  type: "object",
+  title: "PropertyDetail",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    ...estatePropertyBaseSchemaProperties,
+    image: mediaUriProp("Main Image", "image"),
+    tagJP: textProp("Tag JP"),
+    tag_jp: textProp("Tag JP (alias)"),
+    propertyType: enumProp("Property Type (alias)", propertyTypeValues),
+    areaSqm: textProp("Area Sqm"),
+    area_sqm: textProp("Area Sqm (alias)"),
+    tsubo: textProp("Tsubo"),
+    floorPlan: textProp("Floor Plan (alias)"),
+    yearBuiltJP: textProp("Year Built JP (alias)"),
+    transport: textProp("Transport"),
+    deposit: textProp("Deposit"),
+    keyMoney: textProp("Key Money"),
+    managementFee: textProp("Management Fee"),
+    maintenanceFee: textProp("Maintenance Fee"),
+    petsAllowed: textProp("Pets Allowed"),
+    landRight: textProp("Land Right"),
+    itemIdKey: textProp("Item ID Key"),
+    selectedPropertyIdKey: textProp("Selected Property ID State Key"),
+    galleryImages: {
+      title: "Gallery Images",
+      type: "array",
+      items: galleryImageItemSchema,
+      "x-array-binding": true,
+    },
+    hazardMapUrl: uriProp("Hazard Map URL (alias)"),
+    nearbyStores: textareaProp("Nearby Stores (alias)"),
+    nearbyHospitals: textareaProp("Nearby Hospitals (alias)"),
+    nearbySchools: textareaProp("Nearby Schools (alias)"),
+    nearbyParks: textareaProp("Nearby Parks (alias)"),
+  },
+  required: [],
+};
+
+const propertySliderSchema = {
+  type: "object",
+  title: "PropertySlider",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    detailPageId: textProp("Detail Page ID"),
+    selectedPropertyIdKey: textProp("Selected Property ID State Key"),
+    slides: {
+      title: "Slides",
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          id: textProp("ID"),
+          kind: enumProp("Kind", propertyTypeValues),
+          title: textProp("Title"),
+          summary: textProp("Summary"),
+          price: textProp("Price"),
+          area: textProp("Area"),
+          rooms: textProp("Rooms"),
+          status: textProp("Status"),
+          image: mediaUriProp("Image", "image"),
+          locationLabel: textProp("Location Label"),
+        },
+      },
+      "x-array-binding": true,
+    },
+  },
+  required: [],
+};
+
+
+const propertyGallerySliderSchema = {
+  type: "object",
+  title: "PropertyGallerySlider",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    selectedPropertyIdKey: textProp("Selected Property ID State Key"),
+    itemIdKey: textProp("Item ID Key"),
+    excludeImage: mediaUriProp("Excluded/Main Image", "image"),
+    showHeader: booleanProp("Show Header"),
+    galleryImages: {
+      title: "Gallery Images",
+      type: "array",
+      items: galleryImageItemSchema,
+      "x-array-binding": true,
+    },
+  },
+  required: [],
 };
 
 // Map for componentPropsProvider
@@ -78,6 +431,7 @@ export const EstateDefaultProps = {
   },
   PropertyGrid: {
     _componentDesc: "Grid layout of property cards.",
+    __schema: propertyGridSchema,
     title: "Featured Properties",
     description: "Explore our latest listings chosen for you.",
     columns: 3,
@@ -107,7 +461,7 @@ export const EstateDefaultProps = {
         property_type: "sale",
         transport_info: "桜新町駅 徒歩7分",
         pets_allowed: false,
-        features: ["オートロック", "宅配ボックス", "南向き"],
+        features: "オートロック, 宅配ボックス, 南向き",
       },
       {
         id: "property-riverside-nakameguro",
@@ -131,7 +485,7 @@ export const EstateDefaultProps = {
         transport_info: "中目黒駅 徒歩6分",
         pets_allowed: true,
         petsAllowed: true,
-        features: ["ペット可", "宅配ボックス", "エアコン完備"],
+        features: "ペット可, 宅配ボックス, エアコン完備",
       },
       {
         id: "property-ark-view-akasaka",
@@ -153,7 +507,7 @@ export const EstateDefaultProps = {
         tag: "投資",
         property_type: "investment",
         transport_info: "赤坂駅 徒歩4分",
-        features: ["管理良好", "駅近", "高利回り"],
+        features: "管理良好, 駅近, 高利回り",
       },
     ],
     __interactions: [
@@ -288,6 +642,7 @@ export const EstateDefaultProps = {
   },
   SearchResult: {
     _componentDesc: "Search results grid with count header",
+    __schema: searchResultSchema,
     title: "Search Results",
     totalCount: 0,
     keywordKey: "estate.keyword",
@@ -312,7 +667,7 @@ export const EstateDefaultProps = {
         yearBuilt: "2018年",
         tag: "売買",
         property_type: "sale",
-        features: ["オートロック", "宅配ボックス", "南向き"],
+        features: "オートロック, 宅配ボックス, 南向き",
       },
       {
         id: "search-riverside-nakameguro",
@@ -334,7 +689,7 @@ export const EstateDefaultProps = {
         tag: "賃貸",
         property_type: "rent",
         petsAllowed: true,
-        features: ["ペット可", "宅配ボックス", "エアコン完備"],
+        features: "ペット可, 宅配ボックス, エアコン完備",
       },
       {
         id: "search-ark-view-akasaka",
@@ -355,12 +710,13 @@ export const EstateDefaultProps = {
         yearBuilt: "2014年",
         tag: "投資",
         property_type: "investment",
-        features: ["管理良好", "駅近", "高利回り"],
+        features: "管理良好, 駅近, 高利回り",
       },
     ],
   },
   PropertyDetail: {
     _componentDesc: "Detailed property information view",
+    __schema: propertyDetailSchema,
     title: "物件詳細",
     description: "選択された物件の詳細情報をご確認いただけます。",
     buildingName: "ファミニューナ大森南",
@@ -422,12 +778,7 @@ export const EstateDefaultProps = {
     nearbySchools: "大田区立大森第一小学校 / 大森第四中学校",
     nearbyParks: "大森ふるさとの浜辺公園 / 平和の森公園",
     neighborhoodSummary: "周辺は生活利便施設が整っており、通勤と子育てのバランスを取りやすいエリアです。",
-    features: [
-      "南向きで日当たり良好",
-      "システムキッチン（IH・食洗機付）",
-      "浴室乾燥機付き",
-      "宅配ボックス完備",
-    ],
+    features: "南向きで日当たり良好, システムキッチン（IH・食洗機付）, 浴室乾燥機付き, 宅配ボックス完備",
   },
   NewsFeed: {
     _componentDesc: "Latest news and updates feed",
@@ -496,6 +847,7 @@ export const EstateDefaultProps = {
   },
   PropertySlider: {
     _componentDesc: "Horizontal property card slider",
+    __schema: propertySliderSchema,
     title: "Property slider",
     description: "Horizontal premium cards for featured homes and rentals.",
     detailPageId: "page-estate-detail",
@@ -542,6 +894,36 @@ export const EstateDefaultProps = {
       },
     ],
   },
+
+  PropertyGallerySlider: {
+    _componentDesc: "Gallery slider card for floor plans, room photos, and property media.",
+    __schema: propertyGallerySliderSchema,
+    title: "Gallery",
+    description: "間取り図・室内写真などの補足画像です。",
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    itemIdKey: "id",
+    showHeader: true,
+    galleryImages: [
+      {
+        id: "gallery-exterior",
+        src: "https://images.unsplash.com/photo-1556912167-f556f1f39fdf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        title: "外観",
+        caption: "建物の全景を確認できます。",
+      },
+      {
+        id: "gallery-floorplan",
+        src: "https://images.unsplash.com/photo-1522698531939-7e5f5c7d3b1c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        title: "間取り図",
+        caption: "室内導線とレイアウトを確認できます。",
+      },
+      {
+        id: "gallery-room",
+        src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+        title: "室内写真",
+        caption: "居室の雰囲気を確認できます。",
+      },
+    ],
+  },
   StreetViewCard: {
     _componentDesc: "Street view preview card",
     title: "Neighborhood Street View",
@@ -560,6 +942,62 @@ export const EstateDefaultProps = {
     zoom: 16,
     locationLabel: "Shibuya, Tokyo",
   },
+
+  PropertyBasicInfoCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Basic estate property information card for StackPage layouts.",
+    __schema: estatePropertyCardSchema("PropertyBasicInfoCard", propertyBasicInfoControlSchemaProperties),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    showHeader: true,
+    density: "normal",
+    showPropertyId: true,
+    showPropertyType: true,
+    showStatus: true,
+    showSource: true,
+    showSourceCompany: true,
+    mobileTwoColumn: true,
+  },
+  PropertyAddressCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Address, access, Google Map, 3D map, and Street View links card.",
+    __schema: estatePropertyCardSchema("PropertyAddressCard"),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    linkDisplay: "button",
+  },
+  PropertyPriceCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Sale/rent price, fees, deposit, key money, and yield card.",
+    __schema: estatePropertyCardSchema("PropertyPriceCard"),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    mobileTwoColumn: true,
+  },
+  PropertyDetailsCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Floor plan, area, floors, structure, year built, and land-right details card.",
+    __schema: estatePropertyCardSchema("PropertyDetailsCard"),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    mobileTwoColumn: true,
+  },
+  PropertyFeaturesCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Feature and equipment chips card for estate property pages.",
+    __schema: estatePropertyCardSchema("PropertyFeaturesCard"),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+  },
+  PropertyNeighborhoodCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Neighborhood card with nearby stores, hospitals, schools, parks, and map link.",
+    __schema: estatePropertyCardSchema("PropertyNeighborhoodCard"),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    linkDisplay: "button",
+  },
+  PropertyHazardCard: {
+    ...estateSampleProperty,
+    _componentDesc: "Hazard/disaster information card with map URL and flood/landslide/tsunami notes.",
+    __schema: estatePropertyCardSchema("PropertyHazardCard"),
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    linkDisplay: "button",
+  },
   PropertyTable: {
     _componentDesc: "Property listing table",
     columns: "address,property_type,floor_plan,floor_area,price_sale,price_rent_monthly,nearest_station,year_built",
@@ -576,7 +1014,7 @@ export const EstateDefaultProps = {
         price_sale: 58000000,
         nearest_station: "桜新町駅 徒歩7分",
         year_built: 2018,
-        features: ["オートロック", "宅配ボックス"],
+        features: "オートロック, 宅配ボックス",
       },
       {
         id: "table-riverside-nakameguro",
@@ -590,7 +1028,7 @@ export const EstateDefaultProps = {
         nearest_station: "中目黒駅 徒歩6分",
         year_built: 2021,
         pets_allowed: true,
-        features: ["ペット可", "宅配ボックス"],
+        features: "ペット可, 宅配ボックス",
       },
       {
         id: "table-ark-view-akasaka",
@@ -604,7 +1042,7 @@ export const EstateDefaultProps = {
         nearest_station: "赤坂駅 徒歩4分",
         year_built: 2014,
         expected_yield: 4.2,
-        features: ["管理良好", "駅近", "高利回り"],
+        features: "管理良好, 駅近, 高利回り",
       },
     ],
   },
