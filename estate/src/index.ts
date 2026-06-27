@@ -31,6 +31,7 @@ import PropertyFeaturesCard from "./PropertyFeaturesCard";
 import PropertyNeighborhoodCard from "./PropertyNeighborhoodCard";
 import PropertyHazardCard from "./PropertyHazardCard";
 import PropertyMatchingPanel from "./PropertyMatchingPanel";
+import InvestmentSimulator from "./InvestmentSimulator";
 import { EstateProvider } from "./contexts/EstateContext";
 
 // Map for ComponentsProvider
@@ -69,6 +70,7 @@ export const EstateComponents = {
   PropertyNeighborhoodCard,
   PropertyHazardCard,
   PropertyMatchingPanel,
+  InvestmentSimulator,
 };
 
 const estateSampleProperty = {
@@ -1008,6 +1010,20 @@ export const EstateDefaultProps = {
       title: "Property Matching Panel",
       properties: {
         userId: { type: "string", title: "User ID", default: "current" },
+      },
+    },
+  },
+  InvestmentSimulator: {
+    purchasePrice: 30000000,
+    monthlyRent: 150000,
+    _componentDesc: "Investment simulator with interactive sliders for purchase price, rent, holding period, and more.",
+    __schema: {
+      type: "object",
+      title: "Investment Simulator",
+      properties: {
+        purchasePrice: { type: "number", title: "Purchase Price (yen)", default: 30000000 },
+        monthlyRent: { type: "number", title: "Monthly Rent (yen)", default: 150000 },
+        propertyId: { type: "string", title: "Property ID (optional)" },
       },
     },
   },
