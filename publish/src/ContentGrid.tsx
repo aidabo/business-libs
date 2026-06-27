@@ -39,9 +39,15 @@ const ContentGrid: React.FC<ContentGridProps> = ({
     ? contents
     : contents.filter((c) => c.contentType === contentTypeFilter);
 
-  const sorted = featuredFirst
-    ? [...filtered].sort((a, b) => Number(b.featured) - Number(a.featured))
-    : filtered;
+  const sorted = [...filtered].sort((a, b) => {
+    // Image-first: items with images come before text-only items
+    const aImg = a.image ? 0 : 1;
+    const bImg = b.image ? 0 : 1;
+    if (aImg !== bImg) return aImg - bImg;
+    // Within same group: featured items first
+    if (featuredFirst) return Number(b.featured) - Number(a.featured);
+    return 0;
+  });
 
   if (sorted.length === 0) {
     return (
