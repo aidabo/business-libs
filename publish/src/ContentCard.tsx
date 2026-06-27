@@ -89,11 +89,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
       {image && (
-        <div className={`relative w-full overflow-hidden ${
-          contentType === 'publication' || contentType === 'comic'
-            ? 'aspect-[3/4] max-h-64'
-            : 'h-44 sm:h-48 md:h-52'
-        }`}>
+        <div className="relative w-full h-44 sm:h-48 md:h-52 overflow-hidden">
           <img
             src={image}
             alt={title}
