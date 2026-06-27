@@ -413,7 +413,7 @@ const propertyGallerySliderSchema = {
 // Map for componentPropsProvider
 export const EstateDefaultProps = {
   HeroSection: {
-    _componentDesc: "Full-width hero with background image and search",
+    _componentDesc: 'component.heroSection.desc',
     title: "Find Your Dream Home",
     subtitle: "Discover the perfect property in the best locations.",
     backgroundImage:
@@ -421,7 +421,7 @@ export const EstateDefaultProps = {
     showSearch: true,
   },
   PropertyCard: {
-    _componentDesc: "Individual property listing card",
+    _componentDesc: 'component.propertyCard.desc',
     id: "property-card-preview",
     image:
       "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
@@ -434,7 +434,7 @@ export const EstateDefaultProps = {
     tag: "FOR SALE",
   },
   PropertyGrid: {
-    _componentDesc: "Grid layout of property cards.",
+    _componentDesc: 'component.propertyGrid.desc',
     __schema: propertyGridSchema,
     title: "Featured Properties",
     description: "Explore our latest listings chosen for you.",
@@ -525,7 +525,7 @@ export const EstateDefaultProps = {
     ],
   },
   AgentCard: {
-    _componentDesc: "Real estate agent profile card",
+    _componentDesc: 'component.agentCard.desc',
     name: "Sarah Johnson",
     title: "Senior Real Estate Agent",
     image:
@@ -535,7 +535,7 @@ export const EstateDefaultProps = {
     bio: "Specializing in luxury properties with over 10 years of experience in the local market.",
   },
   InquiryForm: {
-    _componentDesc: "Contact form for property inquiries",
+    _componentDesc: 'component.inquiryForm.desc',
     title: "Interested in this property?",
     submitLabel: "Send Message",
     selectedPropertyIdKey: "estate.selectedPropertyId",
@@ -550,20 +550,20 @@ export const EstateDefaultProps = {
     ],
   },
   CompanyFeatures: {
-    _componentDesc: "Company features and benefits section",
+    _componentDesc: 'component.companyFeatures.desc',
     title: "当社の強み",
     subtitle:
       "お客様満足度を最優先に、不動産に関するワンストップサービスを提供しています。",
   },
   ContactSection: {
-    _componentDesc: "Company contact information card",
+    _componentDesc: 'component.contactSection.desc',
     companyName: "Estate Realty Group",
     address: "123 Business Blvd, Suite 100, City, ST 12345",
     phone: "+1 (800) 123-4567",
     email: "contact@estate-realty.com",
   },
   SearchBar: {
-    _componentDesc: "Inline search input with button",
+    _componentDesc: 'component.searchBar.desc',
     placeholder: "Search by location, price, or keyword...",
     buttonLabel: "Search",
     keywordKey: "estate.keyword",
@@ -603,7 +603,7 @@ export const EstateDefaultProps = {
     ],
   },
   SaleHero: {
-    _componentDesc: "Sell your home hero section with CTA",
+    _componentDesc: 'component.saleHero.desc',
     title: "Sell Your Home for the Best Price",
     subtitle:
       "Expert valuation, marketing strategies, and support to get you the best deal.",
@@ -612,26 +612,26 @@ export const EstateDefaultProps = {
       "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
   },
   SaleProcess: {
-    _componentDesc: "Step-by-step selling process",
+    _componentDesc: 'component.saleProcess.desc',
     title: "How It Works",
     subtitle: "Our simple 4-step process to sell your home.",
   },
   SaleInquiry: {
-    _componentDesc: "Property valuation request form",
+    _componentDesc: 'component.saleInquiry.desc',
     title: "Request a Free Property Valuation",
     description:
       "Fill out the form below and we will get back to you with a comprehensive market analysis.",
     submitLabel: "Get My Valuation",
   },
   PromoBanner: {
-    _componentDesc: "Promotional banner with call-to-action",
+    _componentDesc: 'component.promoBanner.desc',
     title: "Special Offer",
     text: "Contact us today for a free consultation and get 50% off your listing fee!",
     buttonLabel: "Learn More",
     backgroundColor: "#1e3a8a",
   },
   OfferDetail: {
-    _componentDesc: "Promotional offer detail with terms",
+    _componentDesc: 'component.offerDetail.desc',
     title: "50% Off Listing Fee",
     description:
       "For a limited time, we are offering a 50% discount on our standard listing fee for new clients who sign up for our premium selling package. This includes professional photography, 3D tours, and featured listings on major real estate platforms.",
@@ -645,7 +645,7 @@ export const EstateDefaultProps = {
     expirationDate: "2025-12-31",
   },
   SearchResult: {
-    _componentDesc: "Search results grid with count header",
+    _componentDesc: 'component.searchResult.desc',
     __schema: searchResultSchema,
     title: "Search Results",
     totalCount: 0,
@@ -719,7 +719,7 @@ export const EstateDefaultProps = {
     ],
   },
   PropertyDetail: {
-    _componentDesc: "Detailed property information view",
+    _componentDesc: 'component.propertyDetail.desc',
     __schema: propertyDetailSchema,
     title: "物件詳細",
     description: "選択された物件の詳細情報をご確認いただけます。",
@@ -785,13 +785,13 @@ export const EstateDefaultProps = {
     features: "南向きで日当たり良好, システムキッチン（IH・食洗機付）, 浴室乾燥機付き, 宅配ボックス完備",
   },
   NewsFeed: {
-    _componentDesc: "Latest news and updates feed",
+    _componentDesc: 'component.newsFeed.desc',
     title: "お知らせ",
     description: "最新の情報をお届けします。",
     maxItems: 5,
   },
   CompanyProfile: {
-    _componentDesc: "Company information page",
+    _componentDesc: 'component.companyProfile.desc',
     title: "会社案内",
     description: "当社についてご紹介いたします。",
     presidentName: "代表取締役 山田 太郎",
@@ -819,7 +819,7 @@ export const EstateDefaultProps = {
     mapEmbedUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3240.123456789!2d139.123456789!3d35.123456789!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0000000000000000%3A0x0000000000000000!2zMemzrQ!5e0!3m2!1sja!2sjp!4v1234567890",
   },
   PropertyFilterBar: {
-    _componentDesc: "Filter bar for property listings",
+    _componentDesc: 'component.propertyFilterBar.desc',
     title: "Browse properties",
     description: "Filter by keyword, station, floor plan, area, year built, and pets, then narrow the list further by intent.",
     intentKey: "estate.filter.intent",
@@ -828,7 +828,7 @@ export const EstateDefaultProps = {
     activeKeyword: "",
   },
   NeighborhoodCard: {
-    _componentDesc: "Neighborhood information card",
+    _componentDesc: 'component.neighborhoodCard.desc',
     title: "Neighborhood guide",
     description: "A calm area summary for the selected property with nearby points of interest.",
     selectedPropertyIdKey: "estate.selectedPropertyId",
@@ -838,7 +838,7 @@ export const EstateDefaultProps = {
     ],
   },
   AccessCard: {
-    _componentDesc: "Access and location information card",
+    _componentDesc: 'component.accessCard.desc',
     title: "Access and location",
     description: "Street view, map, and quick property context in one calm panel.",
     selectedPropertyIdKey: "estate.selectedPropertyId",
@@ -850,7 +850,7 @@ export const EstateDefaultProps = {
     ],
   },
   PropertySlider: {
-    _componentDesc: "Horizontal property card slider",
+    _componentDesc: 'component.propertySlider.desc',
     __schema: propertySliderSchema,
     title: "Property slider",
     description: "Horizontal premium cards for featured homes and rentals.",
@@ -900,7 +900,7 @@ export const EstateDefaultProps = {
   },
 
   PropertyGallerySlider: {
-    _componentDesc: "Gallery slider card for floor plans, room photos, and property media.",
+    _componentDesc: 'component.propertyGallerySlider.desc',
     __schema: propertyGallerySliderSchema,
     title: "Gallery",
     description: "間取り図・室内写真などの補足画像です。",
@@ -929,7 +929,7 @@ export const EstateDefaultProps = {
     ],
   },
   StreetViewCard: {
-    _componentDesc: "Street view preview card",
+    _componentDesc: 'component.streetViewCard.desc',
     title: "Neighborhood Street View",
     subtitle: "Preview the surroundings for the selected property before a viewing.",
     viewpoint: "35.6595,139.7005",
@@ -939,7 +939,7 @@ export const EstateDefaultProps = {
     locationLabel: "Shibuya, Tokyo",
   },
   MapCard: {
-    _componentDesc: "Location map card",
+    _componentDesc: 'component.mapCard.desc',
     title: "Location Map",
     subtitle: "Check the neighborhood map before booking a showing.",
     center: "35.6595,139.7005",
@@ -949,7 +949,7 @@ export const EstateDefaultProps = {
 
   PropertyBasicInfoCard: {
     ...estateSampleProperty,
-    _componentDesc: "Basic estate property information card for StackPage layouts.",
+    _componentDesc: 'component.propertyBasicInfoCard.desc',
     __schema: estatePropertyCardSchema("PropertyBasicInfoCard", propertyBasicInfoControlSchemaProperties),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     showHeader: true,
@@ -963,48 +963,48 @@ export const EstateDefaultProps = {
   },
   PropertyAddressCard: {
     ...estateSampleProperty,
-    _componentDesc: "Address, access, Google Map, 3D map, and Street View links card.",
+    _componentDesc: 'component.propertyAddressCard.desc',
     __schema: estatePropertyCardSchema("PropertyAddressCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     linkDisplay: "button",
   },
   PropertyPriceCard: {
     ...estateSampleProperty,
-    _componentDesc: "Sale/rent price, fees, deposit, key money, and yield card.",
+    _componentDesc: 'component.propertyPriceCard.desc',
     __schema: estatePropertyCardSchema("PropertyPriceCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     mobileTwoColumn: true,
   },
   PropertyDetailsCard: {
     ...estateSampleProperty,
-    _componentDesc: "Floor plan, area, floors, structure, year built, and land-right details card.",
+    _componentDesc: 'component.propertyDetailsCard.desc',
     __schema: estatePropertyCardSchema("PropertyDetailsCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     mobileTwoColumn: true,
   },
   PropertyFeaturesCard: {
     ...estateSampleProperty,
-    _componentDesc: "Feature and equipment chips card for estate property pages.",
+    _componentDesc: 'component.propertyFeaturesCard.desc',
     __schema: estatePropertyCardSchema("PropertyFeaturesCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
   },
   PropertyNeighborhoodCard: {
     ...estateSampleProperty,
-    _componentDesc: "Neighborhood card with nearby stores, hospitals, schools, parks, and map link.",
+    _componentDesc: 'component.propertyNeighborhoodCard.desc',
     __schema: estatePropertyCardSchema("PropertyNeighborhoodCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     linkDisplay: "button",
   },
   PropertyHazardCard: {
     ...estateSampleProperty,
-    _componentDesc: "Hazard/disaster information card with map URL and flood/landslide/tsunami notes.",
+    _componentDesc: 'component.propertyHazardCard.desc',
     __schema: estatePropertyCardSchema("PropertyHazardCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     linkDisplay: "button",
   },
   PropertyMatchingPanel: {
     userId: "current",
-    _componentDesc: "AI property matching panel — shows scored property matches based on user search preferences.",
+    _componentDesc: 'component.propertyMatchingPanel.desc',
     __schema: {
       type: "object",
       title: "Property Matching Panel",
@@ -1016,7 +1016,7 @@ export const EstateDefaultProps = {
   InvestmentSimulator: {
     purchasePrice: 30000000,
     monthlyRent: 150000,
-    _componentDesc: "Investment simulator with interactive sliders for purchase price, rent, holding period, and more.",
+    _componentDesc: 'component.investmentSimulator.desc',
     __schema: {
       type: "object",
       title: "Investment Simulator",
@@ -1028,7 +1028,7 @@ export const EstateDefaultProps = {
     },
   },
   PropertyTable: {
-    _componentDesc: "Property listing table",
+    _componentDesc: 'component.propertyTable.desc',
     columns: "address,property_type,floor_plan,floor_area,price_sale,price_rent_monthly,nearest_station,year_built",
     loading: false,
     properties: [
