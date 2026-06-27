@@ -30,6 +30,7 @@ import PropertyDetailsCard from "./PropertyDetailsCard";
 import PropertyFeaturesCard from "./PropertyFeaturesCard";
 import PropertyNeighborhoodCard from "./PropertyNeighborhoodCard";
 import PropertyHazardCard from "./PropertyHazardCard";
+import PropertyMatchingPanel from "./PropertyMatchingPanel";
 import { EstateProvider } from "./contexts/EstateContext";
 
 // Map for ComponentsProvider
@@ -67,6 +68,7 @@ export const EstateComponents = {
   PropertyFeaturesCard,
   PropertyNeighborhoodCard,
   PropertyHazardCard,
+  PropertyMatchingPanel,
 };
 
 const estateSampleProperty = {
@@ -997,6 +999,17 @@ export const EstateDefaultProps = {
     __schema: estatePropertyCardSchema("PropertyHazardCard"),
     selectedPropertyIdKey: "estate.selectedPropertyId",
     linkDisplay: "button",
+  },
+  PropertyMatchingPanel: {
+    userId: "current",
+    _componentDesc: "AI property matching panel — shows scored property matches based on user search preferences.",
+    __schema: {
+      type: "object",
+      title: "Property Matching Panel",
+      properties: {
+        userId: { type: "string", title: "User ID", default: "current" },
+      },
+    },
   },
   PropertyTable: {
     _componentDesc: "Property listing table",
