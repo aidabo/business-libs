@@ -167,6 +167,7 @@ export const MANGA_BROWSER: SeedPageData = {
         name: 'ChapterList',
         props: {
           seriesName: 'Dragon Saga', currentChapter: 47,
+          selectedContentIdKey: 'publish.selectedContentId',
           chapters: [
             { id: 'ch-45', chapterNumber: 45, title: 'The Dragon\'s Lair', pageCount: 28, publishedAt: 'Jun 12, 2026' },
             { id: 'ch-46', chapterNumber: 46, title: 'Revelations', pageCount: 32, publishedAt: 'Jun 19, 2026' },
