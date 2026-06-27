@@ -1,5 +1,5 @@
 import React from 'react';
-import { getVerticalTheme, verticalDotClass, getDefaultWritingMode } from './themes';
+import { getVerticalTheme, verticalDotClass } from './themes';
 import VerticalTextContainer from './VerticalTextContainer';
 import type { ContentType, WritingMode } from './types';
 import type { StackPageRuntimeApi } from './types';
@@ -28,10 +28,9 @@ const NewsArticleCard: React.FC<NewsArticleCardProps> = ({
   avatar,
   publishedAt,
   featured = false,
-  writingMode,
   __stackpage,
 }) => {
-  const wm = writingMode ?? getDefaultWritingMode(contentType);
+  const wm = 'horizontal-tb'; // Cards always use horizontal writing
   const theme = getVerticalTheme(contentType);
   const dotClass = verticalDotClass(contentType);
   const handleClick = () => {

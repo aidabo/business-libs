@@ -1,6 +1,6 @@
 import React from 'react';
 import VerticalTextContainer from './VerticalTextContainer';
-import { getDefaultWritingMode, verticalDotClass } from './themes';
+import { verticalDotClass } from './themes';
 import type { ContentType, WritingMode } from './types';
 import type { StackPageRuntimeApi } from './types';
 
@@ -68,7 +68,8 @@ const ContentCard: React.FC<ContentCardProps> = ({
   __stackpage,
   onClick,
 }) => {
-  const wm = writingMode ?? getDefaultWritingMode(contentType);
+  // Cards are compact — always use horizontal writing; vertical mode is for full articles only
+  const wm = writingMode ?? 'horizontal-tb';
   const handleClick = () => {
     __stackpage?.emit('select', { id: '', title, contentType, source: 'content-card' });
     onClick?.();
