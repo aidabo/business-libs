@@ -81,7 +81,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
 
   return (
     <article
-      className={`group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 border-t-[3px] ${borderColor} ${
+      className={`group flex h-full flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-all hover:shadow-lg hover:-translate-y-0.5 border-t-[3px] ${borderColor} ${
         featured ? 'md:col-span-2 md:row-span-2' : ''
       }`}
       onClick={handleClick}

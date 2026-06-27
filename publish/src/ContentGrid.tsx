@@ -75,9 +75,9 @@ const ContentGrid: React.FC<ContentGridProps> = ({
           )}
         </div>
       )}
-      <div className={`grid gap-3 sm:gap-4 md:gap-5 auto-rows-auto ${gridCols[columns]}`}>
+      <div className={`grid gap-3 sm:gap-4 md:gap-5 ${gridCols[columns]}`}>
         {sorted.map((item) => (
-          <div key={item.id}>
+          <div key={item.id} className="h-full">
             <ContentCard
               title={item.title}
               excerpt={item.excerpt}
