@@ -115,7 +115,7 @@ const ContentCard: React.FC<ContentCardProps> = ({
           )}
         </div>
       )}
-      <div className="flex flex-1 flex-col p-4 sm:p-5">
+      <div className={`flex flex-1 flex-col ${image ? 'p-4 sm:p-5' : 'p-3 sm:p-4'}`}>
         {/* Content type label (when no image to show it on) */}
         {label && !image && (
           <span className={`mb-2 inline-flex w-fit items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${chipClass}`}>
@@ -128,12 +128,12 @@ const ContentCard: React.FC<ContentCardProps> = ({
         )}
         <VerticalTextContainer writingMode={wm}>
           <h3 className={`mb-2 font-semibold leading-snug text-gray-900 group-hover:text-blue-600 transition-colors ${
-            featured ? 'text-lg md:text-2xl md:font-bold' : 'text-base md:text-lg'
+            !image ? 'text-sm md:text-base' : featured ? 'text-lg md:text-2xl md:font-bold' : 'text-base md:text-lg'
           }`}>
             {title}
           </h3>
           <p className={`mb-3 leading-relaxed text-gray-600 ${
-            featured ? 'text-sm md:text-base line-clamp-3' : 'text-sm line-clamp-2'
+            !image ? 'text-xs line-clamp-1' : featured ? 'text-sm md:text-base line-clamp-3' : 'text-sm line-clamp-2'
           }`}>{excerpt}</p>
         </VerticalTextContainer>
         <div className="mt-auto flex items-center justify-between text-xs text-gray-400">
