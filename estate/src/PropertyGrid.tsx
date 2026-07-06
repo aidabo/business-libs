@@ -1,5 +1,5 @@
 import React from "react";
-import PropertyCard from "./PropertyCard";
+import PropertyCard, { PropertyCardSkeleton } from "./PropertyCard";
 import type { PropertyCardProps } from "./PropertyCard";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
@@ -105,10 +105,25 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
       if (raw == null || raw === "") return null;
       return String(raw) === "true" ? true : null;
     })(),
+    features: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.features, "") || "")
+      .split(",").map((s) => s.trim()).filter(Boolean),
+    directions: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.directions, "") || "")
+      .split(",").map((s) => s.trim()).filter(Boolean),
   };
 
   // ── Display data ───────────────────────────────────────────────
   const displayProperties = Array.isArray(properties) ? (properties as PropertyCardProps[]) : [];
+
+  const [isInitialLoading, setIsInitialLoading] = React.useState(true);
+  React.useEffect(() => {
+    if (displayProperties.length > 0) {
+      setIsInitialLoading(false);
+      return;
+    }
+    const timer = setTimeout(() => setIsInitialLoading(false), 1000);
+    return () => clearTimeout(timer);
+  }, [properties]);
+
   const searchQuery = parseSearchQuery(keyword);
 
   const filteredProperties = displayProperties.filter((prop) => {
@@ -172,8 +187,17 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
           )}
         </div>
 
+        {/* Loading skeleton */}
+        {isInitialLoading && displayProperties.length === 0 && !!__stackpage && (
+          <div className={`grid gap-6 ${isList ? "grid-cols-1 max-w-4xl mx-auto" : `grid-cols-1 ${gridColsClass[columns]}`}`}>
+            {Array.from({ length: columns * 2 }).map((_, i) => (
+              <PropertyCardSkeleton key={i} variant={isList ? "horizontal" : "vertical"} />
+            ))}
+          </div>
+        )}
+
         {/* Empty state */}
-        {filteredProperties.length === 0 && (
+        {!isInitialLoading && filteredProperties.length === 0 && (
           <div className="text-center py-16">
             <div className="text-4xl mb-4 text-gray-300">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1} stroke="currentColor" className="w-16 h-16 mx-auto">

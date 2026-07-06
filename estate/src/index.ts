@@ -3,6 +3,7 @@ import PropertyCard from "./PropertyCard";
 import PropertyGrid from "./PropertyGrid";
 import AgentCard from "./AgentCard";
 import InquiryForm from "./InquiryForm";
+import InquiryDispatcher from "./InquiryDispatcher";
 import CompanyFeatures from "./CompanyFeatures";
 import ContactSection from "./ContactSection";
 import SearchBar from "./SearchBar";
@@ -41,6 +42,7 @@ export const EstateComponents = {
   PropertyGrid,
   AgentCard,
   InquiryForm,
+  InquiryDispatcher,
   CompanyFeatures,
   ContactSection,
   SearchBar,
@@ -252,17 +254,23 @@ const propertyListItemSchema = {
     buildingName: textProp("Building Name (alias)"),
     nearest_station: textProp("Nearest Station"),
     nearestStation: textProp("Nearest Station (alias)"),
-    floor_plan: textProp("Floor Plan"),
-    floorPlan: textProp("Floor Plan (alias)"),
-    floor_area: numberProp("Floor Area"),
-    areaSize: textProp("Area Size"),
-    year_built: numberProp("Year Built"),
-    yearBuilt: textProp("Year Built (alias)"),
+    // Backend-sourced values vary in type (string / number / boolean / null),
+    // so accept a nullable union to avoid AJV warnings on bound data.
+    floor_plan: textProp("Floor Plan", { type: ["string", "null"] }),
+    floorPlan: textProp("Floor Plan (alias)", { type: ["string", "null"] }),
+    floor_area: numberProp("Floor Area", { type: ["string", "number", "null"] }),
+    areaSize: textProp("Area Size", { type: ["string", "number", "null"] }),
+    year_built: numberProp("Year Built", { type: ["string", "number", "null"] }),
+    yearBuilt: textProp("Year Built (alias)", { type: ["string", "number", "null"] }),
     tag: textProp("Tag"),
     property_type: enumProp("Property Type", propertyTypeValues),
     transport_info: textProp("Transport Info"),
-    pets_allowed: booleanProp("Pets Allowed"),
-    petsAllowed: booleanProp("Pets Allowed (alias)"),
+    pets_allowed: booleanProp("Pets Allowed", {
+      type: ["string", "boolean", "number", "null"],
+    }),
+    petsAllowed: booleanProp("Pets Allowed (alias)", {
+      type: ["string", "boolean", "number", "null"],
+    }),
     features: listTextProp("Features"),
   },
 };
@@ -549,6 +557,29 @@ export const EstateDefaultProps = {
       },
     ],
   },
+  InquiryDispatcher: {
+    _componentDesc:
+      "問い合わせ送信ハンドラ：estate:inquiry:submitted を受信してエンドポイントへPOST",
+    event: "estate:inquiry:submitted",
+    endpoint: "/api/estate/inquiries",
+    method: "POST",
+    bodyWrapKey: "",
+    showStatus: true,
+    successMessage: "問い合わせを送信しました",
+    errorMessage: "送信に失敗しました",
+    __schema: {
+      type: "object",
+      properties: {
+        event: { type: "string", title: "受信イベント" },
+        endpoint: { type: "string", title: "送信先エンドポイント" },
+        method: { type: "string", title: "HTTPメソッド", enum: ["POST", "PUT"] },
+        bodyWrapKey: { type: "string", title: "エンベロープキー（任意）" },
+        showStatus: { type: "boolean", title: "送信結果を表示" },
+        successMessage: { type: "string", title: "成功メッセージ" },
+        errorMessage: { type: "string", title: "失敗メッセージ" },
+      },
+    },
+  },
   CompanyFeatures: {
     _componentDesc: 'component.companyFeatures.desc',
     title: "当社の強み",
@@ -826,6 +857,12 @@ export const EstateDefaultProps = {
     keywordKey: "estate.keyword",
     activeIntent: "all",
     activeKeyword: "",
+    // Per-intent buttons. Disable one to hide it (e.g. a rent-only page: set
+    // showSale/showInvestment/showAll to false and activeIntent to "rent").
+    showAll: true,
+    showSale: true,
+    showRent: true,
+    showInvestment: true,
   },
   NeighborhoodCard: {
     _componentDesc: 'component.neighborhoodCard.desc',

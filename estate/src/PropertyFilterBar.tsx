@@ -11,6 +11,15 @@ export interface PropertyFilterBarProps {
   keywordKey?: string;
   activeIntent?: string;
   activeKeyword?: string;
+  // Per-intent visibility. Disable one to hide its button (e.g. a rent-only listing
+  // page shows just "For Rent"). Defaults show all four.
+  showAll?: boolean;
+  showSale?: boolean;
+  showRent?: boolean;
+  showInvestment?: boolean;
+  floorPlanOptions?: string[];
+  featureOptions?: string[];
+  directionOptions?: string[];
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -36,9 +45,25 @@ export const ESTATE_FILTER_STATE_KEYS = {
   keyMoneyMax: "estate.filter.keyMoneyMax",
   yieldMin: "estate.filter.yieldMin",
   yieldMax: "estate.filter.yieldMax",
+  features: "estate.filter.features",
+  directions: "estate.filter.directions",
 } as const;
 
 const INTENTS = ["all", "sale", "rent", "investment"] as const;
+
+// Default checkbox options (authors can override via props). Values are the exact
+// keywords matched client-side by propertyMatchesDetailFilters.
+const DEFAULT_FLOOR_PLAN_OPTIONS = [
+  "1R", "1K", "1DK", "1LDK", "2K", "2DK", "2LDK", "3K", "3DK", "3LDK", "4LDK",
+];
+const DEFAULT_FEATURE_OPTIONS = [
+  "ペット可", "オートロック", "駐車場", "エレベーター", "宅配ボックス",
+  "システムキッチン", "浴室乾燥機", "床暖房", "独立洗面台", "室内洗濯機置場",
+  "バス・トイレ別", "都市ガス", "角部屋", "最上階", "リノベーション", "インターネット無料",
+];
+const DEFAULT_DIRECTION_OPTIONS = [
+  "南", "東", "西", "北", "南東", "南西", "北東", "北西",
+];
 
 interface FilterFieldProps {
   label: string;
@@ -149,42 +174,69 @@ function TextFilterField({
   );
 }
 
-interface ToggleFilterFieldProps {
+interface CheckboxGroupFieldProps {
   label: string;
+  options: string[];
   stateKey: string;
+  /** Appended to each option label for display only (e.g. "向き" for directions). */
+  displaySuffix?: string;
   __stackpage?: StackPageRuntimeApi;
 }
 
-function ToggleFilterField({
+const parseCsv = (raw: unknown): string[] =>
+  String(raw ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+
+function CheckboxGroupField({
   label,
+  options,
   stateKey,
+  displaySuffix = "",
   __stackpage,
-}: ToggleFilterFieldProps) {
-  const [checked, setChecked] = useState(
-    String(getPageState(__stackpage, stateKey, false)) === "true"
+}: CheckboxGroupFieldProps) {
+  const t = useT();
+  const [selected, setSelected] = useState<string[]>(() =>
+    parseCsv(getPageState(__stackpage, stateKey, ""))
   );
 
   useEffect(() => {
-    setChecked(String(getPageState(__stackpage, stateKey, false)) === "true");
+    setSelected(parseCsv(getPageState(__stackpage, stateKey, "")));
   }, [__stackpage, stateKey]);
 
-  const handleChange = (next: boolean) => {
-    setChecked(next);
-    setPageState(__stackpage, stateKey, next);
-    __stackpage?.emit?.("realestate:filter:changed", { [stateKey]: next });
-    __stackpage?.emit?.("estate:filter:changed", { [stateKey]: next });
+  const toggle = (value: string) => {
+    const set = new Set(selected);
+    if (set.has(value)) set.delete(value);
+    else set.add(value);
+    const next = Array.from(set);
+    setSelected(next);
+    const joined = next.join(",");
+    setPageState(__stackpage, stateKey, joined);
+    __stackpage?.emit?.("realestate:filter:changed", { [stateKey]: joined });
+    __stackpage?.emit?.("estate:filter:changed", { [stateKey]: joined });
   };
 
   return (
-    <label className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => handleChange(e.target.checked)}
-        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-      />
-      <span>{label}</span>
-    </label>
+    <div className="flex flex-col gap-1.5">
+      <label className="text-xs font-medium text-slate-600">{label}</label>
+      <div className="flex flex-wrap gap-x-4 gap-y-2">
+        {options.map((opt) => (
+          <label
+            key={opt}
+            className="flex cursor-pointer items-center gap-1.5 text-sm text-slate-700"
+          >
+            <input
+              type="checkbox"
+              checked={selected.includes(opt)}
+              onChange={() => toggle(opt)}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span>
+              {t(opt)}
+              {displaySuffix}
+            </span>
+          </label>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -205,6 +257,13 @@ export default function PropertyFilterBar({
   keywordKey = ESTATE_FILTER_STATE_KEYS.keyword,
   activeIntent = "all",
   activeKeyword = "",
+  showAll = true,
+  showSale = true,
+  showRent = true,
+  showInvestment = true,
+  floorPlanOptions = DEFAULT_FLOOR_PLAN_OPTIONS,
+  featureOptions = DEFAULT_FEATURE_OPTIONS,
+  directionOptions = DEFAULT_DIRECTION_OPTIONS,
   backgroundColor,
   fontSize,
   className = "",
@@ -223,6 +282,14 @@ export default function PropertyFilterBar({
   const currentIntent = String(
     __stackpage?.getPageState?.(intentKey, activeIntent) || activeIntent
   );
+
+  const intentVisibility: Record<string, boolean> = {
+    all: showAll,
+    sale: showSale,
+    rent: showRent,
+    investment: showInvestment,
+  };
+  const visibleIntents = INTENTS.filter((intent) => intentVisibility[intent]);
 
   const collectFilterPayload = () => ({
     intent: currentIntent,
@@ -313,22 +380,24 @@ export default function PropertyFilterBar({
 
       {/* Intent buttons + keyword */}
       <div className="flex flex-wrap items-center gap-3 px-5 py-4">
-        <div className="flex flex-wrap gap-2">
-          {INTENTS.map((intent) => (
-            <button
-              key={intent}
-              type="button"
-              onClick={() => handleIntentChange(intent)}
-              className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
-                currentIntent === intent
-                  ? "border-blue-300 bg-blue-100 text-blue-800"
-                  : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              {t(INTENT_META[intent]?.labelKey || intent)}
-            </button>
-          ))}
-        </div>
+        {visibleIntents.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {visibleIntents.map((intent) => (
+              <button
+                key={intent}
+                type="button"
+                onClick={() => handleIntentChange(intent)}
+                className={`rounded-xl border px-4 py-2 text-sm font-semibold transition ${
+                  currentIntent === intent
+                    ? "border-blue-300 bg-blue-100 text-blue-800"
+                    : "border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                {t(INTENT_META[intent]?.labelKey || intent)}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="relative ml-auto flex-1 md:max-w-xs">
           <input
             type="text"
@@ -373,49 +442,53 @@ export default function PropertyFilterBar({
               suffix={t("yen")}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <TextFilterField
-                label={t("Station / line")}
-                placeholder={t("e.g. 本駒込駅, 南北線")}
-                stateKey={ESTATE_FILTER_STATE_KEYS.stationKeyword}
-                __stackpage={__stackpage}
-              />
-              <TextFilterField
-                label={t("Floor plan")}
-                placeholder={t("e.g. 1LDK, 2K, 3LDK")}
-                stateKey={ESTATE_FILTER_STATE_KEYS.floorPlan}
-                __stackpage={__stackpage}
-              />
-            </div>
+            <TextFilterField
+              label={t("Station / line")}
+              placeholder={t("e.g. 本駒込駅, 南北線")}
+              stateKey={ESTATE_FILTER_STATE_KEYS.stationKeyword}
+              __stackpage={__stackpage}
+            />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <RangeFilterFields
-                label={t("Area")}
-                minPlaceholder={t("Min sqm")}
-                maxPlaceholder={t("Max sqm")}
-                minKey={ESTATE_FILTER_STATE_KEYS.areaMin}
-                maxKey={ESTATE_FILTER_STATE_KEYS.areaMax}
-                __stackpage={__stackpage}
-                suffix="㎡"
-              />
-              <RangeFilterFields
-                label={t("Year built")}
-                minPlaceholder={t("From")}
-                maxPlaceholder={t("To")}
-                minKey={ESTATE_FILTER_STATE_KEYS.yearBuiltMin}
-                maxKey={ESTATE_FILTER_STATE_KEYS.yearBuiltMax}
-                __stackpage={__stackpage}
-                suffix={t("year")}
-              />
-            </div>
+            <CheckboxGroupField
+              label={t("Floor plan")}
+              options={floorPlanOptions}
+              stateKey={ESTATE_FILTER_STATE_KEYS.floorPlan}
+              __stackpage={__stackpage}
+            />
 
-            <div className="flex flex-wrap gap-2">
-              <ToggleFilterField
-                label={t("Pets allowed")}
-                stateKey={ESTATE_FILTER_STATE_KEYS.petsAllowed}
-                __stackpage={__stackpage}
-              />
-            </div>
+            <RangeFilterFields
+              label={t("Area")}
+              minPlaceholder={t("Min sqm")}
+              maxPlaceholder={t("Max sqm")}
+              minKey={ESTATE_FILTER_STATE_KEYS.areaMin}
+              maxKey={ESTATE_FILTER_STATE_KEYS.areaMax}
+              __stackpage={__stackpage}
+              suffix="㎡"
+            />
+            <RangeFilterFields
+              label={t("Year built")}
+              minPlaceholder={t("From")}
+              maxPlaceholder={t("To")}
+              minKey={ESTATE_FILTER_STATE_KEYS.yearBuiltMin}
+              maxKey={ESTATE_FILTER_STATE_KEYS.yearBuiltMax}
+              __stackpage={__stackpage}
+              suffix={t("year")}
+            />
+
+            <CheckboxGroupField
+              label={t("Features & equipment")}
+              options={featureOptions}
+              stateKey={ESTATE_FILTER_STATE_KEYS.features}
+              __stackpage={__stackpage}
+            />
+
+            <CheckboxGroupField
+              label={t("Facing direction")}
+              options={directionOptions}
+              displaySuffix={t("向き")}
+              stateKey={ESTATE_FILTER_STATE_KEYS.directions}
+              __stackpage={__stackpage}
+            />
 
             {/* Rent-specific fields: deposit and key money */}
             {currentIntent === "rent" && (
