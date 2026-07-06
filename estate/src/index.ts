@@ -552,7 +552,9 @@ export const EstateDefaultProps = {
     _componentDesc: 'component.inquiryForm.desc',
     title: "Interested in this property?",
     submitLabel: "Send Message",
+    endpoint: "/api/estate/inquiries",
     selectedPropertyIdKey: "estate.selectedPropertyId",
+    inquiryPropertiesKey: "estate.inquiry.properties",
     __interactions: [
       {
         id: "estate-inquiry-submit",

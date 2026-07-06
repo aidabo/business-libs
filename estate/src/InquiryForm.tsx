@@ -13,6 +13,8 @@ import {
 export interface InquiryFormProps {
   title?: string;
   submitLabel?: string;
+  /** API endpoint the inquiry is POSTed to (saved to estate_inquiries). */
+  endpoint?: string;
   selectedPropertyIdKey?: string;
   inquiryPropertiesKey?: string;
   backgroundColor?: string;
@@ -25,6 +27,7 @@ export interface InquiryFormProps {
 const InquiryForm: React.FC<InquiryFormProps> = ({
   title,
   submitLabel,
+  endpoint = "/api/estate/inquiries",
   selectedPropertyIdKey = ESTATE_STATE_KEYS.selectedPropertyId,
   inquiryPropertiesKey = ESTATE_STATE_KEYS.inquiryProperties,
   backgroundColor,
@@ -74,34 +77,29 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
     e.preventDefault();
     setStatus("loading");
 
-    if (__stackpage) {
-      __stackpage.emit(
-        ESTATE_EVENTS.inquirySubmitted,
-        buildInquiryEventPayload(param, selectedItem, inquiryProperties)
-      );
-      setStatus("success");
-      setParam({ name: "", email: "", phone: "", message: "" });
-      writeInquiryProperties(__stackpage, [], inquiryPropertiesKey);
-      setTimeout(() => setStatus("idle"), 5000);
-      return;
-    }
+    const payload = buildInquiryEventPayload(param, selectedItem, inquiryProperties);
 
     try {
-      const response = await fetch("/api/estate/send-mail", {
+      // Save the inquiry via the API and only show success once it is persisted.
+      const response = await fetch(endpoint, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(buildInquiryEventPayload(param, selectedItem, inquiryProperties)),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
-      if (response.ok) {
-        setStatus("success");
-        setParam({ name: "", email: "", phone: "", message: "" });
-        setTimeout(() => setStatus("idle"), 5000);
-      } else {
+      if (!response.ok) {
         setStatus("error");
+        return;
       }
+
+      setStatus("success");
+      setParam({ name: "", email: "", phone: "", message: "" });
+      if (__stackpage) {
+        // Clear the picked properties and notify listeners the inquiry was saved.
+        writeInquiryProperties(__stackpage, [], inquiryPropertiesKey);
+        __stackpage.emit?.(ESTATE_EVENTS.inquirySubmitted, payload);
+      }
+      setTimeout(() => setStatus("idle"), 5000);
     } catch (error) {
       console.error("Failed to send inquiry:", error);
       setStatus("error");
