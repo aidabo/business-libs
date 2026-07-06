@@ -100,6 +100,14 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
     maxArea: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.areaMax, "") || ""),
     minYearBuilt: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yearBuiltMin, "") || ""),
     maxYearBuilt: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yearBuiltMax, "") || ""),
+    minPrice: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.priceMin, "") || ""),
+    maxPrice: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.priceMax, "") || ""),
+    minDeposit: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.depositMin, "") || ""),
+    maxDeposit: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.depositMax, "") || ""),
+    minKeyMoney: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.keyMoneyMin, "") || ""),
+    maxKeyMoney: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.keyMoneyMax, "") || ""),
+    minYield: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yieldMin, "") || ""),
+    maxYield: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yieldMax, "") || ""),
     petsAllowed: (() => {
       const raw = getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.petsAllowed, null);
       if (raw == null || raw === "") return null;

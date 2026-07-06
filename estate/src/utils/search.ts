@@ -91,6 +91,14 @@ export interface PropertyDetailFilters {
   maxArea?: string | number;
   minYearBuilt?: string | number;
   maxYearBuilt?: string | number;
+  minPrice?: string | number;
+  maxPrice?: string | number;
+  minDeposit?: string | number;
+  maxDeposit?: string | number;
+  minKeyMoney?: string | number;
+  maxKeyMoney?: string | number;
+  minYield?: string | number;
+  maxYield?: string | number;
   petsAllowed?: boolean | null;
   /** Selected feature/equipment keywords. AND-matched (every one must be present). */
   features?: string[];
@@ -242,6 +250,35 @@ function extractBoolean(property: Record<string, unknown>, keys: string[]): bool
   return null;
 }
 
+function firstNumber(p: Record<string, any>, keys: string[]): number | null {
+  for (const key of keys) {
+    const num = toNumberOrNull(p[key]);
+    if (num != null) return num;
+  }
+  return null;
+}
+
+// The "price" range means monthly rent for rentals, otherwise the sale price.
+function extractPriceValue(p: Record<string, any>): number | null {
+  const type = String(p.property_type ?? p.propertyType ?? "").toLowerCase();
+  if (type === "rent") {
+    return firstNumber(p, [
+      "price_rent_monthly", "priceRentMonthly", "current_rent", "expected_rent", "rent", "price",
+    ]);
+  }
+  return firstNumber(p, ["price_sale", "priceSale", "price", "price_valuation", "price_rent_monthly"]);
+}
+
+function withinRange(
+  value: number | null,
+  min: number | null,
+  max: number | null
+): boolean {
+  if (min != null && (value == null || value < min)) return false;
+  if (max != null && (value == null || value > max)) return false;
+  return true;
+}
+
 export function propertyMatchesDetailFilters(
   property: Record<string, unknown>,
   filters: PropertyDetailFilters = {}
@@ -284,6 +321,32 @@ export function propertyMatchesDetailFilters(
   const maxYearBuilt = toNumberOrNull(filters.maxYearBuilt);
   if (minYearBuilt != null && (yearBuilt == null || yearBuilt < minYearBuilt)) return false;
   if (maxYearBuilt != null && (yearBuilt == null || yearBuilt > maxYearBuilt)) return false;
+
+  const minPrice = toNumberOrNull(filters.minPrice);
+  const maxPrice = toNumberOrNull(filters.maxPrice);
+  if ((minPrice != null || maxPrice != null) &&
+    !withinRange(extractPriceValue(p), minPrice, maxPrice)) return false;
+
+  const minDeposit = toNumberOrNull(filters.minDeposit);
+  const maxDeposit = toNumberOrNull(filters.maxDeposit);
+  if ((minDeposit != null || maxDeposit != null) &&
+    !withinRange(firstNumber(p, ["price_deposit", "priceDeposit", "deposit"]), minDeposit, maxDeposit))
+    return false;
+
+  const minKeyMoney = toNumberOrNull(filters.minKeyMoney);
+  const maxKeyMoney = toNumberOrNull(filters.maxKeyMoney);
+  if ((minKeyMoney != null || maxKeyMoney != null) &&
+    !withinRange(firstNumber(p, ["price_key_money", "priceKeyMoney", "key_money"]), minKeyMoney, maxKeyMoney))
+    return false;
+
+  const minYield = toNumberOrNull(filters.minYield);
+  const maxYield = toNumberOrNull(filters.maxYield);
+  if ((minYield != null || maxYield != null) &&
+    !withinRange(
+      firstNumber(p, ["expected_yield", "expectedYield", "current_yield", "currentYield", "yield"]),
+      minYield,
+      maxYield
+    )) return false;
 
   if (filters.petsAllowed != null) {
     const petsAllowed = extractBoolean(property, ["petsAllowed", "pets_allowed"]);
