@@ -5,9 +5,12 @@ import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
 import {
   ESTATE_STATE_KEYS,
+  ESTATE_EVENTS,
   getPageState,
   setPageState,
   buildPropertySelectionEvent,
+  readInquiryProperties,
+  toggleInquiryProperty,
 } from "./types";
 import {
   DEFAULT_SEARCHABLE_FIELDS,
@@ -29,6 +32,9 @@ export interface PropertyGridProps {
   intentKey?: string;
   searchableFields?: string[];
   detailPageId?: string;
+  /** Show an inquiry-selection checkbox on each card (for bulk InquiryForm). */
+  selectable?: boolean;
+  inquiryPropertiesKey?: string;
 
   // ── Filter / search params ──────────────────────────────────────
   propertyType?: "sale" | "rent" | "investment" | "all";
@@ -63,6 +69,8 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
   intentKey = ESTATE_STATE_KEYS.filterIntent,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
+  selectable,
+  inquiryPropertiesKey = ESTATE_STATE_KEYS.inquiryProperties,
 
   // Filter params
   propertyType: _propertyType,
@@ -155,6 +163,28 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
     }
   };
 
+  // ── Inquiry selection (bulk) ──────────────────────────────────
+  const selectedInquiryIds = new Set(
+    (selectable ? readInquiryProperties(__stackpage, inquiryPropertiesKey) : []).map((p) => p.id)
+  );
+
+  const handleToggleSelect = (prop: PropertyCardProps) => {
+    const p = prop as Record<string, any>;
+    const id = String(prop.id || prop.itemId || p.address || "");
+    if (!id) return;
+    const next = toggleInquiryProperty(
+      __stackpage,
+      {
+        id,
+        title: String(p.building_name || p.buildingName || p.title || p.address || id),
+        price: String(p.price ?? p.price_rent_monthly ?? p.price_sale ?? ""),
+        address: String(p.address || ""),
+      },
+      inquiryPropertiesKey
+    );
+    __stackpage?.emit?.(ESTATE_EVENTS.inquirySelectionChanged, { properties: next });
+  };
+
   // ── Grid classes ──────────────────────────────────────────────
   const gridColsClass: Record<number, string> = {
     2: "sm:grid-cols-2",
@@ -235,6 +265,9 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
                   onCardClick={() => handleCardClick(prop)}
                   detailPageId={detailPageId}
                   itemId={resolvedItemId}
+                  selectable={selectable}
+                  selectedForInquiry={selectedInquiryIds.has(resolvedItemId)}
+                  onToggleSelect={() => handleToggleSelect(prop)}
                   __stackpage={__stackpage}
                 />
               );

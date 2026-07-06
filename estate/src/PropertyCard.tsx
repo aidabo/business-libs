@@ -121,6 +121,10 @@ export interface PropertyCardProps {
   onCardClick?: () => void;
   detailPageId?: string;
   itemId?: string;
+  /** Show an inquiry-selection checkbox on the card. */
+  selectable?: boolean;
+  selectedForInquiry?: boolean;
+  onToggleSelect?: () => void;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -197,6 +201,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   onCardClick,
   detailPageId,
   itemId,
+  selectable,
+  selectedForInquiry,
+  onToggleSelect,
   backgroundColor,
   fontSize,
   className = "",
@@ -252,6 +259,26 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         </span>
       </div>
     ) : null;
+
+  // Inquiry-selection checkbox (top-right). stopPropagation so it doesn't trigger
+  // card navigation.
+  const selectCheckbox = selectable ? (
+    <div
+      className="absolute top-3 right-3 z-20"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <input
+        type="checkbox"
+        aria-label={t("Select for inquiry")}
+        checked={!!selectedForInquiry}
+        onChange={(e) => {
+          e.stopPropagation();
+          onToggleSelect?.();
+        }}
+        className="h-5 w-5 cursor-pointer rounded border-gray-300 bg-white/90 text-blue-600 shadow focus:ring-blue-500"
+      />
+    </div>
+  ) : null;
 
   // Format a JPY amount: keep already-formatted strings (contain ¥ / 円 / 万);
   // otherwise prepend ¥ and add thousands separators.
@@ -442,6 +469,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             />
           )}
           {videoBadge}
+          {selectCheckbox}
           <div className="absolute top-3 left-3">
             <span className={`${tagColor} text-white text-[10px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm uppercase tracking-wide`}>
               {t(tag)}
@@ -476,6 +504,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           />
         )}
         {videoBadge}
+        {selectCheckbox}
         {/* Tag badge */}
         <div className="absolute top-3 left-3 z-10">
           <span className={`${tagColor} text-white text-[10px] font-bold px-2.5 py-1 rounded-md backdrop-blur-sm uppercase tracking-wide inline-block`}>

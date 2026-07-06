@@ -283,6 +283,8 @@ const propertyGridSchema = {
     description: textareaProp("Description"),
     columns: numberProp("Columns", { minimum: 1, maximum: 4 }),
     layout: enumProp("Layout", ["grid", "list"]),
+    selectable: booleanProp("Selectable (inquiry checkbox on cards)"),
+    inquiryPropertiesKey: textProp("Inquiry Selection State Key"),
     selectedPropertyIdKey: textProp("Selected Property ID State Key"),
     keywordKey: textProp("Keyword State Key"),
     intentKey: textProp("Intent State Key"),
@@ -448,6 +450,10 @@ export const EstateDefaultProps = {
     description: "Explore our latest listings chosen for you.",
     columns: 3,
     layout: "grid",
+    // Enable to show an inquiry-selection checkbox on each card; InquiryForm then
+    // submits an inquiry for all selected properties.
+    selectable: false,
+    inquiryPropertiesKey: "estate.inquiry.properties",
     selectedPropertyIdKey: "estate.selectedPropertyId",
     keywordKey: "estate.keyword",
     intentKey: "estate.filter.intent",

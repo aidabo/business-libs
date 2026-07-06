@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
-import { ESTATE_STATE_KEYS, ESTATE_EVENTS, buildInquiryEventPayload, getPageState } from "./types";
+import {
+  ESTATE_STATE_KEYS,
+  ESTATE_EVENTS,
+  buildInquiryEventPayload,
+  getPageState,
+  readInquiryProperties,
+  writeInquiryProperties,
+} from "./types";
 
 export interface InquiryFormProps {
   title?: string;
   submitLabel?: string;
   selectedPropertyIdKey?: string;
+  inquiryPropertiesKey?: string;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -18,6 +26,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
   title,
   submitLabel,
   selectedPropertyIdKey = ESTATE_STATE_KEYS.selectedPropertyId,
+  inquiryPropertiesKey = ESTATE_STATE_KEYS.inquiryProperties,
   backgroundColor,
   fontSize,
   className = "",
@@ -34,6 +43,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
 
   const selectedId = String(getPageState(__stackpage, selectedPropertyIdKey, ""));
   const selectedItem = selectedId ? { id: selectedId } : null;
+  const inquiryProperties = readInquiryProperties(__stackpage, inquiryPropertiesKey);
 
   const displayTitle = title || t("Interested in this property?");
   const displaySubmitLabel = submitLabel || t("Send Message");
@@ -45,6 +55,21 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
+  // Re-render when the selection changes elsewhere (PropertyGrid checkboxes emit
+  // this event) so the selected-property chips stay in sync even if the host does
+  // not re-render this widget on shared-state writes.
+  const [, forceSelectionSync] = useState(0);
+  useEffect(() => {
+    if (!__stackpage?.subscribe) return;
+    const unsubscribe = __stackpage.subscribe(
+      ESTATE_EVENTS.inquirySelectionChanged,
+      () => forceSelectionSync((n) => n + 1)
+    );
+    return () => {
+      if (typeof unsubscribe === "function") unsubscribe();
+    };
+  }, [__stackpage]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
@@ -52,10 +77,11 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
     if (__stackpage) {
       __stackpage.emit(
         ESTATE_EVENTS.inquirySubmitted,
-        buildInquiryEventPayload(param, selectedItem)
+        buildInquiryEventPayload(param, selectedItem, inquiryProperties)
       );
       setStatus("success");
       setParam({ name: "", email: "", phone: "", message: "" });
+      writeInquiryProperties(__stackpage, [], inquiryPropertiesKey);
       setTimeout(() => setStatus("idle"), 5000);
       return;
     }
@@ -66,7 +92,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(param),
+        body: JSON.stringify(buildInquiryEventPayload(param, selectedItem, inquiryProperties)),
       });
 
       if (response.ok) {
@@ -93,6 +119,37 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
       style={mergedStyle}
     >
       <h3 className="text-2xl font-bold text-gray-900 mb-6">{displayTitle}</h3>
+      {inquiryProperties.length > 0 && (
+        <div className="mb-6">
+          <div className="mb-2 text-sm font-medium text-gray-700">
+            {t("Selected properties")} ({inquiryProperties.length})
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {inquiryProperties.map((p) => (
+              <span
+                key={p.id}
+                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
+              >
+                {p.title || p.id}
+                <button
+                  type="button"
+                  aria-label={t("Remove")}
+                  onClick={() =>
+                    writeInquiryProperties(
+                      __stackpage,
+                      inquiryProperties.filter((x) => x.id !== p.id),
+                      inquiryPropertiesKey
+                    )
+                  }
+                  className="text-blue-400 transition hover:text-blue-700"
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
