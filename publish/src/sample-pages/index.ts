@@ -1100,6 +1100,515 @@ export const NEWSPAPER_HOME: SeedPageData = {
 };
 
 /** All seed pages for the publish module */
+
+
+// ── World Cup 2026 Special (Newspaper Paper 1: Sports) ────────────────────
+
+export const WORLD_CUP_SPECIAL: SeedPageData = {
+  id: 'seed-publish-worldcup',
+  type: 'page',
+  title: 'World Cup 2026 Special',
+  excerpt: 'Comprehensive coverage of the 2026 FIFA World Cup — Ecuador stuns Germany, Japan advances, Brazil cruises, and Cape Verde\'s miracle run.',
+  image: 'https://images.unsplash.com/photo-1489944440612-453fc1b6a9a3?w=800&h=400&fit=crop',
+  status: 'draft',
+  attributes: { margin: '0px' },
+  pageState: { selectedId: null, keyword: '', activeTab: 'components' },
+  layout: [
+    // Masthead
+    {
+      x: 0, y: 0, w: 12, h: 13,
+      content: JSON.stringify({
+        name: 'NewspaperHeader',
+        props: {
+          name: 'The World Cup Herald',
+          tagline: 'Your Daily Guide to the Beautiful Game',
+          edition: 'World Cup 2026 · Matchday 15',
+          variant: 'standard',
+          sections: [
+            { label: 'Match Reports', slug: 'matches' },
+            { label: 'Knockout Preview', slug: 'knockout' },
+            { label: 'Stars', slug: 'stars' },
+            { label: 'Host Cities', slug: 'hosts' },
+            { label: 'Analysis', slug: 'analysis' },
+          ],
+          weather: { city: 'Kansas City', temp: '28°C', icon: '☀️', condition: 'Clear' },
+        },
+      }),
+    },
+    // Lead Story
+    {
+      x: 0, y: 13, w: 8, h: 26,
+      content: JSON.stringify({
+        name: 'LeadStory',
+        props: {
+          title: 'Ecuador Stuns Germany 2-1 in Thriller, Advances to Round of 32',
+          deck: 'Nilson Angulo and Gonzalo Plata score as Ecuador produce one of the biggest upsets in World Cup history against four-time champions.',
+          content: '<p>In one of the most dramatic nights of the 2026 FIFA World Cup, Ecuador produced a stunning 2-1 victory over Germany to secure their place in the Round of 32. Goals from Nilson Angulo and Gonzalo Plata sent shockwaves through the tournament, with Leroy Sané\'s late strike proving to be a mere consolation for the four-time champions.</p><p>The result, played out in front of 68,000 fans at Arrowhead Stadium in Kansas City, will go down as one of the greatest upsets in World Cup history. Ecuador, who finished as one of the best third-placed teams, have captured the imagination of neutrals worldwide.</p>',
+          image: 'https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800&h=400&fit=crop',
+          category: 'Match Report',
+          badgeText: 'BREAKING',
+          author: 'Carlos Rodriguez',
+          publishedAt: 'June 26, 2026',
+          columnCount: 2,
+          pullQuote: { text: 'This is the greatest moment in Ecuadorian football history. Our players believed from the first whistle.', attribution: 'Ecuador Head Coach' },
+          tags: ['WorldCup2026', 'Ecuador', 'Germany', 'Upset', 'KnockoutStage'],
+        },
+      }),
+    },
+    // Sidebar Briefs
+    {
+      x: 8, y: 13, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Netherlands crowned Group F winners after 3-1 win over Tunisia', time: '10:30 PM', category: 'Group F' } }),
+    },
+    {
+      x: 8, y: 15, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Japan become first Asian team to reach Round of 32 after 1-1 draw with Sweden', time: '8:00 PM', category: 'Group F', isUrgent: true } }),
+    },
+    {
+      x: 8, y: 17, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Brazil cruise past Scotland 3-0 — Vinicius Jr. scores brace', time: '5:30 PM', category: 'Group C' } }),
+    },
+    {
+      x: 8, y: 19, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Turkey stun hosts USA 3-2 in farewell thriller — Arda Güler scores first World Cup goal', time: '3:00 PM', isUrgent: true } }),
+    },
+    {
+      x: 8, y: 21, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Ivory Coast reach knockout stage for first time ever with 2-0 win over Curaçao', time: '11:00 AM', category: 'Group E' } }),
+    },
+    {
+      x: 8, y: 23, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Cape Verde complete miracle group stage — unbeaten in first World Cup appearance', time: '9:00 AM', category: 'Group H' } }),
+    },
+    // ContentFeed sidebar
+    {
+      x: 8, y: 25, w: 4, h: 8,
+      content: JSON.stringify({
+        name: 'ContentFeed',
+        props: {
+          title: 'Latest Scores', maxItems: 6,
+          items: [
+            { id: 's1', title: 'France 4-1 Norway: Dembélé hat-trick powers Les Bleus', publishedAt: 'June 26', contentType: 'news' },
+            { id: 's2', title: 'Egypt 1-1 Iran: Pharaohs advance alongside Belgium', publishedAt: 'June 26', contentType: 'news' },
+            { id: 's3', title: 'Mexico finish perfect group stage — 9 pts, 0 conceded', publishedAt: 'June 25', contentType: 'news' },
+            { id: 's4', title: 'South Africa reach R32 for first time, beat South Korea 1-0', publishedAt: 'June 25', contentType: 'news' },
+            { id: 's5', title: 'Canada make history — first ever knockout stage appearance', publishedAt: 'June 25', contentType: 'news' },
+            { id: 's6', title: 'Neymar makes emotional return for Brazil after 3-year absence', publishedAt: 'June 25', contentType: 'news' },
+          ],
+        },
+      }),
+    },
+    // Section: Knockout Preview
+    {
+      x: 0, y: 39, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'Round of 32 Preview', subtitle: 'Knockout stage kicks off July 1 — these are the must-watch clashes', icon: '🏆' } }),
+    },
+    {
+      x: 0, y: 42, w: 4, h: 8,
+      content: JSON.stringify({ name: 'SecondaryArticleCard', props: { title: 'Brazil vs Japan: Samba meets Samurai in blockbuster R32 clash', excerpt: 'The five-time champions face Asia\'s best in what promises to be a tactical masterclass.', section: 'Preview', author: 'Takashi Yamamoto', publishedAt: 'June 27, 2026' } }),
+    },
+    {
+      x: 4, y: 42, w: 4, h: 8,
+      content: JSON.stringify({ name: 'SecondaryArticleCard', props: { title: 'South Africa vs Canada: Two debutants, one dream', excerpt: 'Both nations make history just by being here — only one can go further.', section: 'Preview', author: 'Michael Okafor', publishedAt: 'June 27, 2026' } }),
+    },
+    {
+      x: 8, y: 42, w: 4, h: 8,
+      content: JSON.stringify({ name: 'SecondaryArticleCard', props: { title: 'Netherlands vs Morocco: Oranje face Atlas Lions test', excerpt: 'Morocco look to repeat 2022 semifinal magic against a dominant Dutch side.', section: 'Preview', author: 'Mark van Dijk', publishedAt: 'June 27, 2026' } }),
+    },
+    // Section: Stars of the Tournament
+    {
+      x: 0, y: 50, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'Stars of the Tournament', subtitle: 'The players making headlines at World Cup 2026', icon: '⭐' } }),
+    },
+    {
+      x: 0, y: 53, w: 12, h: 16,
+      content: JSON.stringify({
+        name: 'ContentGrid',
+        props: {
+          title: 'Golden Ball Contenders', columns: 4, selectedContentIdKey: 'publish.selectedContentId',
+          contents: [
+            { id: 'p1', title: 'Ousmane Dembélé', excerpt: 'Hat-trick hero against Norway — 5 goals, 3 assists in group stage. France\'s new talisman.', contentType: 'news', author: 'L\'Équipe', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=400&h=300&fit=crop' },
+            { id: 'p2', title: 'Vinicius Jr.', excerpt: 'Double against Scotland, pace and flair unmatched. Brazil\'s crown jewel shining bright.', contentType: 'news', author: 'Globo Esporte', publishedAt: 'June 25', image: 'https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=400&h=300&fit=crop' },
+            { id: 'p3', title: 'Gonzalo Plata', excerpt: 'Scored the winner against Germany. Ecuador\'s hero of the tournament so far.', contentType: 'news', author: 'El Universo', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1511886929837-354d827aae26?w=400&h=300&fit=crop' },
+            { id: 'p4', title: 'Arda Güler', excerpt: 'First World Cup goal at 21 in Turkey\'s emotional farewell win over USA.', contentType: 'news', author: 'Fanatik', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=400&h=300&fit=crop' },
+          ],
+        },
+      }),
+    },
+    // Breaking News Ticker
+    {
+      x: 0, y: 69, w: 12, h: 4,
+      content: JSON.stringify({
+        name: 'BreakingNews',
+        props: {
+          label: 'LIVE', interval: 4000,
+          items: [
+            { id: 't1', title: 'Round of 32 kicks off July 1 — full schedule released tonight' },
+            { id: 't2', title: 'FIFA confirms record 4.2 billion global TV audience for group stage' },
+            { id: 't3', title: 'Kansas City breaks World Cup attendance record — 68,000 at Arrowhead' },
+            { id: 't4', title: 'VAR controversy: Germany denied late penalty in Ecuador loss' },
+          ],
+        },
+      }),
+    },
+    // Subscription
+    {
+      x: 0, y: 73, w: 12, h: 8,
+      content: JSON.stringify({
+        name: 'SubscriptionForm',
+        props: {
+          title: 'Get World Cup Updates',
+          description: 'Daily match reports, analysis, and knockout stage coverage delivered to your inbox.',
+          placeholder: 'Enter your email', buttonLabel: 'Subscribe',
+          interestCategories: [
+            { id: 'breaking', label: 'Breaking News' },
+            { id: 'analysis', label: 'Match Analysis' },
+            { id: 'highlights', label: 'Highlights' },
+          ],
+        },
+      }),
+    },
+  ],
+};
+
+// ── AI & Tech Review (Newspaper Paper 2: Technology) ──────────────────────
+
+export const AI_TECH_REVIEW: SeedPageData = {
+  id: 'seed-publish-ai-tech',
+  type: 'page',
+  title: 'AI & Technology Review',
+  excerpt: 'In-depth coverage of the AI revolution — OpenAI\'s custom chip, brain-inspired LLMs, China\'s world model, and the shift from language AI to physical AI.',
+  image: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=400&fit=crop',
+  status: 'draft',
+  attributes: { margin: '0px' },
+  pageState: { selectedId: null, keyword: '', activeTab: 'components' },
+  layout: [
+    // Masthead
+    {
+      x: 0, y: 0, w: 12, h: 13,
+      content: JSON.stringify({
+        name: 'NewspaperHeader',
+        props: {
+          name: 'The AI Chronicle',
+          tagline: 'Tracking the Intelligence Revolution',
+          edition: 'June 27, 2026 · Technology Special',
+          variant: 'standard',
+          sections: [
+            { label: 'Hardware', slug: 'hardware' },
+            { label: 'Models', slug: 'models' },
+            { label: 'Physical AI', slug: 'physical' },
+            { label: 'Policy', slug: 'policy' },
+            { label: 'Startups', slug: 'startups' },
+          ],
+          weather: { city: 'San Francisco', temp: '19°C', icon: '☁️', condition: 'Overcast' },
+        },
+      }),
+    },
+    // Lead Story: OpenAI Chip
+    {
+      x: 0, y: 13, w: 8, h: 28,
+      content: JSON.stringify({
+        name: 'LeadStory',
+        props: {
+          title: 'OpenAI Launches Jalapeño: First Custom AI Chip Challenges Nvidia Dominance',
+          deck: 'Co-developed with Broadcom in just 9 months, the new inference chip delivers breakthrough performance-per-watt and signals a new era of AI hardware independence.',
+          content: '<p>OpenAI has unveiled Jalapeño, its first custom-designed AI inference chip, marking a pivotal shift in the AI hardware landscape. Co-developed with Broadcom and Celestica, the chip was designed from scratch in just nine months — one of the fastest ASIC development cycles in semiconductor history.</p><p>Already running GPT-5.3-Codex-Spark in OpenAI\'s labs at target performance, Jalapeño delivers substantially better performance-per-watt than current state-of-the-art hardware, including Nvidia Blackwell and Google TPUs. A multi-generation roadmap is already in place, with initial data center deployment planned by end of 2026.</p>',
+          image: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&h=400&fit=crop',
+          category: 'Hardware',
+          badgeText: 'EXCLUSIVE',
+          author: 'Sarah Chen',
+          publishedAt: 'June 24, 2026',
+          columnCount: 2,
+          pullQuote: { text: 'Jalapeño represents the beginning of true AI infrastructure independence. We are no longer dependent on any single supplier for the compute that powers our models.', attribution: 'OpenAI CTO' },
+          tags: ['OpenAI', 'AI Chip', 'Jalapeño', 'Broadcom', 'Nvidia'],
+        },
+      }),
+    },
+    // Sidebar
+    {
+      x: 8, y: 13, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'BAAI unveils Physis-v0.1 — world\'s first general world foundation model', time: 'June 14', category: 'Models' } }),
+    },
+    {
+      x: 8, y: 15, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'WeRide GENESIS wins Generative AI Platform of the Year', time: 'June 25', category: 'Physical AI' } }),
+    },
+    {
+      x: 8, y: 17, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'Edge Impulse wins MLOps Innovation Award for edge AI platform', time: 'June 25', category: 'Awards' } }),
+    },
+    {
+      x: 8, y: 19, w: 4, h: 2,
+      content: JSON.stringify({ name: 'BriefItem', props: { title: 'TrendLife ScamCheck wins AI Safety Solution of the Year', time: 'June 25', isUrgent: true } }),
+    },
+    {
+      x: 8, y: 21, w: 4, h: 8,
+      content: JSON.stringify({
+        name: 'ContentFeed',
+        props: {
+          title: 'Market Watch', maxItems: 5,
+          items: [
+            { id: 'm1', title: 'Nvidia shares dip 3% after OpenAI chip announcement', publishedAt: '9:30 AM', contentType: 'news' },
+            { id: 'm2', title: 'Broadcom stock surges 8% on Jalapeño partnership news', publishedAt: '9:15 AM', contentType: 'news' },
+            { id: 'm3', title: 'TSMC confirms 2nm process ready for AI chip production', publishedAt: 'Yesterday', contentType: 'news' },
+            { id: 'm4', title: 'AI startup funding hits $42B in Q2 2026 — new record', publishedAt: 'June 25', contentType: 'news' },
+            { id: 'm5', title: 'EU AI Act full enforcement begins — what it means for devs', publishedAt: 'June 24', contentType: 'government' },
+          ],
+        },
+      }),
+    },
+    // Section: Models & Research
+    {
+      x: 0, y: 41, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'Models & Research', subtitle: 'The latest breakthroughs in AI architecture and capabilities', icon: '🧠' } }),
+    },
+    {
+      x: 0, y: 44, w: 6, h: 10,
+      content: JSON.stringify({
+        name: 'PrimaryArticleCard',
+        props: {
+          title: 'EPFL Creates MiCRo: An LLM That Thinks Like the Human Brain',
+          excerpt: 'Researchers unveil MiCRo (Mixture of Cognitive Reasoners), a novel LLM architecture divided into four specialized experts modeled after brain regions — language, logic, social reasoning, and world knowledge. Unlike black-box LLMs, MiCRo makes its thinking transparent and steerable without prompting.',
+          section: 'Research', author: 'EPFL News', publishedAt: 'June 2026',
+        },
+      }),
+    },
+    {
+      x: 6, y: 44, w: 6, h: 10,
+      content: JSON.stringify({
+        name: 'PrimaryArticleCard',
+        props: {
+          title: 'From Language to Physical AI: China Unveils First General World Foundation Model',
+          excerpt: 'Beijing Academy of AI\'s Physis-v0.1 aims to understand physical laws, spatial reasoning, and cause-effect relationships — marking a fundamental shift from text-pattern learning to real-world comprehension essential for robotics and embodied AI.',
+          section: 'Physical AI', author: 'CGTN', publishedAt: 'June 14, 2026',
+        },
+      }),
+    },
+    // Section: Industry Impact
+    {
+      x: 0, y: 54, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'Industry & Innovation', subtitle: 'How AI is reshaping businesses and products', icon: '🏭' } }),
+    },
+    {
+      x: 0, y: 57, w: 4, h: 9,
+      content: JSON.stringify({ name: 'SecondaryArticleCard', props: { title: 'WeRide GENESIS reduces autonomous driving data costs by 75%', excerpt: 'Four-layer world model architecture powers end-to-end ADAS winning six consecutive championships.', section: 'Autonomous', author: 'GlobeNewswire', publishedAt: 'June 25, 2026' } }),
+    },
+    {
+      x: 4, y: 57, w: 4, h: 9,
+      content: JSON.stringify({ name: 'SecondaryArticleCard', props: { title: 'InnoCaption wins Text-to-Speech award for AI-powered accessibility', excerpt: 'AI Refine helps people with speech disabilities communicate on phone calls.', section: 'Accessibility', author: 'TMCnet', publishedAt: 'June 25, 2026' } }),
+    },
+    {
+      x: 8, y: 57, w: 4, h: 9,
+      content: JSON.stringify({ name: 'SecondaryArticleCard', props: { title: 'AI coding assistants now write 40% of all production code', excerpt: 'GitHub survey reveals dramatic shift in software development practices.', section: 'DevTools', author: 'TechCrunch', publishedAt: 'June 26, 2026' } }),
+    },
+    // Opinion
+    {
+      x: 0, y: 66, w: 4, h: 10,
+      content: JSON.stringify({
+        name: 'EditorialCard',
+        props: {
+          author: 'Dr. Yuki Tanaka',
+          authorTitle: 'AI Ethics Researcher, MIT',
+          title: 'The Chip Race Won\'t Solve AI\'s Real Problems',
+          excerpt: 'While OpenAI\'s Jalapeño and Nvidia\'s Blackwell compete for hardware supremacy, we risk overlooking the deeper questions about AI alignment, bias, and the growing digital divide between nations that can afford custom silicon and those that cannot.',
+          publishedAt: 'June 26, 2026',
+          label: 'OPINION',
+        },
+      }),
+    },
+    // Pull Quote
+    {
+      x: 4, y: 66, w: 8, h: 10,
+      content: JSON.stringify({
+        name: 'PullQuote',
+        props: {
+          text: 'The shift from language AI to physical AI is as significant as the shift from rule-based systems to deep learning. It will define the next decade of technological progress.',
+          attribution: 'Director, Beijing Academy of AI',
+          attributionTitle: 'Physis-v0.1 Launch Keynote',
+          variant: 'large',
+        },
+      }),
+    },
+    // Subscription
+    {
+      x: 0, y: 76, w: 12, h: 8,
+      content: JSON.stringify({
+        name: 'SubscriptionForm',
+        props: {
+          title: 'Stay Ahead of the Curve',
+          description: 'Weekly AI breakthroughs, research papers, and industry analysis delivered every Monday.',
+          placeholder: 'your@email.com', buttonLabel: 'Subscribe',
+          interestCategories: [
+            { id: 'research', label: 'Research' },
+            { id: 'hardware', label: 'Hardware' },
+            { id: 'policy', label: 'AI Policy' },
+          ],
+        },
+      }),
+    },
+  ],
+};
+
+// ── Travel Magazine ───────────────────────────────────────────────────
+
+export const TRAVEL_MAGAZINE: SeedPageData = {
+  id: 'seed-publish-travel',
+  type: 'page',
+  title: 'Wanderlust Magazine — Summer 2026',
+  excerpt: 'Discover the world\'s hottest destinations for summer 2026 — from Japan\'s cultural renaissance to Mediterranean bliss, Nordic escapes, and World Cup host cities.',
+  image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&h=400&fit=crop',
+  status: 'draft',
+  attributes: { margin: '0px' },
+  pageState: { selectedId: null, keyword: '', activeTab: 'components' },
+  layout: [
+    // Hero
+    {
+      x: 0, y: 0, w: 12, h: 14,
+      content: JSON.stringify({
+        name: 'HeroBanner',
+        props: {
+          title: 'Wanderlust',
+          subtitle: 'Summer 2026 — Where the World is Going This Year',
+          backgroundImage: 'https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=80',
+          showSearch: true, searchPlaceholder: 'Search destinations, guides, tips...',
+          keywordKey: 'publish.searchQuery',
+          badgeText: 'SUMMER 2026',
+        },
+      }),
+    },
+    // Section Nav
+    {
+      x: 0, y: 14, w: 12, h: 5,
+      content: JSON.stringify({
+        name: 'SectionNav',
+        props: {
+          sections: [
+            { id: 't1', name: 'Asia Rising', slug: 'asia', icon: '🏯' },
+            { id: 't2', name: 'Mediterranean', slug: 'mediterranean', icon: '🏖️' },
+            { id: 't3', name: 'Nordic Escape', slug: 'nordic', icon: '❄️' },
+            { id: 't4', name: 'Hidden Gems', slug: 'hidden', icon: '💎' },
+            { id: 't5', name: 'World Cup Cities', slug: 'worldcup', icon: '⚽' },
+          ],
+        },
+      }),
+    },
+    // Featured: Japan
+    {
+      x: 0, y: 19, w: 8, h: 18,
+      content: JSON.stringify({
+        name: 'FeaturedContent',
+        props: {
+          title: 'Japan Rises: The World\'s #2 Travel Destination',
+          excerpt: 'Tokyo was the most-mentioned city destination worldwide in 2026. From ancient temples to neon-lit streets, Japan\'s cultural renaissance is drawing record visitors. Holafly data shows Japan climbing to #2 globally, with 46.4% of travelers now planning international trips.',
+          image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1200&h=600&fit=crop',
+          category: 'Asia',
+          author: 'Emma Williams',
+          publishedAt: 'June 25, 2026',
+          badgeText: 'TRENDING #1',
+        },
+      }),
+    },
+    {
+      x: 8, y: 19, w: 4, h: 18,
+      content: JSON.stringify({
+        name: 'LatestUpdates',
+        props: {
+          title: 'Travel Alerts', maxItems: 6, showViewAll: true,
+          items: [
+            { id: 'ta1', title: 'Japan e-visa now available in 68 countries — processing time under 48 hours', publishedAt: '2h ago', contentType: 'news' },
+            { id: 'ta2', title: 'EU launches digital Schengen visa — 27 countries, one app', publishedAt: '5h ago', contentType: 'government' },
+            { id: 'ta3', title: 'Airfare to Nordic cities drops 20% as airlines add summer routes', publishedAt: '1d ago', contentType: 'news' },
+            { id: 'ta4', title: 'World Cup host cities see hotel prices surge 300% for knockout stage', publishedAt: '1d ago', contentType: 'news' },
+            { id: 'ta5', title: 'Croatia joins Schengen fully — no more border checks at airports', publishedAt: '2d ago', contentType: 'government' },
+            { id: 'ta6', title: 'Airbnb launches \"Hidden Gems\" filter — 50+ under-the-radar destinations', publishedAt: '3d ago', contentType: 'news' },
+          ],
+        },
+      }),
+    },
+    // Mediterranean Section
+    {
+      x: 0, y: 37, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'Mediterranean Bliss', subtitle: 'Greece leads Spain and Italy in 2026 tourism surge', icon: '🏖️' } }),
+    },
+    {
+      x: 0, y: 40, w: 4, h: 16,
+      content: JSON.stringify({ name: 'ContentCard', props: { title: 'Santorini Secrets', excerpt: 'Beyond the famous blue domes — hidden beaches, local tavernas, and the best sunset spots away from crowds.', image: 'https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600&h=400&fit=crop', contentType: 'entertainment', category: 'Greece', author: 'Maria K.', publishedAt: 'June 20', selectedContentIdKey: 'publish.selectedContentId' } }),
+    },
+    {
+      x: 4, y: 40, w: 4, h: 16,
+      content: JSON.stringify({ name: 'ContentCard', props: { title: 'Alicante: Europe\'s #1 Trending Spot', excerpt: 'Why this Spanish coastal gem is topping every travel list in 2026 — food, beaches, and perfect weather.', image: 'https://images.unsplash.com/photo-1539635278303-d4002c07eae2?w=600&h=400&fit=crop', contentType: 'entertainment', category: 'Spain', author: 'Carlos Ruiz', publishedAt: 'June 18', selectedContentIdKey: 'publish.selectedContentId' } }),
+    },
+    {
+      x: 8, y: 40, w: 4, h: 16,
+      content: JSON.stringify({ name: 'ContentCard', props: { title: 'Ksamil: Albania\'s Hidden Paradise', excerpt: 'Crystal-clear waters at half the price of Greece. The Balkans\' best-kept secret is out.', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&h=400&fit=crop', contentType: 'entertainment', category: 'Albania', author: 'Anna Petrova', publishedAt: 'June 15', selectedContentIdKey: 'publish.selectedContentId' } }),
+    },
+    // Nordic Escape
+    {
+      x: 0, y: 56, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'Nordic Escape', subtitle: 'Cooler climes surge — Oslo +154%, Helsinki +124%, Stockholm +90%', icon: '❄️' } }),
+    },
+    {
+      x: 0, y: 59, w: 6, h: 10,
+      content: JSON.stringify({
+        name: 'PrimaryArticleCard',
+        props: {
+          title: 'Why Everyone is Fleeing to Scandinavia This Summer',
+          excerpt: 'Record heatwaves across Southern Europe and the US are driving a massive shift toward Nordic destinations. Oslo, Helsinki, Stockholm, and Copenhagen are seeing unprecedented booking surges as travelers seek milder temperatures and breathtaking natural beauty.',
+          section: 'Trending', author: 'Lars Nilsson', publishedAt: 'June 22, 2026',
+        },
+      }),
+    },
+    {
+      x: 6, y: 59, w: 6, h: 10,
+      content: JSON.stringify({
+        name: 'PrimaryArticleCard',
+        props: {
+          title: 'Iceland Summer: Midnight Sun Adventures Without the Crowds',
+          excerpt: 'With the Ring Road fully upgraded and new eco-lodges opening along the south coast, 2026 is the perfect year to experience Iceland\'s otherworldly landscapes under 24-hour daylight.',
+          section: 'Adventure', author: 'Björk Guðmundsdóttir', publishedAt: 'June 20, 2026',
+        },
+      }),
+    },
+    // World Cup Cities
+    {
+      x: 0, y: 69, w: 12, h: 3,
+      content: JSON.stringify({ name: 'SectionHeader', props: { title: 'World Cup City Guides', subtitle: 'Host cities seeing massive tourism spikes — plan your football pilgrimage', icon: '⚽' } }),
+    },
+    {
+      x: 0, y: 72, w: 12, h: 16,
+      content: JSON.stringify({
+        name: 'ContentGrid',
+        props: {
+          title: 'Top Host Cities to Visit', columns: 4, selectedContentIdKey: 'publish.selectedContentId',
+          contents: [
+            { id: 'wc1', title: 'Kansas City', excerpt: 'BBQ capital + World Cup record crowds. Searches up 700%.', contentType: 'news', author: 'Travel Guide', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=400&h=300&fit=crop' },
+            { id: 'wc2', title: 'Philadelphia', excerpt: 'Historic charm meets football fever. Searches up 210%.', contentType: 'news', author: 'Travel Guide', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1605106702734-205df224ecce?w=400&h=300&fit=crop' },
+            { id: 'wc3', title: 'Atlanta', excerpt: 'Southern hospitality with world-class stadiums. Searches up 200%.', contentType: 'news', author: 'Travel Guide', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1575917649705-5b59aaa12e6b?w=400&h=300&fit=crop' },
+            { id: 'wc4', title: 'Monterrey', excerpt: 'Mexican passion for football in a stunning mountain setting. Up 210%.', contentType: 'news', author: 'Travel Guide', publishedAt: 'June 26', image: 'https://images.unsplash.com/photo-1585468274952-66591eb14165?w=400&h=300&fit=crop' },
+          ],
+        },
+      }),
+    },
+    // Subscription
+    {
+      x: 0, y: 88, w: 12, h: 8,
+      content: JSON.stringify({
+        name: 'SubscriptionForm',
+        props: {
+          title: 'Get Wanderlust Weekly',
+          description: 'Destination guides, travel tips, and exclusive deals delivered to your inbox every Friday.',
+          placeholder: 'your@email.com', buttonLabel: 'Subscribe',
+          interestCategories: [
+            { id: 'asia', label: 'Asia' },
+            { id: 'europe', label: 'Europe' },
+            { id: 'americas', label: 'Americas' },
+          ],
+        },
+      }),
+    },
+  ],
+};
+
 export const PUBLISH_SEED_PAGES: SeedPageData[] = [
   NEWS_HOME,
   MANGA_BROWSER,
@@ -1108,4 +1617,7 @@ export const PUBLISH_SEED_PAGES: SeedPageData[] = [
   EVENTS_PAGE,
   JAPANESE_MAGAZINE,
   NEWSPAPER_HOME,
+  WORLD_CUP_SPECIAL,
+  AI_TECH_REVIEW,
+  TRAVEL_MAGAZINE,
 ];

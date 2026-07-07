@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useT } from "./hooks/useTranslation";
-import type { StackPageRuntimeApi } from "./types";
+import type { StackPageRuntimeApi, InquiryPropertyRef } from "./types";
 import {
   ESTATE_STATE_KEYS,
   ESTATE_EVENTS,
@@ -45,8 +45,55 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
   };
 
   const selectedId = String(getPageState(__stackpage, selectedPropertyIdKey, ""));
-  const selectedItem = selectedId ? { id: selectedId } : null;
   const inquiryProperties = readInquiryProperties(__stackpage, inquiryPropertiesKey);
+
+  // The detail page opens as ?item=<property_id>; selectedPropertyId is synced from
+  // it on view pages. That property is always the PRIMARY inquiry target (1件). Fetch
+  // its name so it shows as a (non-removable) chip alongside any checked similar ones.
+  const [currentProperty, setCurrentProperty] = useState<InquiryPropertyRef | null>(null);
+  useEffect(() => {
+    const id = selectedId.trim();
+    if (!id) {
+      setCurrentProperty(null);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/estate/properties-public/${encodeURIComponent(id)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (cancelled) return;
+        const p =
+          json?.estateproperties?.[0] || json?.estateproperty || json?.property || null;
+        setCurrentProperty({
+          id,
+          title: String(p?.building_name || p?.title || p?.name || "").trim(),
+          address: String(p?.address || "").trim(),
+          price: String(p?.price_sale || p?.price_rent_monthly || "").trim(),
+        });
+      })
+      .catch(() => {
+        // Keep it as a target even if the name lookup fails (backend enriches by id).
+        if (!cancelled) setCurrentProperty({ id });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
+
+  // Merge: current/primary property first, then checked (similar) properties, deduped.
+  const effectiveProperties: InquiryPropertyRef[] = (() => {
+    const list: InquiryPropertyRef[] = [];
+    const seen = new Set<string>();
+    const add = (p?: InquiryPropertyRef | null) => {
+      const id = String(p?.id || "").trim();
+      if (!id || seen.has(id)) return;
+      seen.add(id);
+      list.push(p as InquiryPropertyRef);
+    };
+    add(currentProperty);
+    inquiryProperties.forEach(add);
+    return list;
+  })();
 
   const displayTitle = title || t("Interested in this property?");
   const displaySubmitLabel = submitLabel || t("Send Message");
@@ -128,7 +175,11 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
     setFieldErrors({});
     setStatus("loading");
 
-    const payload = buildInquiryEventPayload(param, selectedItem, inquiryProperties);
+    const payload = buildInquiryEventPayload(
+      param,
+      currentProperty || (selectedId ? { id: selectedId } : null),
+      inquiryProperties,
+    );
 
     try {
       // Save the inquiry via the API and only show success once it is persisted.
@@ -148,7 +199,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
       const inquiry = json?.estateinquiries?.[0] || {};
       const referenceCode = String(inquiry.reference_code || json?.reference_code || "");
       const inquiryId = String(inquiry.id || "");
-      const propertyNames = inquiryProperties
+      const propertyNames = effectiveProperties
         .map((p) => p.title)
         .filter((v): v is string => !!v);
       const mailOk = readCustomerMailOk(inquiry);
@@ -217,34 +268,46 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
       style={mergedStyle}
     >
       <h3 className="text-2xl font-bold text-gray-900 mb-6">{displayTitle}</h3>
-      {inquiryProperties.length > 0 && (
+      {effectiveProperties.length > 0 && (
         <div className="mb-6">
           <div className="mb-2 text-sm font-medium text-gray-700">
-            {t("Selected properties")} ({inquiryProperties.length})
+            {t("Selected properties")} ({effectiveProperties.length})
           </div>
           <div className="flex flex-wrap gap-2">
-            {inquiryProperties.map((p) => (
-              <span
-                key={p.id}
-                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
-              >
-                {p.title || p.id}
-                <button
-                  type="button"
-                  aria-label={t("Remove")}
-                  onClick={() =>
-                    writeInquiryProperties(
-                      __stackpage,
-                      inquiryProperties.filter((x) => x.id !== p.id),
-                      inquiryPropertiesKey
-                    )
-                  }
-                  className="text-blue-400 transition hover:text-blue-700"
+            {effectiveProperties.map((p) => {
+              // The current/primary property (?item) is the subject of this detail
+              // page — always included and not removable. Checked similar ones can
+              // be removed individually.
+              const isPrimary = !!selectedId && p.id === selectedId;
+              return (
+                <span
+                  key={p.id}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700"
                 >
-                  ×
-                </button>
-              </span>
-            ))}
+                  {p.title || p.id}
+                  {isPrimary ? (
+                    <span className="rounded-full bg-blue-100 px-1.5 text-[10px] text-blue-600">
+                      {t("This property")}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      aria-label={t("Remove")}
+                      onClick={() =>
+                        writeInquiryProperties(
+                          __stackpage,
+                          inquiryProperties.filter((x) => x.id !== p.id),
+                          inquiryPropertiesKey
+                        )
+                      }
+                      className="text-blue-400 transition hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
       )}

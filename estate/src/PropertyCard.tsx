@@ -326,8 +326,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
   const handleClick = () => {
     if (onCardClick) {
+      // The caller (e.g. PropertyGrid) owns selection + navigation, including the
+      // linked Post (&p=<post_id>). Return so we don't overwrite that URL here.
       onCardClick();
-    } else if (__stackpage) {
+      return;
+    }
+    if (__stackpage) {
       const selectedId = id || itemId || address;
       const item = { id: selectedId, price, address, tag };
       setPageState(__stackpage, ESTATE_STATE_KEYS.selectedPropertyId, item.id);

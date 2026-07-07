@@ -62,15 +62,22 @@ export function buildPropertySelectionEvent(
 /** Build an inquiry submission payload for events */
 export function buildInquiryEventPayload(
   form: { name: string; email: string; phone: string; message: string },
-  selectedItem?: { id: string; price?: string; address?: string } | null,
+  selectedItem?: { id: string; title?: string; price?: string; address?: string } | null,
   properties?: InquiryPropertyRef[] | null
 ) {
-  const list: InquiryPropertyRef[] =
-    Array.isArray(properties) && properties.length > 0
-      ? properties
-      : selectedItem?.id
-        ? [{ id: selectedItem.id, price: selectedItem.price, address: selectedItem.address }]
-        : [];
+  // Merge (not either/or): the current/primary property — e.g. the detail page's
+  // ?item — always comes first, followed by any multi-selected (checked) properties
+  // such as similar listings, deduped by id.
+  const list: InquiryPropertyRef[] = [];
+  const seen = new Set<string>();
+  const add = (p?: Partial<InquiryPropertyRef> | null) => {
+    const id = String(p?.id || "").trim();
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    list.push({ id, title: p?.title, price: p?.price, address: p?.address });
+  };
+  add(selectedItem);
+  (Array.isArray(properties) ? properties : []).forEach(add);
   const primary = list[0];
   return {
     ...form,

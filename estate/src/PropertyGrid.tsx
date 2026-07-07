@@ -20,6 +20,10 @@ import {
   propertyMatchesIntent,
 } from "./utils/search";
 import { ESTATE_FILTER_STATE_KEYS } from "./PropertyFilterBar";
+import {
+  buildRealEstateDetailTransitionPath,
+  resolvePropertyPostId,
+} from "./utils/urlBuilders";
 
 export interface PropertyGridProps {
   title?: string;
@@ -161,7 +165,15 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
     }
     if (detailPageId) {
       const id = prop.id || prop.itemId || prop.address || "";
-      window.location.href = `/view/${detailPageId}?item=${encodeURIComponent(id)}`;
+      // Include the property's linked Post (&p=<post_id>) so the detail page's
+      // PostView can load it. Needs include=posts on the datasource.
+      const postId = resolvePropertyPostId(prop);
+      window.location.href = buildRealEstateDetailTransitionPath(
+        detailPageId,
+        String(id),
+        "listing-grid",
+        postId,
+      );
     }
   };
 
