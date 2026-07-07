@@ -98,9 +98,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <div className={`w-full ${className}`} style={mergedStyle}>
-      <div className="bg-white p-2 rounded-full shadow-md border border-gray-200 flex items-center ring-1 ring-gray-100 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
-        <div className="pl-4 text-gray-400">
-          <MagnifyingGlassIcon className="h-6 w-6" />
+      <div className="bg-white p-2 rounded-full shadow-md border border-gray-200 flex items-center gap-1 ring-1 ring-gray-100 focus-within:ring-2 focus-within:ring-blue-500 transition-all">
+        <div className="shrink-0 pl-3 sm:pl-4 text-gray-400">
+          <MagnifyingGlassIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         </div>
         <input
           type="text"
@@ -108,11 +108,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onChange={(e) => handleChange(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
           placeholder={displayPlaceholder}
-          className="flex-grow px-4 py-3 text-gray-800 placeholder-gray-500 bg-transparent focus:outline-none text-lg"
+          className="min-w-0 flex-grow px-2 sm:px-4 py-3 text-gray-800 placeholder-gray-500 bg-transparent focus:outline-none text-base sm:text-lg"
         />
         <button
           onClick={handleSubmit}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200 shadow-sm"
+          className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white px-5 sm:px-8 py-3 rounded-full font-semibold whitespace-nowrap transition-colors duration-200 shadow-sm"
         >
           {displayButtonLabel}
         </button>
