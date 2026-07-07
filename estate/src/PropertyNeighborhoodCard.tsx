@@ -1,6 +1,4 @@
-import { ESTATE_STATE_KEYS, getPageState } from "./types";
-import { PropertyInfoCardProps, PropertyInfoCardShell, resolveInfoCardRows } from "./PropertyInfoCardBase";
-import { resolveEstateProperty } from "./utils/propertyDisplay";
+import { PropertyInfoCardProps, PropertyInfoCardShell, useEstatePropertyModel, useInfoCardRows } from "./PropertyInfoCardBase";
 
 function splitItems(value: unknown): string[] {
   if (Array.isArray(value)) return value.map((item) => String(item || "").trim()).filter(Boolean);
@@ -32,11 +30,6 @@ function formatDistance(distanceMeters: any, walkingMinutes: any): string {
   if (!Number.isFinite(d)) return "";
   if (d < 1000) return `${Math.round(d)}m`;
   return `${(d / 1000).toFixed(d < 10000 ? 1 : 0)}km`;
-}
-
-function resolveModel(props: PropertyInfoCardProps) {
-  const selectedPropertyId = props.selectedPropertyId || String(getPageState(props.__stackpage, props.selectedPropertyIdKey || ESTATE_STATE_KEYS.selectedPropertyId, ""));
-  return resolveEstateProperty({ ...props, selectedPropertyId });
 }
 
 function NearbyGroup({ label, value, address }: { label: string; value: unknown; address?: string }) {
@@ -137,11 +130,12 @@ function PlaceResults({ data }: { data: any }) {
 }
 
 export default function PropertyNeighborhoodCard(props: PropertyInfoCardProps) {
-  const model = resolveModel(props);
+  const model = useEstatePropertyModel(props);
+  const fallbackRows = useInfoCardRows(props, "neighborhood");
   const googlePlacesData = parseJson(model.raw?.google_places_data || model.raw?.googlePlacesData);
   const showStructured = Boolean(googlePlacesData || model.nearbyStores || model.nearbyHospitals || model.nearbySchools || model.nearbyParks);
   if (!showStructured) {
-    return <PropertyInfoCardShell eyebrow="Nearby" title={props.title || "周辺情報"} description={props.description || "生活施設、教育施設、公園、地図リンクを表示します。"} rows={resolveInfoCardRows(props, "neighborhood")} accent="blue" showHeader={props.headerVisible ?? props.showHeader ?? true} density={props.density} compact={props.compact} contentPadding={props.contentPadding} rowPaddingY={props.rowPaddingY} rowGap={props.rowGap} linkDisplay={props.linkDisplay} mobileTwoColumn={props.mobileTwoColumn} />;
+    return <PropertyInfoCardShell eyebrow="Nearby" title={props.title || "周辺情報"} description={props.description || "生活施設、教育施設、公園、地図リンクを表示します。"} rows={fallbackRows} accent="blue" showHeader={props.headerVisible ?? props.showHeader ?? true} density={props.density} compact={props.compact} contentPadding={props.contentPadding} rowPaddingY={props.rowPaddingY} rowGap={props.rowGap} linkDisplay={props.linkDisplay} mobileTwoColumn={props.mobileTwoColumn} />;
   }
   const showHeader = props.headerVisible ?? props.showHeader ?? true;
   const compact = props.compact || props.density === "compact";

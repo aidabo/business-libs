@@ -1,6 +1,4 @@
-import { ESTATE_STATE_KEYS, getPageState } from "./types";
-import { PropertyInfoCardProps, PropertyInfoCardShell, resolveInfoCardRows } from "./PropertyInfoCardBase";
-import { resolveEstateProperty } from "./utils/propertyDisplay";
+import { PropertyInfoCardProps, PropertyInfoCardShell, useEstatePropertyModel, useInfoCardRows } from "./PropertyInfoCardBase";
 
 const HAZARD_FIELDS = [
   ["flood_inundation_info", "洪水浸水"],
@@ -14,24 +12,20 @@ const HAZARD_FIELDS = [
   ["steep_slope_info", "急傾斜地"],
 ] as const;
 
-function resolveModel(props: PropertyInfoCardProps) {
-  const selectedPropertyId = props.selectedPropertyId || String(getPageState(props.__stackpage, props.selectedPropertyIdKey || ESTATE_STATE_KEYS.selectedPropertyId, ""));
-  return resolveEstateProperty({ ...props, selectedPropertyId });
-}
-
 function text(value: unknown): string {
   return String(value || "").trim();
 }
 
 export default function PropertyHazardCard(props: PropertyInfoCardProps) {
-  const model = resolveModel(props);
+  const model = useEstatePropertyModel(props);
+  const fallbackRows = useInfoCardRows(props, "hazard");
   const raw = model.raw || {};
   const rows = HAZARD_FIELDS
     .map(([key, label]) => ({ key, label, value: text(raw[key]) }))
     .filter((row) => row.value);
   const hasStructured = Boolean(model.hazardMapUrl || model.hazardSummary || rows.length > 0 || model.floodRisk || model.landslideRisk || model.tsunamiRisk);
   if (!hasStructured) {
-    return <PropertyInfoCardShell eyebrow="Hazard" title={props.title || "災害・ハザード情報"} description={props.description || "洪水、土砂災害、津波などの確認用ブロックです。"} rows={resolveInfoCardRows(props, "hazard")} accent="orange" showHeader={props.headerVisible ?? props.showHeader ?? true} density={props.density} compact={props.compact} contentPadding={props.contentPadding} rowPaddingY={props.rowPaddingY} rowGap={props.rowGap} linkDisplay={props.linkDisplay} mobileTwoColumn={props.mobileTwoColumn} />;
+    return <PropertyInfoCardShell eyebrow="Hazard" title={props.title || "災害・ハザード情報"} description={props.description || "洪水、土砂災害、津波などの確認用ブロックです。"} rows={fallbackRows} accent="orange" showHeader={props.headerVisible ?? props.showHeader ?? true} density={props.density} compact={props.compact} contentPadding={props.contentPadding} rowPaddingY={props.rowPaddingY} rowGap={props.rowGap} linkDisplay={props.linkDisplay} mobileTwoColumn={props.mobileTwoColumn} />;
   }
   const showHeader = props.headerVisible ?? props.showHeader ?? true;
   const compact = props.compact || props.density === "compact";

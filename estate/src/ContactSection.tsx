@@ -81,14 +81,32 @@ const ContactSection: React.FC<ContactSectionProps> = ({
             </div>
           </div>
 
-          {/* Map Placeholder */}
-          <div className="bg-gray-200 rounded-2xl h-[400px] w-full relative overflow-hidden flex items-center justify-center">
-            <div className="text-center">
-              <MapPinIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-              <span className="text-gray-500 font-medium">{t("アクセスマップ")}</span>
-              <p className="text-sm text-gray-400 mt-1">{address}</p>
+          {/* Map */}
+          {address ? (
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group block bg-gray-100 rounded-2xl h-[400px] w-full relative overflow-hidden flex items-center justify-center hover:bg-blue-50 transition-colors"
+              aria-label={t("Googleマップで見る")}
+            >
+              <div className="text-center">
+                <MapPinIcon className="h-12 w-12 text-blue-500 group-hover:text-blue-700 mx-auto mb-2 transition-colors" />
+                <span className="text-gray-700 font-semibold">{t("アクセスマップ")}</span>
+                <p className="text-sm text-gray-500 mt-1">{address}</p>
+                <span className="mt-3 inline-block text-xs text-blue-500 underline group-hover:text-blue-700">
+                  {t("Googleマップで見る →")}
+                </span>
+              </div>
+            </a>
+          ) : (
+            <div className="bg-gray-200 rounded-2xl h-[400px] w-full relative overflow-hidden flex items-center justify-center">
+              <div className="text-center">
+                <MapPinIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                <span className="text-gray-500 font-medium">{t("アクセスマップ")}</span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

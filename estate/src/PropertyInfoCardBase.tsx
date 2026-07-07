@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { ESTATE_STATE_KEYS, getPageState } from "./types";
 import type { StackPageRuntimeApi } from "./types";
 import { FieldRow, getEstateFieldGroups, resolveEstateProperty } from "./utils/propertyDisplay";
@@ -42,6 +43,62 @@ function filterBasicRows(rows: FieldRow[], props: PropertyInfoCardProps): FieldR
   return rows.filter((row) => visibility[row.key] !== false);
 }
 
+function extractProperty(data: any): any | null {
+  if (!data) return null;
+  if (Array.isArray(data.estateproperties) && data.estateproperties.length > 0) return data.estateproperties[0];
+  if (data.estateproperty) return data.estateproperty;
+  if (data.property) return data.property;
+  return data;
+}
+
+// Auto-fetches property by ID when items[] is not bound.
+// Returns resolved display model — on first render uses static props (demo), then re-renders with live data.
+function useAutoFetchProperty(props: PropertyInfoCardProps) {
+  const selectedPropertyId = (
+    props.selectedPropertyId ||
+    String(getPageState(props.__stackpage, props.selectedPropertyIdKey || ESTATE_STATE_KEYS.selectedPropertyId, ""))
+  ).trim();
+
+  const items = Array.isArray(props.items) ? props.items : [];
+  const hasItems = items.length > 0;
+
+  const [fetchedData, setFetchedData] = useState<any | null>(null);
+  const [fetchedId, setFetchedId] = useState<string>("");
+
+  useEffect(() => {
+    if (hasItems || !selectedPropertyId || fetchedId === selectedPropertyId) return;
+    let cancelled = false;
+    fetch(`/ghost/api/admin/estate/properties/${encodeURIComponent(selectedPropertyId)}/`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled) return;
+        const p = extractProperty(data);
+        setFetchedData(p || null);
+        setFetchedId(selectedPropertyId);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [selectedPropertyId, hasItems]);
+
+  if (hasItems) return resolveEstateProperty({ ...props, selectedPropertyId });
+  if (fetchedData && fetchedId === selectedPropertyId) return resolveEstateProperty(fetchedData);
+  // Fallback: build model from static props saved in widget config (demo mode)
+  return resolveEstateProperty({ ...props, selectedPropertyId });
+}
+
+// Hook for detail cards — auto-fetches property by selectedPropertyId if items[] is not bound.
+export function useEstatePropertyModel(props: PropertyInfoCardProps) {
+  return useAutoFetchProperty(props);
+}
+
+// Hook version of resolveInfoCardRows — use this in card components.
+export function useInfoCardRows(props: PropertyInfoCardProps, group: keyof ReturnType<typeof getEstateFieldGroups>): FieldRow[] {
+  const model = useAutoFetchProperty(props);
+  const rows = getEstateFieldGroups(model)[group];
+  return group === "basic" ? filterBasicRows(rows, props) : rows;
+}
+
+// Kept for reference but cards should use useInfoCardRows instead.
 export function resolveInfoCardRows(props: PropertyInfoCardProps, group: keyof ReturnType<typeof getEstateFieldGroups>): FieldRow[] {
   const selectedPropertyId = props.selectedPropertyId || String(getPageState(props.__stackpage, props.selectedPropertyIdKey || ESTATE_STATE_KEYS.selectedPropertyId, ""));
   const model = resolveEstateProperty({ ...props, selectedPropertyId });

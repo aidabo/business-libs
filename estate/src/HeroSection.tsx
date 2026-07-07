@@ -1,16 +1,19 @@
 import React from "react";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useT } from "./hooks/useTranslation";
+import { StackPageRuntimeApi, ESTATE_STATE_KEYS, setPageState } from "./types";
 
 export interface HeroSectionProps {
   title?: string;
   subtitle?: string;
   backgroundImage?: string;
   showSearch?: boolean;
+  keywordKey?: string;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
   style?: React.CSSProperties;
+  __stackpage?: StackPageRuntimeApi;
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({
@@ -18,12 +21,22 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   subtitle = "あなたにぴったりの物件を、最新のラインナップから検索できます。",
   backgroundImage = "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
   showSearch = true,
+  keywordKey = ESTATE_STATE_KEYS.keyword,
   backgroundColor,
   fontSize,
   className = "",
   style,
+  __stackpage,
 }) => {
   const t = useT();
+  const [searchValue, setSearchValue] = React.useState("");
+
+  const handleSearch = () => {
+    if (__stackpage) {
+      setPageState(__stackpage, keywordKey, searchValue);
+      __stackpage.emit("estate:keyword:changed", { keyword: searchValue });
+    }
+  };
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,
@@ -61,11 +74,17 @@ const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
             <input
               type="text"
-              placeholder={t("Search by location, price, or keyword...")}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              placeholder={t("エリア・駅名・キーワードで検索")}
               className="flex-grow px-4 py-3 text-gray-800 placeholder-gray-500 bg-transparent focus:outline-none text-lg"
             />
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200">
-              {t("Search")}
+            <button
+              onClick={handleSearch}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200"
+            >
+              {t("検索")}
             </button>
           </div>
         )}

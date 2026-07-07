@@ -69,23 +69,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
     [keywordKey, searchableFields, searchTargetLabel]
   );
 
-  const handleChange = useCallback(
-    (nextValue: string) => {
-      pendingRef.current = nextValue;
-      setValue(nextValue);
-      if (__stackpage) {
-        setPageState(__stackpage, keywordKey, nextValue);
-        __stackpage.emit("estate:search:changed", buildSearchPayload(nextValue, false));
-      }
-    },
-    [__stackpage, keywordKey, buildSearchPayload]
-  );
+  const handleChange = useCallback((nextValue: string) => {
+    // Only update the local input while typing. Shared state (which drives the
+    // datasource re-fetch) is committed on submit only — so the search runs on
+    // Enter / the Search button, not on every keystroke.
+    setValue(nextValue);
+  }, []);
 
   const handleSubmit = useCallback(() => {
-    if (__stackpage && value) {
-      __stackpage.emit("estate:search:changed", buildSearchPayload(value, true));
-    }
-  }, [__stackpage, value, buildSearchPayload]);
+    if (!__stackpage) return;
+    // Commit the keyword on submit. Empty is allowed (resets to all).
+    pendingRef.current = value;
+    setPageState(__stackpage, keywordKey, value);
+    __stackpage.emit("estate:search:changed", buildSearchPayload(value, true));
+  }, [__stackpage, keywordKey, value, buildSearchPayload]);
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,

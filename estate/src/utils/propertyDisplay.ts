@@ -122,6 +122,8 @@ function normalizeList(value: unknown): string[] {
 function formatMoney(value: unknown): string {
   if (!isPresent(value)) return "";
   if (typeof value === "number") return `¥${value.toLocaleString("ja-JP")}`;
+  const num = Number(String(value).replace(/[,¥\s]/g, ""));
+  if (!isNaN(num) && num > 0) return `¥${num.toLocaleString("ja-JP")}`;
   return stringify(value);
 }
 
@@ -219,7 +221,11 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     keyMoney: formatMoney(firstValue(source, ["price_key_money", "key_money", "keyMoney", "priceKeyMoney"])),
     managementFee: formatMoney(firstValue(source, ["price_management_fee", "management_fee", "managementFee"])),
     maintenanceFee: formatMoney(firstValue(source, ["price_maintenance_fee", "maintenance_fee", "maintenanceFee"])),
-    yieldValue: stringify(firstValue(source, ["yieldValue", "yield_value", "yield_percent", "yieldPercent", "yield"])),
+    yieldValue: (() => {
+      const v = stringify(firstValue(source, ["yieldValue", "yield_value", "yield_percent", "yieldPercent", "yield"]));
+      if (!v) return undefined;
+      return /\d/.test(v) && !v.includes("%") ? `${v}%` : v;
+    })(),
     floorPlan: stringify(firstValue(source, ["floor_plan", "floorPlan", "rooms"])),
     floorArea: formatArea(firstValue(source, ["floor_area", "floorArea", "areaSqm", "area_sqm", "area"])),
     landArea: formatArea(firstValue(source, ["land_area", "landArea"])),

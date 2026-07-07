@@ -546,140 +546,98 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   };
 
   return (
-    <div
-      className={`w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm ${className}`}
-      style={mergedStyle}
-    >
-      {/* Header */}
-      <div className="bg-gradient-to-r from-amber-50 via-white to-orange-50 px-3 py-4 sm:px-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className={`w-full min-w-0 space-y-4 ${className}`} style={mergedStyle}>
+
+      {/* Title banner */}
+      <div className={`rounded-2xl px-5 py-4 shadow-sm text-white ${
+        resolvedPropertyType === "rent"
+          ? "bg-gradient-to-r from-emerald-700 to-emerald-500"
+          : resolvedPropertyType === "investment"
+          ? "bg-gradient-to-r from-violet-800 to-violet-600"
+          : "bg-gradient-to-r from-blue-900 to-blue-700"
+      }`}>
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-600">
-              {t("Property overview")}
-            </div>
-            <h3 className="mt-1 break-words text-xl font-semibold text-gray-900 sm:text-3xl">
+            <h2 className="text-xl font-bold sm:text-2xl break-words">
               {t(resolvedBuildingName || title)}
-            </h3>
-            <p className="mt-1 break-words text-sm text-gray-600">
-              {t(resolvedAddressJP || description)}
-            </p>
+            </h2>
+            {resolvedAddressJP && (
+              <p className="mt-0.5 text-sm opacity-80">{resolvedAddressJP}</p>
+            )}
           </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {resolvedTagJP && (
+              <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold backdrop-blur-sm">
+                {t(resolvedTagJP)}
+              </span>
+            )}
+            {resolvedPriceJPY && (
+              <span className="rounded-full bg-white/25 px-4 py-1.5 text-sm font-bold">
+                {resolvedPriceJPY}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Main image card — full width */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <div className="relative aspect-[16/7] w-full bg-gray-100">
+          <img
+            src={resolvedImage}
+            alt={resolvedAddressJP || resolvedBuildingName || t(title)}
+            className="h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-gray-900/50 via-transparent to-transparent" />
           {resolvedTagJP && (
-            <span className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white ${
-              resolvedPropertyType === "rent"
-                ? "bg-emerald-600"
-                : resolvedPropertyType === "investment"
-                ? "bg-violet-600"
-                : "bg-blue-600"
-            }`}>
+            <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold tracking-wide text-gray-800 backdrop-blur-sm">
               {t(resolvedTagJP)}
             </span>
           )}
-        </div>
-      </div>
-
-      <div className="grid min-w-0 items-start gap-4 px-3 py-4 sm:px-5 sm:py-5 lg:grid-cols-[minmax(0,1.18fr)_minmax(300px,0.82fr)]">
-        {/* Left: media + compact context cards */}
-        <div className="min-w-0 space-y-4">
-          <div className="min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-              <div className="relative aspect-[4/3] w-full bg-gray-100">
-                <img
-                  src={resolvedImage}
-                  alt={resolvedAddressJP || resolvedBuildingName || t(title)}
-                  className="h-full w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-900/35 via-transparent to-transparent" />
-                <div className="absolute left-4 top-4">
-                  {resolvedTagJP && (
-                    <span className="inline-flex rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold tracking-[0.18em] text-gray-800 backdrop-blur-sm">
-                      {t(resolvedTagJP)}
-                    </span>
-                  )}
-                </div>
-              <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between gap-3">
-                <div className="rounded-2xl bg-white/90 px-4 py-3 backdrop-blur-sm">
-                  <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-500">
-                    {t("Main image")}
-                  </div>
-                </div>
-                {resolvedPriceJPY && (
-                  <div className="rounded-2xl bg-rose-600 px-4 py-3 text-right text-white shadow-lg">
-                    <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-rose-100">
-                      {t("価格")}
-                    </div>
-                    <div className="mt-1 text-xl font-bold">
-                      {resolvedPriceJPY}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {secondaryGalleryItems.length > 0 && (
-            <div className="min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-              <div className="flex min-w-0 items-center justify-between gap-3 border-b border-gray-200 px-3 py-3 sm:px-4">
-                <div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
-                    {t("Gallery")}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {t("間取り図・室内写真などの補足画像です。")}
-                  </div>
-                </div>
-                <span className="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
-                  {secondaryGalleryItems.length}
-                </span>
-              </div>
-              <div className="flex max-w-full gap-3 overflow-x-auto px-3 py-4 [scrollbar-width:thin] snap-x sm:px-4">
-                {secondaryGalleryItems.map((slide) => (
-                  <div
-                    key={slide.id}
-                    className="min-w-[180px] max-w-[210px] shrink-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm snap-start sm:min-w-[220px] sm:max-w-[220px]"
-                  >
-                    <div className="relative h-[170px]">
-                      <img
-                        src={slide.src}
-                        alt={slide.title}
-                        className="h-full w-full object-cover"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/35 via-transparent to-transparent" />
-                      <div className="absolute bottom-3 left-3 right-3">
-                        <div className="rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-gray-800 backdrop-blur-sm">
-                          {t(slide.title)}
-                        </div>
-                      </div>
-                    </div>
-                    {slide.caption && (
-                      <div className="px-4 py-3 text-xs text-gray-500">
-                        {t(slide.caption)}
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+          {resolvedPriceJPY && (
+            <div className="absolute bottom-4 right-4 rounded-xl bg-rose-600/90 px-4 py-2 text-right text-white shadow-lg backdrop-blur-sm">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-rose-100">{t("価格")}</div>
+              <div className="text-xl font-bold leading-tight">{resolvedPriceJPY}</div>
             </div>
           )}
-
         </div>
-
-        {/* Right sidebar: compact key decision cards */}
-        <div className="min-w-0 space-y-4">
-          <PropertyPriceCard property={detailProperty} showHeader={false} density="compact" mobileTwoColumn />
-          <PropertyDetailsCard property={detailProperty} showHeader={false} density="compact" mobileTwoColumn />
-          <div className="grid min-w-0 gap-4 2xl:grid-cols-2">
-            <PropertyBasicInfoCard property={detailProperty} showHeader={false} density="compact" linkDisplay="chip" showPropertyId={false} showPropertyType={false} showStatus={false} showSource={false} showSourceCompany={false} />
-            <PropertyAddressCard property={detailProperty} showHeader={false} density="compact" linkDisplay="button" />
+        {secondaryGalleryItems.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto border-t border-gray-100 p-3 [scrollbar-width:thin]">
+            {secondaryGalleryItems.map((slide) => (
+              <div key={slide.id} className="shrink-0 overflow-hidden rounded-lg border border-gray-100">
+                <img src={slide.src} alt={slide.title} className="h-20 w-28 object-cover" />
+              </div>
+            ))}
           </div>
-          <PropertyFeaturesCard property={detailProperty} showHeader={false} density="compact" />
-        </div>
+        )}
       </div>
 
-      {/* Reusable neighborhood + hazard cards */}
-      <div className="grid min-w-0 gap-4 border-t border-gray-200 bg-gray-50 px-3 py-4 sm:px-5 sm:py-5 lg:grid-cols-2">
-        <PropertyNeighborhoodCard property={detailProperty} showHeader={false} density="compact" linkDisplay="button" />
-        <PropertyHazardCard property={detailProperty} showHeader={false} density="compact" linkDisplay="button" />
+      {/* Row 1: Price + Details + Address — 1→2→3 cols */}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <PropertyPriceCard property={detailProperty} density="compact" mobileTwoColumn />
+        <PropertyDetailsCard property={detailProperty} density="compact" />
+        <PropertyAddressCard property={detailProperty} density="compact" linkDisplay="button" />
       </div>
+
+      {/* Row 2: BasicInfo + Features — 1→2 cols */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <PropertyBasicInfoCard
+          property={detailProperty}
+          density="compact"
+          linkDisplay="chip"
+          showPropertyId={false}
+          showSource={false}
+          showSourceCompany={false}
+        />
+        <PropertyFeaturesCard property={detailProperty} density="compact" />
+      </div>
+
+      {/* Row 3: Neighborhood + Hazard — 1→2 cols */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <PropertyNeighborhoodCard property={detailProperty} density="compact" linkDisplay="button" />
+        <PropertyHazardCard property={detailProperty} density="compact" linkDisplay="button" />
+      </div>
+
     </div>
   );
 };
