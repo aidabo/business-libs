@@ -450,9 +450,9 @@ export const EstateDefaultProps = {
     description: "Explore our latest listings chosen for you.",
     columns: 3,
     layout: "grid",
-    // Enable to show an inquiry-selection checkbox on each card; InquiryForm then
-    // submits an inquiry for all selected properties.
-    selectable: false,
+    // Inquiry-selection checkbox on each card (ON by default). InquiryForm submits
+    // an inquiry for all selected properties. Set false on related/similar grids.
+    selectable: true,
     inquiryPropertiesKey: "estate.inquiry.properties",
     selectedPropertyIdKey: "estate.selectedPropertyId",
     keywordKey: "estate.keyword",

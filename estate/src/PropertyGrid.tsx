@@ -69,7 +69,9 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
   intentKey = ESTATE_STATE_KEYS.filterIntent,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
-  selectable,
+  // Multi-select inquiry checkbox is ON by default so listing pages get it without
+  // per-page config; set selectable={false} to hide it (e.g. related/similar grids).
+  selectable = true,
   inquiryPropertiesKey = ESTATE_STATE_KEYS.inquiryProperties,
 
   // Filter params

@@ -518,7 +518,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
           )}
           <div className="text-xl font-bold text-white">{price}</div>
         </div>
-        {selected && (
+        {selected && !selectable && (
           <div className="absolute top-3 right-3 z-10">
             <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">
               {t("Selected")}
