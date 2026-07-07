@@ -57,6 +57,26 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
     message: "",
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [result, setResult] = useState<{
+    referenceCode: string;
+    propertyNames: string[];
+    inquiryId: string;
+  } | null>(null);
+  // Whether the customer confirmation email was sent (null = unknown/not applicable).
+  const [customerMailOk, setCustomerMailOk] = useState<boolean | null>(null);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendStatus, setResendStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+
+  const readCustomerMailOk = (inquiry: any): boolean | null => {
+    try {
+      const meta =
+        typeof inquiry?.metadata === "string" ? JSON.parse(inquiry.metadata) : inquiry?.metadata;
+      const customer = meta?.notifications?.customer;
+      return customer ? !!customer.ok : null;
+    } catch {
+      return null;
+    }
+  };
 
   // Re-render when the selection changes elsewhere (PropertyGrid checkboxes emit
   // this event) so the selected-property chips stay in sync even if the host does
@@ -92,17 +112,65 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
         return;
       }
 
+      // Show the customer their reference code + the properties they inquired about.
+      const json = await response.json().catch(() => ({} as any));
+      const inquiry = json?.estateinquiries?.[0] || {};
+      const referenceCode = String(inquiry.reference_code || json?.reference_code || "");
+      const inquiryId = String(inquiry.id || "");
+      const propertyNames = inquiryProperties
+        .map((p) => p.title)
+        .filter((v): v is string => !!v);
+      const mailOk = readCustomerMailOk(inquiry);
+
+      setResult({ referenceCode, propertyNames, inquiryId });
+      setCustomerMailOk(mailOk);
+      setResendEmail(param.email);
+      setResendStatus("idle");
+
       setStatus("success");
       setParam({ name: "", email: "", phone: "", message: "" });
       if (__stackpage) {
         // Clear the picked properties and notify listeners the inquiry was saved.
         writeInquiryProperties(__stackpage, [], inquiryPropertiesKey);
-        __stackpage.emit?.(ESTATE_EVENTS.inquirySubmitted, payload);
+        __stackpage.emit?.(ESTATE_EVENTS.inquirySubmitted, {
+          ...payload,
+          reference_code: referenceCode,
+        });
       }
-      setTimeout(() => setStatus("idle"), 5000);
+      // Keep the panel visible (for the resend prompt) when the customer email failed.
+      if (mailOk !== false) {
+        setTimeout(() => setStatus("idle"), 5000);
+      }
     } catch (error) {
       console.error("Failed to send inquiry:", error);
       setStatus("error");
+    }
+  };
+
+  const handleResend = async () => {
+    const email = resendEmail.trim();
+    if (!result?.inquiryId || !email) return;
+    setResendStatus("loading");
+    try {
+      const res = await fetch(
+        `/api/estate/inquiries/${encodeURIComponent(result.inquiryId)}/resend-confirmation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }
+      );
+      if (!res.ok) {
+        setResendStatus("error");
+        return;
+      }
+      const json = await res.json().catch(() => ({} as any));
+      const ok = readCustomerMailOk(json?.estateinquiries?.[0] || {}) === true;
+      setCustomerMailOk(ok);
+      setResendStatus(ok ? "success" : "error");
+    } catch (error) {
+      console.error("Failed to resend confirmation:", error);
+      setResendStatus("error");
     }
   };
 
@@ -212,8 +280,61 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
         )}
 
         {status === "success" && (
-          <div className="p-3 bg-green-100 text-green-700 rounded-lg text-sm">
-            {t("Thank you! Your message has been sent successfully.")}
+          <div className="space-y-2">
+            <div className="space-y-1 rounded-lg bg-green-100 p-3 text-sm text-green-800">
+              <div className="font-medium">
+                {t("お問い合わせを受け付けました。担当者より折り返しご連絡いたします。")}
+              </div>
+              {result?.referenceCode && (
+                <div>
+                  {t("受付番号")}:{" "}
+                  <span className="font-semibold tracking-wide">{result.referenceCode}</span>
+                </div>
+              )}
+              {result?.propertyNames && result.propertyNames.length > 0 && (
+                <div>
+                  {t("対象物件")}: {result.propertyNames.join(" / ")}
+                </div>
+              )}
+            </div>
+
+            {customerMailOk === false && (
+              <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                <div>
+                  {t(
+                    "確認メールを送信できませんでした。メールアドレスをご確認のうえ再送信してください。"
+                  )}
+                </div>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input
+                    type="email"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    className="flex-1 rounded-lg border border-amber-300 bg-white px-3 py-1.5 outline-none focus:ring-2 focus:ring-amber-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendStatus === "loading" || !resendEmail.trim()}
+                    className="rounded-lg bg-amber-600 px-4 py-1.5 font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-amber-300"
+                  >
+                    {resendStatus === "loading" ? t("送信中...") : t("確認メール再送信")}
+                  </button>
+                </div>
+                {resendStatus === "error" && (
+                  <div className="text-red-700">
+                    {t("再送信に失敗しました。アドレスをご確認ください。")}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {customerMailOk === true && resendStatus === "success" && (
+              <div className="rounded-lg bg-green-100 p-3 text-sm text-green-800">
+                {t("確認メールを再送信しました。")}
+              </div>
+            )}
           </div>
         )}
 
