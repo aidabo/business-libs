@@ -35,6 +35,7 @@ export const ESTATE_EVENTS = {
   inquirySubmitted: "estate:inquiry:submitted",
   inquirySelectionChanged: "estate:inquiry:selection:changed",
   detailOpen: "estate:detail:open",
+  agentContactSubmitted: "estate:agent:contact:submitted",
 } as const;
 
 /** A property picked for inquiry (minimal, serialized in shared state). */
