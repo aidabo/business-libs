@@ -143,6 +143,10 @@ export default function PropertyGallerySlider({
   const sourceImages =
     galleryImages ??
     images ??
+    // Canonical image array from the backend (EstateProperty.attachMediaImages):
+    // ordered is_primary-first, each { url, thumbnail_url, poster, caption,
+    // is_primary, media_type, is_video } — floor plans / rooms included.
+    matchedItem?.images ??
     matchedItem?.galleryImages ??
     matchedItem?.gallery_images ??
     matchedItem?.socialMediaAssets ??

@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
-import { ESTATE_STATE_KEYS, getPageState } from "./types";
+import { ESTATE_STATE_KEYS, getPageState, setPageState } from "./types";
 import PropertyBasicInfoCard from "./PropertyBasicInfoCard";
 import PropertyAddressCard from "./PropertyAddressCard";
 import PropertyPriceCard from "./PropertyPriceCard";
@@ -9,6 +9,10 @@ import PropertyDetailsCard from "./PropertyDetailsCard";
 import PropertyFeaturesCard from "./PropertyFeaturesCard";
 import PropertyNeighborhoodCard from "./PropertyNeighborhoodCard";
 import PropertyHazardCard from "./PropertyHazardCard";
+import PropertyGallerySlider from "./PropertyGallerySlider";
+import MapCard from "./MapCard";
+import StreetViewCard from "./StreetViewCard";
+import Property3DCard from "./Property3DCard";
 
 
 const EMPTY_FEATURES: string[] = [];
@@ -49,58 +53,6 @@ function normalizeFeatureList(value: unknown): string[] {
 
   return [];
 }
-
-function normalizeGalleryImages(
-  value: unknown,
-  fallbackTitle: string
-): Array<{ id: string; src: string; title: string; caption: string }> {
-  const items = Array.isArray(value) ? value : [];
-  const normalized = items.flatMap((item, index) => {
-    if (typeof item === "string") {
-      const src = item.trim();
-      return src
-        ? [{
-            id: `gallery-${index}-${src}`,
-            src,
-            title: index === 0 ? fallbackTitle : `Image ${index + 1}`,
-            caption: "",
-          }]
-        : [];
-    }
-
-    if (!item || typeof item !== "object") return [];
-    const typed = item as DetailGalleryImage;
-    const src =
-      typed.src ||
-      typed.image ||
-      typed.url ||
-      typed.poster ||
-      "";
-    if (!src) return [];
-    const title =
-      typed.title ||
-      typed.caption ||
-      typed.label ||
-      (typed.kind || typed.media_type ? String(typed.kind || typed.media_type) : "") ||
-      (index === 0 ? fallbackTitle : `Image ${index + 1}`);
-    return [
-      {
-        id: typed.id || `gallery-${index}-${src}`,
-        src,
-        title,
-        caption: typed.caption || typed.label || "",
-      },
-    ];
-  });
-
-  const seen = new Set<string>();
-  return normalized.filter((item) => {
-    if (!item.src || seen.has(item.src)) return false;
-    seen.add(item.src);
-    return true;
-  });
-}
-
 
 export interface PropertyDetailProps {
   title?: string;
@@ -375,115 +327,158 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const urlId = getUrlItemParam();
   const selectedId = urlId || stateId;
 
+  // Sync ?item → shared state so sibling components resolve the same property.
+  useEffect(() => {
+    if (urlId && urlId !== stateId) {
+      setPageState(__stackpage, selectedPropertyIdKey, urlId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlId]);
+
+  // Auto-fetch the property by id when no items[] list is bound (e.g. a detail
+  // page opened with only ?item=<property_id>). Uses the public content route.
+  const hasBoundItems = Array.isArray(items) && items.length > 0;
+  const [fetchedProperty, setFetchedProperty] = useState<any | null>(null);
+  const [fetchLoading, setFetchLoading] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = selectedId.trim();
+    if (!id || hasBoundItems) {
+      setFetchedProperty(null);
+      setFetchError(null);
+      return;
+    }
+    let cancelled = false;
+    setFetchLoading(true);
+    setFetchError(null);
+    fetch(`/api/estate/properties-public/${encodeURIComponent(id)}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+      .then((json) => {
+        if (cancelled) return;
+        const p =
+          json?.estateproperties?.[0] || json?.estateproperty || json?.property || null;
+        setFetchedProperty(p);
+      })
+      .catch((e) => {
+        if (!cancelled) setFetchError(e?.message || "failed to load property");
+      })
+      .finally(() => {
+        if (!cancelled) setFetchLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId, hasBoundItems]);
+
+  // ── Resolve selected item (bound list match, else the fetched property) ─────
+  const effectiveItem = hasBoundItems
+    ? resolveItem(items, selectedId, itemIdKey)
+    : fetchedProperty;
+
+  const isLoading = loading || (fetchLoading && !effectiveItem);
+  const combinedError =
+    error || (fetchError && !effectiveItem ? { message: fetchError } : null);
+
   // ── Loading state ──────────────────────────────────────────
-  if (loading) {
+  if (isLoading) {
     return <DetailSkeleton />;
   }
 
   // ── Error state ────────────────────────────────────────────
-  if (error) {
+  if (combinedError) {
     return (
       <DetailError
-        message={error?.message || ""}
+        message={combinedError.message || ""}
         t={t}
         onRetry={() => window.location.reload()}
       />
     );
   }
 
-  // ── Resolve selected item ──────────────────────────────────
-  const matchedItem = (items && items.length > 0)
-    ? resolveItem(items, selectedId, itemIdKey)
-    : null;
-
   const resolvedBuildingName =
-    matchedItem?.building_name ??
-    matchedItem?.buildingName ??
+    effectiveItem?.building_name ??
+    effectiveItem?.buildingName ??
     buildingName ??
     title ??
     "";
   // ── Resolve display values (Japan fields first, then legacy fallbacks) ─
+  // Primary/feature image: the server-derived `feature_image` (first, is_primary
+  // media) is the canonical hero image — matches what the listing card shows.
   const resolvedImage =
-    matchedItem?.image ?? matchedItem?.featured_image ?? image ??
+    effectiveItem?.feature_image ??
+    effectiveItem?.featured_image ??
+    effectiveItem?.image ??
+    image ??
     "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80";
 
   // Japan fields take priority
   const resolvedAddressJP =
-    matchedItem?.addressJP ?? matchedItem?.address_jp ?? matchedItem?.address ?? addressJP ?? address ?? "";
+    effectiveItem?.addressJP ?? effectiveItem?.address_jp ?? effectiveItem?.address ?? addressJP ?? address ?? "";
   const resolvedPriceJPY =
-    matchedItem?.priceJPY ?? matchedItem?.price_jpy ?? priceJPY ?? matchedItem?.price ?? price ?? "";
-  const resolvedPriceUSD = matchedItem?.priceUSD ?? matchedItem?.price_usd ?? priceUSD;
-  const resolvedPriceCNY = matchedItem?.priceCNY ?? matchedItem?.price_cny ?? priceCNY;
+    effectiveItem?.priceJPY ?? effectiveItem?.price_jpy ?? priceJPY ?? effectiveItem?.price ?? price ?? "";
+  const resolvedPriceUSD = effectiveItem?.priceUSD ?? effectiveItem?.price_usd ?? priceUSD;
+  const resolvedPriceCNY = effectiveItem?.priceCNY ?? effectiveItem?.price_cny ?? priceCNY;
   const resolvedTagJP =
-    matchedItem?.tagJP ?? matchedItem?.tag_jp ?? tagJP ?? matchedItem?.tag ?? tag ?? "";
+    effectiveItem?.tagJP ?? effectiveItem?.tag_jp ?? tagJP ?? effectiveItem?.tag ?? tag ?? "";
   const resolvedPropertyType =
-    matchedItem?.property_type ?? matchedItem?.propertyType ?? propertyType ?? "";
+    effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
   const resolvedAreaSqm =
-    matchedItem?.areaSqm ?? matchedItem?.area_sqm ?? areaSqm ?? matchedItem?.area ?? area ?? "";
-  const resolvedTsubo = matchedItem?.tsubo ?? tsubo;
+    effectiveItem?.areaSqm ?? effectiveItem?.area_sqm ?? areaSqm ?? effectiveItem?.area ?? area ?? "";
+  const resolvedTsubo = effectiveItem?.tsubo ?? tsubo;
   const resolvedFloorPlan =
-    matchedItem?.floorPlan ?? matchedItem?.floor_plan ?? floorPlan ?? matchedItem?.rooms ?? rooms ?? "";
+    effectiveItem?.floorPlan ?? effectiveItem?.floor_plan ?? floorPlan ?? effectiveItem?.rooms ?? rooms ?? "";
   const resolvedFloorNumber =
-    matchedItem?.floor_number ?? matchedItem?.floorNumber ?? matchedItem?.floor_no ?? null;
+    effectiveItem?.floor_number ?? effectiveItem?.floorNumber ?? effectiveItem?.floor_no ?? null;
   const resolvedTotalFloors =
-    matchedItem?.floors_total ?? matchedItem?.floorsTotal ?? matchedItem?.total_floors ?? null;
+    effectiveItem?.floors_total ?? effectiveItem?.floorsTotal ?? effectiveItem?.total_floors ?? null;
   const resolvedYearBuiltJP =
-    matchedItem?.yearBuiltJP ?? matchedItem?.year_built_jp ?? yearBuiltJP ?? matchedItem?.yearBuilt ?? yearBuilt ?? "";
+    effectiveItem?.yearBuiltJP ?? effectiveItem?.year_built_jp ?? yearBuiltJP ?? effectiveItem?.yearBuilt ?? yearBuilt ?? "";
   const resolvedTransport =
-    matchedItem?.transport ?? matchedItem?.transport_info ?? transport;
+    effectiveItem?.transport ?? effectiveItem?.transport_info ?? transport;
   const resolvedDeposit =
-    matchedItem?.deposit ?? deposit;
+    effectiveItem?.deposit ?? deposit;
   const resolvedKeyMoney =
-    matchedItem?.key_money ?? matchedItem?.keyMoney ?? keyMoney;
+    effectiveItem?.key_money ?? effectiveItem?.keyMoney ?? keyMoney;
   const resolvedManagementFee =
-    matchedItem?.management_fee ?? matchedItem?.managementFee ?? managementFee;
+    effectiveItem?.management_fee ?? effectiveItem?.managementFee ?? managementFee;
   const resolvedYield =
-    matchedItem?.yield_percent ?? matchedItem?.yieldPercent ?? matchedItem?.yield ?? yieldValue;
+    effectiveItem?.yield_percent ?? effectiveItem?.yieldPercent ?? effectiveItem?.yield ?? yieldValue;
   const resolvedMaintenanceFee =
-    matchedItem?.maintenance_fee ?? matchedItem?.maintenanceFee ?? maintenanceFee;
+    effectiveItem?.maintenance_fee ?? effectiveItem?.maintenanceFee ?? maintenanceFee;
   const resolvedPetsAllowed =
-    matchedItem?.pets_allowed ?? matchedItem?.petsAllowed ?? petsAllowed;
+    effectiveItem?.pets_allowed ?? effectiveItem?.petsAllowed ?? petsAllowed;
   const resolvedLandRight =
-    matchedItem?.land_right ?? matchedItem?.landRight ?? landRight;
-  const resolvedFeatures = normalizeFeatureList(matchedItem?.features ?? features ?? EMPTY_FEATURES);
+    effectiveItem?.land_right ?? effectiveItem?.landRight ?? landRight;
+  const resolvedFeatures = normalizeFeatureList(effectiveItem?.features ?? features ?? EMPTY_FEATURES);
 
   // ── Resolve location for map ───────────────────────────────
-  const resolvedLat = latitude ?? matchedItem?.latitude ?? matchedItem?.lat ?? null;
-  const resolvedLng = longitude ?? matchedItem?.longitude ?? matchedItem?.lng ?? null;
+  const resolvedLat = latitude ?? effectiveItem?.latitude ?? effectiveItem?.lat ?? null;
+  const resolvedLng = longitude ?? effectiveItem?.longitude ?? effectiveItem?.lng ?? null;
   const resolvedHazardMapUrl =
-    matchedItem?.hazard_map_url ??
+    effectiveItem?.hazard_map_url ??
     hazardMapUrl ??
     "";
   const resolvedNearbyStores =
-    matchedItem?.nearby_stores ??
+    effectiveItem?.nearby_stores ??
     nearbyStores ??
     "";
   const resolvedNearbyHospitals =
-    matchedItem?.nearby_hospitals ??
+    effectiveItem?.nearby_hospitals ??
     nearbyHospitals ??
     "";
   const resolvedNearbySchools =
-    matchedItem?.nearby_schools ??
+    effectiveItem?.nearby_schools ??
     nearbySchools ??
     "";
   const resolvedNearbyParks =
-    matchedItem?.nearby_parks ??
+    effectiveItem?.nearby_parks ??
     nearbyParks ??
     "";
   const resolvedNeighborhoodSummary =
-    matchedItem?.mlit_data ??
+    effectiveItem?.mlit_data ??
     neighborhoodSummary ??
     "";
-  const galleryItems = normalizeGalleryImages(
-    galleryImages ??
-      matchedItem?.galleryImages ??
-      matchedItem?.gallery_images ??
-      matchedItem?.socialMediaAssets ??
-      matchedItem?.media ??
-      [],
-    resolvedBuildingName || t(title)
-  );
-  const secondaryGalleryItems = galleryItems.filter((item) => item.src !== resolvedImage);
 
   // ── Determine layout sections ──────────────────────────────
   const hasContent =
@@ -511,8 +506,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
   const detailProperty = {
     ...restProps,
-    ...(matchedItem || {}),
-    id: matchedItem?.id ?? selectedId,
+    ...(effectiveItem || {}),
+    id: effectiveItem?.id ?? selectedId,
     building_name: resolvedBuildingName,
     address: resolvedAddressJP,
     price_jpy: resolvedPriceJPY,
@@ -544,6 +539,16 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     nearby_parks: resolvedNearbyParks,
     neighborhoodSummary: resolvedNeighborhoodSummary,
   };
+
+  // "lat,lng" for the map / street view / 3D cards (empty → they fall back to address).
+  const coord =
+    resolvedLat != null &&
+    resolvedLng != null &&
+    String(resolvedLat).trim() &&
+    String(resolvedLng).trim()
+      ? `${resolvedLat},${resolvedLng}`
+      : "";
+  const hasLocation = !!coord || !!resolvedAddressJP;
 
   return (
     <div className={`w-full min-w-0 space-y-4 ${className}`} style={mergedStyle}>
@@ -601,41 +606,83 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
             </div>
           )}
         </div>
-        {secondaryGalleryItems.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto border-t border-gray-100 p-3 [scrollbar-width:thin]">
-            {secondaryGalleryItems.map((slide) => (
-              <div key={slide.id} className="shrink-0 overflow-hidden rounded-lg border border-gray-100">
-                <img src={slide.src} alt={slide.title} className="h-20 w-28 object-cover" />
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Gallery slider — 間取り図・室内写真など (hero image excluded) */}
+      <PropertyGallerySlider
+        items={[detailProperty]}
+        selectedPropertyId={String(detailProperty.id || selectedId || "")}
+        excludeImage={resolvedImage}
+        title="間取り・写真"
+        description="間取り図・室内写真などの補足画像をスライドで確認できます。"
+      />
 
       {/* Row 1: Price + Details + Address — 1→2→3 cols */}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <PropertyPriceCard property={detailProperty} density="compact" mobileTwoColumn />
-        <PropertyDetailsCard property={detailProperty} density="compact" />
-        <PropertyAddressCard property={detailProperty} density="compact" linkDisplay="button" />
+        <PropertyPriceCard property={detailProperty} items={[detailProperty]} density="compact" mobileTwoColumn />
+        <PropertyDetailsCard property={detailProperty} items={[detailProperty]} density="compact" />
+        <PropertyAddressCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" />
       </div>
 
       {/* Row 2: BasicInfo + Features — 1→2 cols */}
       <div className="grid gap-4 md:grid-cols-2">
         <PropertyBasicInfoCard
-          property={detailProperty}
+          property={detailProperty} items={[detailProperty]}
           density="compact"
           linkDisplay="chip"
           showPropertyId={false}
           showSource={false}
           showSourceCompany={false}
         />
-        <PropertyFeaturesCard property={detailProperty} density="compact" />
+        <PropertyFeaturesCard property={detailProperty} items={[detailProperty]} density="compact" />
       </div>
+
+      {/* Location: Map / Street View + Access / 3D View — each links out to a full screen */}
+      {hasLocation && (
+        <div className="space-y-4">
+          <MapCard
+            title="地図"
+            subtitle={resolvedAddressJP || t("周辺の地図を確認できます。")}
+            center={coord}
+            address={resolvedAddressJP}
+            locationLabel={resolvedAddressJP}
+          />
+
+          <StreetViewCard
+            title="Street View"
+            subtitle={resolvedAddressJP || t("物件周辺の街並みを確認できます。")}
+            viewpoint={coord}
+            address={resolvedAddressJP}
+            locationLabel={resolvedAddressJP}
+          />
+
+          {resolvedTransport && (
+            <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-600">
+                {t("Access")}
+              </div>
+              <h3 className="mt-1 text-lg font-semibold text-slate-900">
+                {t("交通アクセス")}
+              </h3>
+              <p className="mt-2 whitespace-pre-line break-words text-sm leading-6 text-slate-700">
+                {resolvedTransport}
+              </p>
+            </div>
+          )}
+
+          <Property3DCard
+            title="3D View"
+            center={coord}
+            address={resolvedAddressJP}
+            locationLabel={resolvedAddressJP}
+          />
+        </div>
+      )}
 
       {/* Row 3: Neighborhood + Hazard — 1→2 cols */}
       <div className="grid gap-4 md:grid-cols-2">
-        <PropertyNeighborhoodCard property={detailProperty} density="compact" linkDisplay="button" />
-        <PropertyHazardCard property={detailProperty} density="compact" linkDisplay="button" />
+        <PropertyNeighborhoodCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" />
+        <PropertyHazardCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" />
       </div>
 
     </div>

@@ -20,6 +20,35 @@ export const buildGoogleMapsMapUrl = ({
 }) =>
   `https://www.google.com/maps/@?api=1&map_action=map&center=${encodeURIComponent(center)}&zoom=${zoom}`;
 
+/**
+ * Tilted 3D / aerial view of a coordinate in Google Maps (no API key needed).
+ * `data=!3m1!1e3` selects the 3D/satellite globe; the `<zoom>a,<fov>y,<tilt>t`
+ * segment gives an angled bird's-eye view.
+ */
+export const buildGoogleMaps3DUrl = ({ center }: { center: string }): string => {
+  const [lat, lng] = String(center || "")
+    .split(",")
+    .map((s) => s.trim());
+  if (!lat || !lng) return "";
+  return `https://www.google.com/maps/@${lat},${lng},150a,35y,45t/data=!3m1!1e3`;
+};
+
+/**
+ * Google Maps satellite/hybrid tiles embed for a coordinate (`t=k`), suitable for
+ * an <iframe>. No API key required.
+ */
+export const buildGoogleSatelliteEmbedUrl = ({
+  center,
+  zoom = 18,
+}: {
+  center: string;
+  zoom?: number;
+}): string => {
+  const c = String(center || "").trim();
+  if (!c.includes(",")) return "";
+  return `https://maps.google.com/maps?q=${encodeURIComponent(c)}&t=k&z=${zoom}&output=embed`;
+};
+
 export const buildPropertyDetailPath = (pageId: string, itemId: string) =>
   `/view/${pageId}?item=${encodeURIComponent(itemId)}`;
 

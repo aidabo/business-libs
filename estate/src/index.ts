@@ -23,6 +23,7 @@ import PropertySlider from "./PropertySlider";
 import PropertyGallerySlider from "./PropertyGallerySlider";
 import StreetViewCard from "./StreetViewCard";
 import MapCard from "./MapCard";
+import Property3DCard from "./Property3DCard";
 import PropertyTable from "./PropertyTable";
 import PropertyBasicInfoCard from "./PropertyBasicInfoCard";
 import PropertyAddressCard from "./PropertyAddressCard";
@@ -63,6 +64,7 @@ export const EstateComponents = {
   PropertyGallerySlider,
   StreetViewCard,
   MapCard,
+  Property3DCard,
   PropertyTable,
   PropertyBasicInfoCard,
   PropertyAddressCard,
@@ -450,6 +452,8 @@ export const EstateDefaultProps = {
     description: "Explore our latest listings chosen for you.",
     columns: 3,
     layout: "grid",
+    // Open the detail page in a new window/tab when a card is clicked.
+    openDetailInNewWindow: true,
     // Inquiry-selection checkbox on each card (ON by default). InquiryForm submits
     // an inquiry for all selected properties. Set false on related/similar grids.
     selectable: true,
@@ -1026,6 +1030,14 @@ export const EstateDefaultProps = {
     subtitle: "Check the neighborhood map before booking a showing.",
     center: "35.6595,139.7005",
     zoom: 16,
+    locationLabel: "Shibuya, Tokyo",
+  },
+  Property3DCard: {
+    _componentDesc: 'component.property3DCard.desc',
+    title: "3D View",
+    subtitle: "航空写真で周辺のボリューム感を確認できます。",
+    center: "35.6595,139.7005",
+    zoom: 18,
     locationLabel: "Shibuya, Tokyo",
   },
 

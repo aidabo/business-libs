@@ -36,6 +36,8 @@ export interface PropertyGridProps {
   intentKey?: string;
   searchableFields?: string[];
   detailPageId?: string;
+  /** Open the detail page in a new browser window/tab instead of navigating away. */
+  openDetailInNewWindow?: boolean;
   /** Show an inquiry-selection checkbox on each card (for bulk InquiryForm). */
   selectable?: boolean;
   inquiryPropertiesKey?: string;
@@ -73,6 +75,7 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
   intentKey = ESTATE_STATE_KEYS.filterIntent,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
+  openDetailInNewWindow = true,
   // Multi-select inquiry checkbox is ON by default so listing pages get it without
   // per-page config; set selectable={false} to hide it (e.g. related/similar grids).
   selectable = true,
@@ -168,12 +171,17 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
       // Include the property's linked Post (&p=<post_id>) so the detail page's
       // PostView can load it. Needs include=posts on the datasource.
       const postId = resolvePropertyPostId(prop);
-      window.location.href = buildRealEstateDetailTransitionPath(
+      const url = buildRealEstateDetailTransitionPath(
         detailPageId,
         String(id),
         "listing-grid",
         postId,
       );
+      if (openDetailInNewWindow) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        window.location.href = url;
+      }
     }
   };
 
