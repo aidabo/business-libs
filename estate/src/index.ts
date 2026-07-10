@@ -290,7 +290,7 @@ const propertyGridSchema = {
     selectedPropertyIdKey: textProp("Selected Property ID State Key"),
     keywordKey: textProp("Keyword State Key"),
     intentKey: textProp("Intent State Key"),
-    detailPageId: textProp("Detail Page ID"),
+    detailPageId: textProp("Detail Page ID or URL"),
     searchableFields: stringArrayProp("Searchable Fields"),
     properties: {
       title: "Properties",
@@ -375,7 +375,7 @@ const propertySliderSchema = {
   properties: {
     title: textProp("Title"),
     description: textareaProp("Description"),
-    detailPageId: textProp("Detail Page ID"),
+    detailPageId: textProp("Detail Page ID or URL"),
     selectedPropertyIdKey: textProp("Selected Property ID State Key"),
     slides: {
       title: "Slides",
@@ -452,6 +452,11 @@ export const EstateDefaultProps = {
     description: "Explore our latest listings chosen for you.",
     columns: 3,
     layout: "grid",
+    // Detail page is built in the page builder → the author sets detailPageId
+    // (a page id or the pasted detail-page URL) from the Properties tab. Left
+    // empty in defaults so a fresh grid doesn't point at a wrong page; when unset
+    // a card click updates selection + emits an event but does not navigate.
+    detailPageId: "",
     // Open the detail page in a new window/tab when a card is clicked.
     openDetailInNewWindow: true,
     // Inquiry-selection checkbox on each card (ON by default). InquiryForm submits
@@ -730,7 +735,13 @@ export const EstateDefaultProps = {
     title: "Search Results",
     totalCount: 0,
     keywordKey: "estate.keyword",
+    intentKey: "estate.filter.intent",
+    // Author sets this from the UI (page id or pasted detail-page URL); empty = no nav.
+    detailPageId: "",
     selectedPropertyIdKey: "estate.selectedPropertyId",
+    // Inquiry-selection checkbox on each card (ON by default, same as PropertyGrid).
+    selectable: true,
+    inquiryPropertiesKey: "estate.inquiry.properties",
     results: [
       {
         id: "search-sakura-terrace",
@@ -940,7 +951,8 @@ export const EstateDefaultProps = {
     __schema: propertySliderSchema,
     title: "Property slider",
     description: "Horizontal premium cards for featured homes and rentals.",
-    detailPageId: "page-estate-detail",
+    // Author sets this from the UI (page id or pasted detail-page URL); empty = no nav.
+    detailPageId: "",
     selectedPropertyIdKey: "estate.selectedPropertyId",
     slides: [
       {

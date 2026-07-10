@@ -22,6 +22,10 @@ export interface PropertySliderProps {
     video?: string;
     locationLabel?: string;
   }>;
+  /**
+   * Detail page a card click opens — a bare page id/slug OR a full/relative page
+   * URL. Settable from the page-builder UI. When empty, cards do not navigate.
+   */
   detailPageId?: string;
   selectedPropertyIdKey?: string;
 
@@ -86,7 +90,7 @@ export default function PropertySlider({
   title = "Property slider",
   description = "Horizontal premium cards for featured homes and rentals.",
   slides,
-  detailPageId = "page-estate-detail",
+  detailPageId,
   selectedPropertyIdKey = "estate.selectedPropertyId",
   propertyType,
   limit: propLimit = 10,
@@ -163,8 +167,11 @@ export default function PropertySlider({
   const items = (slides && slides.length > 0) ? slides : (fetchedSlides || []);
   const selectedId = String(__stackpage?.getPageState?.(selectedPropertyIdKey, "") || "");
 
+  const detailTarget = String(detailPageId || "").trim();
+
   const openDetail = (item: any) => {
-    const path = buildRealEstateDetailTransitionPath(detailPageId, item.id, "slider-card");
+    // Selection state + event fire regardless; navigation only when a detail
+    // target (id or URL) is set by the author.
     __stackpage?.setPageState?.(selectedPropertyIdKey, item.id);
     __stackpage?.emit?.("estate:property:selected", {
       id: item.id,
@@ -173,7 +180,8 @@ export default function PropertySlider({
       locationLabel: item.locationLabel || "",
       source: "slider-card",
     });
-    if (typeof window !== "undefined") {
+    if (detailTarget && typeof window !== "undefined") {
+      const path = buildRealEstateDetailTransitionPath(detailTarget, item.id, "slider-card");
       window.location.assign(path);
     }
   };

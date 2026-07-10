@@ -35,6 +35,12 @@ export interface PropertyGridProps {
   keywordKey?: string;
   intentKey?: string;
   searchableFields?: string[];
+  /**
+   * Detail page a card click opens — a bare page id/slug OR a full/relative page
+   * URL pasted from the detail page's browser bar. Settable from the page-builder
+   * UI (or bound to page state / a `{{query.*}}` param like any StackPage prop).
+   * When empty, cards do not navigate (selection state + event still fire).
+   */
   detailPageId?: string;
   /** Open the detail page in a new browser window/tab instead of navigating away. */
   openDetailInNewWindow?: boolean;
@@ -110,6 +116,8 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
   const keyword = String(getPageState(__stackpage, keywordKey, "")).trim();
   const activeIntent = String(getPageState(__stackpage, intentKey, "all")).toLowerCase();
   const selectedId = String(getPageState(__stackpage, selectedPropertyIdKey, ""));
+  // Detail target set by the author (id or URL). Empty → cards don't navigate.
+  const detailTarget = String(detailPageId || "").trim();
   const detailFilters = {
     stationKeyword: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.stationKeyword, "") || ""),
     floorPlan: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.floorPlan, "") || ""),
@@ -166,13 +174,13 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
       setPageState(__stackpage, selectedPropertyIdKey, item.id);
       __stackpage.emit("estate:property:selected", buildPropertySelectionEvent(item));
     }
-    if (detailPageId) {
+    if (detailTarget) {
       const id = prop.id || prop.itemId || prop.address || "";
-      // Include the property's linked Post (&p=<post_id>) so the detail page's
+      // Include the property's linked Post (&post=<post_id>) so the detail page's
       // PostView can load it. Needs include=posts on the datasource.
       const postId = resolvePropertyPostId(prop);
       const url = buildRealEstateDetailTransitionPath(
-        detailPageId,
+        detailTarget,
         String(id),
         "listing-grid",
         postId,
@@ -285,7 +293,7 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
                   variant={isList ? "horizontal" : "vertical"}
                   selected={!!resolvedItemId && resolvedItemId === selectedId}
                   onCardClick={() => handleCardClick(prop)}
-                  detailPageId={detailPageId}
+                  detailPageId={detailTarget}
                   itemId={resolvedItemId}
                   selectable={selectable}
                   selectedForInquiry={selectedInquiryIds.has(resolvedItemId)}

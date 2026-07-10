@@ -8,6 +8,7 @@ import {
   buildPropertySelectionEvent,
   setPageState,
 } from "./types";
+import { buildPropertyDetailPath } from "./utils/urlBuilders";
 
 // ── Skeleton loader ─────────────────────────────────────────────────
 
@@ -119,6 +120,7 @@ export interface PropertyCardProps {
   variant?: "vertical" | "horizontal";
   selected?: boolean;
   onCardClick?: () => void;
+  /** Detail page — a bare page id/slug OR a full/relative page URL. */
   detailPageId?: string;
   itemId?: string;
   /** Show an inquiry-selection checkbox on the card. */
@@ -212,6 +214,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 }) => {
   const t = useT();
   const [imgError, setImgError] = useState(false);
+  // Detail target (id or URL). Inside a grid this comes pre-set from the parent;
+  // standalone it needs detailPageId to navigate. Empty → no navigation.
+  const detailTarget = String(detailPageId || "").trim();
 
   // Effective values: tolerate server field names (snake_case / numeric) and a
   // media array. images[0] is the main image shown on the card.
@@ -327,7 +332,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const handleClick = () => {
     if (onCardClick) {
       // The caller (e.g. PropertyGrid) owns selection + navigation, including the
-      // linked Post (&p=<post_id>). Return so we don't overwrite that URL here.
+      // linked Post (&post=<post_id>). Return so we don't overwrite that URL here.
       onCardClick();
       return;
     }
@@ -337,9 +342,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       setPageState(__stackpage, ESTATE_STATE_KEYS.selectedPropertyId, item.id);
       __stackpage.emit(ESTATE_EVENTS.propertySelected, buildPropertySelectionEvent(item));
     }
-    if (detailPageId) {
+    if (detailTarget) {
       const selectedId = id || itemId || address;
-      window.location.href = `/view/${detailPageId}?item=${encodeURIComponent(selectedId)}`;
+      window.location.href = buildPropertyDetailPath(detailTarget, String(selectedId));
     }
   };
 
@@ -406,7 +411,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   );
 
   // ── Detail link ─────────────────────────────────────────────────
-  const detailLink = detailPageId && (
+  const detailLink = detailTarget && (
     <div className="pt-3 border-t border-gray-100 mt-auto">
       <span className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
         {t("詳細を見る")} →

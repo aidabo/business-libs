@@ -3,14 +3,27 @@ import PropertyCard, { PropertyCardProps } from "./PropertyCard";
 import { useT } from "./hooks/useTranslation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import type { StackPageRuntimeApi } from "./types";
-import { ESTATE_STATE_KEYS, ESTATE_EVENTS, getPageState, setPageState, buildPropertySelectionEvent } from "./types";
+import {
+  ESTATE_STATE_KEYS,
+  ESTATE_EVENTS,
+  getPageState,
+  setPageState,
+  buildPropertySelectionEvent,
+  readInquiryProperties,
+  toggleInquiryProperty,
+} from "./types";
 import {
   DEFAULT_SEARCHABLE_FIELDS,
   parseSearchQuery,
   propertyMatchesDetailFilters,
   propertyMatchesSearch,
+  propertyMatchesIntent,
 } from "./utils/search";
 import { ESTATE_FILTER_STATE_KEYS } from "./PropertyFilterBar";
+import {
+  buildRealEstateDetailTransitionPath,
+  resolvePropertyPostId,
+} from "./utils/urlBuilders";
 
 export interface SearchResultProps {
   title?: string;
@@ -18,9 +31,18 @@ export interface SearchResultProps {
   totalCount?: number;
   columns?: 2 | 3 | 4;
   keywordKey?: string;
+  intentKey?: string;
   selectedPropertyIdKey?: string;
   searchableFields?: string[];
+  /**
+   * Detail page a card click opens — a bare page id/slug OR a full/relative page
+   * URL pasted from the detail page's browser bar. Settable from the page-builder
+   * UI. When empty, cards do not navigate (selection state + event still fire).
+   */
   detailPageId?: string;
+  /** Show an inquiry-selection checkbox on each card (for bulk InquiryForm). */
+  selectable?: boolean;
+  inquiryPropertiesKey?: string;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -47,9 +69,14 @@ const SearchResult: React.FC<SearchResultProps> = ({
   totalCount: _totalCount = 0,
   columns = 3,
   keywordKey = ESTATE_STATE_KEYS.keyword,
+  intentKey = ESTATE_STATE_KEYS.filterIntent,
   selectedPropertyIdKey = ESTATE_STATE_KEYS.selectedPropertyId,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
+  // Multi-select inquiry checkbox is ON by default (same as PropertyGrid); set
+  // selectable={false} to hide it.
+  selectable = true,
+  inquiryPropertiesKey = ESTATE_STATE_KEYS.inquiryProperties,
   backgroundColor,
   fontSize,
   className = "",
@@ -65,7 +92,10 @@ const SearchResult: React.FC<SearchResultProps> = ({
   };
 
   const keyword = String(getPageState(__stackpage, keywordKey, "")).trim();
+  const activeIntent = String(getPageState(__stackpage, intentKey, "all")).toLowerCase();
   const selectedId = String(getPageState(__stackpage, selectedPropertyIdKey, ""));
+  // Detail target set by the author (id or URL). Empty → cards don't navigate.
+  const detailTarget = String(detailPageId || "").trim();
   const detailFilters = {
     stationKeyword: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.stationKeyword, "") || ""),
     floorPlan: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.floorPlan, "") || ""),
@@ -73,11 +103,23 @@ const SearchResult: React.FC<SearchResultProps> = ({
     maxArea: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.areaMax, "") || ""),
     minYearBuilt: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yearBuiltMin, "") || ""),
     maxYearBuilt: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yearBuiltMax, "") || ""),
+    minPrice: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.priceMin, "") || ""),
+    maxPrice: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.priceMax, "") || ""),
+    minDeposit: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.depositMin, "") || ""),
+    maxDeposit: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.depositMax, "") || ""),
+    minKeyMoney: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.keyMoneyMin, "") || ""),
+    maxKeyMoney: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.keyMoneyMax, "") || ""),
+    minYield: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yieldMin, "") || ""),
+    maxYield: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.yieldMax, "") || ""),
     petsAllowed: (() => {
       const raw = getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.petsAllowed, null);
       if (raw == null || raw === "") return null;
       return String(raw) === "true" ? true : null;
     })(),
+    features: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.features, "") || "")
+      .split(",").map((s) => s.trim()).filter(Boolean),
+    directions: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.directions, "") || "")
+      .split(",").map((s) => s.trim()).filter(Boolean),
   };
 
   const isPreview = results.length === 0;
@@ -85,14 +127,35 @@ const SearchResult: React.FC<SearchResultProps> = ({
 
   const searchQuery = parseSearchQuery(keyword);
 
-  const filteredResults = keyword
-    ? displayResults.filter((prop) =>
-        propertyMatchesSearch(prop as Record<string, unknown>, searchQuery, searchableFields) &&
-        propertyMatchesDetailFilters(prop as Record<string, unknown>, detailFilters)
-      )
-    : displayResults.filter((prop) =>
-        propertyMatchesDetailFilters(prop as Record<string, unknown>, detailFilters)
-      );
+  // Same filter pipeline as PropertyGrid: intent → keyword search → detail filters.
+  const filteredResults = displayResults.filter((prop) => {
+    const p = prop as Record<string, unknown>;
+    if (!propertyMatchesIntent(p, activeIntent)) return false;
+    if (!propertyMatchesSearch(p, searchQuery, searchableFields)) return false;
+    return propertyMatchesDetailFilters(p, detailFilters);
+  });
+
+  // ── Inquiry selection (bulk, binds to InquiryForm via shared state) ──
+  const selectedInquiryIds = new Set(
+    (selectable ? readInquiryProperties(__stackpage, inquiryPropertiesKey) : []).map((p) => p.id)
+  );
+
+  const handleToggleSelect = (prop: PropertyCardProps) => {
+    const p = prop as Record<string, any>;
+    const id = String(prop.id || prop.itemId || p.address || "");
+    if (!id) return;
+    const next = toggleInquiryProperty(
+      __stackpage,
+      {
+        id,
+        title: String(p.building_name || p.buildingName || p.title || p.address || id),
+        price: String(p.price ?? p.price_rent_monthly ?? p.price_sale ?? ""),
+        address: String(p.address || ""),
+      },
+      inquiryPropertiesKey
+    );
+    __stackpage?.emit?.(ESTATE_EVENTS.inquirySelectionChanged, { properties: next });
+  };
 
   const handleCardClick = (prop: PropertyCardProps) => {
     if (__stackpage) {
@@ -101,9 +164,15 @@ const SearchResult: React.FC<SearchResultProps> = ({
       setPageState(__stackpage, selectedPropertyIdKey, item.id);
       __stackpage.emit(ESTATE_EVENTS.propertySelected, buildPropertySelectionEvent(item, "search"));
     }
-    if (detailPageId) {
+    if (detailTarget) {
       const id = prop.id || prop.itemId || prop.address || "";
-      window.location.href = `/view/${detailPageId}?item=${encodeURIComponent(id)}`;
+      const postId = resolvePropertyPostId(prop);
+      window.location.href = buildRealEstateDetailTransitionPath(
+        detailTarget,
+        String(id),
+        "search",
+        postId,
+      );
     }
   };
 
@@ -144,8 +213,11 @@ const SearchResult: React.FC<SearchResultProps> = ({
                   variant="vertical"
                   selected={!!resolvedItemId && resolvedItemId === selectedId}
                   onCardClick={() => handleCardClick(prop)}
-                  detailPageId={detailPageId}
+                  detailPageId={detailTarget}
                   itemId={resolvedItemId}
+                  selectable={selectable}
+                  selectedForInquiry={selectedInquiryIds.has(resolvedItemId)}
+                  onToggleSelect={() => handleToggleSelect(prop)}
                   __stackpage={__stackpage}
                 />
               );
