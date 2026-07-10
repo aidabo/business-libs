@@ -1,5 +1,6 @@
 import React from "react";
 import PropertyCard, { PropertyCardProps } from "./PropertyCard";
+import MessageDialog from "./MessageDialog";
 import { useT } from "./hooks/useTranslation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import type { StackPageRuntimeApi } from "./types";
@@ -40,6 +41,17 @@ export interface SearchResultProps {
    * UI. When empty, cards do not navigate (selection state + event still fire).
    */
   detailPageId?: string;
+  /**
+   * Whether the detail page needs the property's linked Post (lets Post-backed and
+   * PropertyDetail-only detail pages coexist):
+   *   - `true`  — detail uses a Post; a card with no Post shows a notice instead
+   *               of navigating.
+   *   - `false` (default) — detail is PropertyDetail-only; navigate with `?item`
+   *               even when no Post id is present.
+   */
+  requirePost?: boolean;
+  /** Open the detail page in a new browser window/tab instead of navigating away. */
+  openDetailInNewWindow?: boolean;
   /** Show an inquiry-selection checkbox on each card (for bulk InquiryForm). */
   selectable?: boolean;
   inquiryPropertiesKey?: string;
@@ -73,6 +85,8 @@ const SearchResult: React.FC<SearchResultProps> = ({
   selectedPropertyIdKey = ESTATE_STATE_KEYS.selectedPropertyId,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
+  requirePost = false,
+  openDetailInNewWindow = true,
   // Multi-select inquiry checkbox is ON by default (same as PropertyGrid); set
   // selectable={false} to hide it.
   selectable = true,
@@ -84,6 +98,8 @@ const SearchResult: React.FC<SearchResultProps> = ({
   __stackpage,
 }) => {
   const t = useT();
+  // Notice shown when a card has no linked Post yet (detail transition needs one).
+  const [noPostDialogOpen, setNoPostDialogOpen] = React.useState(false);
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,
@@ -122,7 +138,12 @@ const SearchResult: React.FC<SearchResultProps> = ({
       .split(",").map((s) => s.trim()).filter(Boolean),
   };
 
-  const isPreview = results.length === 0;
+  // Sample fallback is ONLY for the design-time preview (component picker, no
+  // runtime). In a live page (__stackpage present) an empty `results` — whether a
+  // genuine no-match or a brief gap during a Tier B refetch — must NOT swap to
+  // hardcoded samples: doing so flips card ids under the inquiry checkboxes and
+  // makes check marks appear/disappear. Live empty → the "no properties" state.
+  const isPreview = results.length === 0 && !__stackpage;
   const displayResults = isPreview ? FALLBACK_RESULTS : results;
 
   const searchQuery = parseSearchQuery(keyword);
@@ -166,13 +187,25 @@ const SearchResult: React.FC<SearchResultProps> = ({
     }
     if (detailTarget) {
       const id = prop.id || prop.itemId || prop.address || "";
+      // Only Post-backed detail pages need the linked Post: when requirePost is
+      // set and it's missing (rare), show a notice instead of navigating.
+      // PropertyDetail-only pages navigate with just ?item.
       const postId = resolvePropertyPostId(prop);
-      window.location.href = buildRealEstateDetailTransitionPath(
+      if (requirePost && !postId) {
+        setNoPostDialogOpen(true);
+        return;
+      }
+      const url = buildRealEstateDetailTransitionPath(
         detailTarget,
         String(id),
         "search",
         postId,
       );
+      if (openDetailInNewWindow) {
+        window.open(url, "_blank", "noopener,noreferrer");
+      } else {
+        window.location.href = url;
+      }
     }
   };
 
@@ -229,6 +262,14 @@ const SearchResult: React.FC<SearchResultProps> = ({
           </div>
         )}
       </div>
+
+      <MessageDialog
+        open={noPostDialogOpen}
+        title="お知らせ"
+        message="この物件の詳細記事は準備中です。しばらくお待ちください。"
+        closeLabel="閉じる"
+        onClose={() => setNoPostDialogOpen(false)}
+      />
     </section>
   );
 };

@@ -291,6 +291,8 @@ const propertyGridSchema = {
     keywordKey: textProp("Keyword State Key"),
     intentKey: textProp("Intent State Key"),
     detailPageId: textProp("Detail Page ID or URL"),
+    requirePost: booleanProp("Require linked Post (else PropertyDetail-only)"),
+    openDetailInNewWindow: booleanProp("Open detail in a new window/tab"),
     searchableFields: stringArrayProp("Searchable Fields"),
     properties: {
       title: "Properties",
@@ -457,6 +459,10 @@ export const EstateDefaultProps = {
     // empty in defaults so a fresh grid doesn't point at a wrong page; when unset
     // a card click updates selection + emits an event but does not navigate.
     detailPageId: "",
+    // Detail page uses PropertyDetail only by default (Post optional). Set true
+    // when the detail page renders a Post — then a card with no linked Post shows
+    // a notice instead of opening a postless page.
+    requirePost: false,
     // Open the detail page in a new window/tab when a card is clicked.
     openDetailInNewWindow: true,
     // Inquiry-selection checkbox on each card (ON by default). InquiryForm submits
@@ -738,6 +744,10 @@ export const EstateDefaultProps = {
     intentKey: "estate.filter.intent",
     // Author sets this from the UI (page id or pasted detail-page URL); empty = no nav.
     detailPageId: "",
+    // Post optional by default (PropertyDetail-only); set true for a Post-backed page.
+    requirePost: false,
+    // Open detail in a new window/tab on card click (same as PropertyGrid).
+    openDetailInNewWindow: true,
     selectedPropertyIdKey: "estate.selectedPropertyId",
     // Inquiry-selection checkbox on each card (ON by default, same as PropertyGrid).
     selectable: true,
@@ -806,6 +816,18 @@ export const EstateDefaultProps = {
         tag: "投資",
         property_type: "investment",
         features: "管理良好, 駅近, 高利回り",
+      },
+    ],
+    // Same event wiring as PropertyGrid so SearchResult is a drop-in replacement:
+    // a card selection publishes the property id to shared state (visible in the
+    // Page Events dialog and consumed by InquiryForm / detail cards).
+    __interactions: [
+      {
+        id: "estate-search-select",
+        event: "estate:property:selected",
+        action: "set-shared-state",
+        targetPath: "estate.selectedPropertyId",
+        valueFrom: "$.id",
       },
     ],
   },

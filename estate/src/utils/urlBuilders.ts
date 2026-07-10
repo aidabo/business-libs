@@ -114,15 +114,33 @@ export const buildRealEstateDetailTransitionPath = (
 };
 
 /** Extract the property's linked Post id (needs include=posts on the datasource).
- *  Used to open the detail page as ?item=<property_id>&post=<post_id>. */
+ *  Used to open the detail page as ?item=<property_id>&post=<post_id>.
+ *
+ *  `posts[]` holds `estate_property_posts` **join rows**, where the real Ghost
+ *  post id lives in `post_id` — the row's own `id` is the join-row id and must NOT
+ *  be used. We prefer `post_id`, falling back to `id` only for arrays of actual
+ *  post objects (which carry no `post_id`). Among rows, the primary one wins, then
+ *  the lowest `sort_order`. */
 export const resolvePropertyPostId = (property: any): string => {
   const direct = property?.post_id ?? property?.postId ?? property?.postID;
   if (direct) return String(direct);
-  const arr = Array.isArray(property?.posts)
+
+  const arr: any[] = Array.isArray(property?.posts)
     ? property.posts
     : Array.isArray(property?.ghostPosts)
       ? property.ghostPosts
       : [];
-  const first = arr.find((x: any) => x && (x.id || x.post_id));
-  return first ? String(first.id || first.post_id) : "";
+  if (!arr.length) return "";
+
+  const rows = arr
+    .filter((x) => x && (x.post_id || x.id))
+    .sort((a, b) => {
+      const primary = (a.is_primary ? 0 : 1) - (b.is_primary ? 0 : 1);
+      if (primary !== 0) return primary;
+      return Number(a.sort_order ?? 0) - Number(b.sort_order ?? 0);
+    });
+
+  const pick = rows[0];
+  // post_id (join FK to the actual post) wins over id (join-row id).
+  return pick ? String(pick.post_id ?? pick.id ?? "") : "";
 };

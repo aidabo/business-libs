@@ -1,6 +1,7 @@
 import React from "react";
 import PropertyCard, { PropertyCardSkeleton } from "./PropertyCard";
 import type { PropertyCardProps } from "./PropertyCard";
+import MessageDialog from "./MessageDialog";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
 import {
@@ -42,6 +43,16 @@ export interface PropertyGridProps {
    * When empty, cards do not navigate (selection state + event still fire).
    */
   detailPageId?: string;
+  /**
+   * Whether the detail page needs the property's linked Post. Detail pages come in
+   * two shapes and this lets both coexist:
+   *   - `true`  — detail uses a Post (PostView + PropertyDetail). A card with no
+   *               linked Post can't open it, so a notice is shown instead of navigating.
+   *   - `false` (default) — detail uses PropertyDetail only (self-fetches by
+   *               `?item`); the Post is optional, so navigation proceeds with just
+   *               `?item` when no Post id is present.
+   */
+  requirePost?: boolean;
   /** Open the detail page in a new browser window/tab instead of navigating away. */
   openDetailInNewWindow?: boolean;
   /** Show an inquiry-selection checkbox on each card (for bulk InquiryForm). */
@@ -81,6 +92,7 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
   intentKey = ESTATE_STATE_KEYS.filterIntent,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
+  requirePost = false,
   openDetailInNewWindow = true,
   // Multi-select inquiry checkbox is ON by default so listing pages get it without
   // per-page config; set selectable={false} to hide it (e.g. related/similar grids).
@@ -106,6 +118,8 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
   __stackpage,
 }) => {
   const t = useT();
+  // Notice shown when a card has no linked Post yet (detail transition needs one).
+  const [noPostDialogOpen, setNoPostDialogOpen] = React.useState(false);
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,
@@ -176,9 +190,16 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
     }
     if (detailTarget) {
       const id = prop.id || prop.itemId || prop.address || "";
-      // Include the property's linked Post (&post=<post_id>) so the detail page's
-      // PostView can load it. Needs include=posts on the datasource.
+      // The property's linked Post (&post=<post_id>) feeds the detail page's
+      // PostView. Only Post-backed detail pages need it: when requirePost is set
+      // and the property has no Post (rare), show a notice instead of opening a
+      // postless page. PropertyDetail-only pages (requirePost=false) navigate with
+      // just ?item. Needs include=posts on the datasource for the Post to resolve.
       const postId = resolvePropertyPostId(prop);
+      if (requirePost && !postId) {
+        setNoPostDialogOpen(true);
+        return;
+      }
       const url = buildRealEstateDetailTransitionPath(
         detailTarget,
         String(id),
@@ -305,6 +326,14 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
           </div>
         )}
       </div>
+
+      <MessageDialog
+        open={noPostDialogOpen}
+        title="お知らせ"
+        message="この物件の詳細記事は準備中です。しばらくお待ちください。"
+        closeLabel="閉じる"
+        onClose={() => setNoPostDialogOpen(false)}
+      />
     </section>
   );
 };
