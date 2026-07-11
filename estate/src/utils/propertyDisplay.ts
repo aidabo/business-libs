@@ -1,3 +1,5 @@
+import { buildGoogleMaps3DUrl, extractLatLngFromMapUrl } from "./urlBuilders";
+
 export type FieldRow = {
   key: string;
   label: string;
@@ -181,9 +183,20 @@ export function buildEstateMapLinks(property: any): { googleMapUrl?: string; goo
   const googleMapUrl = providedMap || (coords ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}` : address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : undefined);
   const streetViewUrl = providedStreet || (coords ? `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${encodeURIComponent(coords)}` : address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}&layer=c` : undefined);
 
+  // 3D: build the tilted aerial from the precise coordinate. The stored
+  // google_3d_url is a `/maps/place/<name>/@lat,lng…` form whose place *name*
+  // Google resolves ahead of the coordinate, so it can open a different spot than
+  // the marker. The precise coordinate lives in the map URL query (latitude/
+  // longitude columns are rounded), so prefer that, then lat/lng, then the raw URL.
+  const preciseCoord = extractLatLngFromMapUrl(providedMap) || coords;
+  const google3dUrl =
+    (preciseCoord ? buildGoogleMaps3DUrl({ center: preciseCoord }) : "") ||
+    provided3d ||
+    undefined;
+
   return {
     googleMapUrl,
-    google3dUrl: provided3d || undefined,
+    google3dUrl,
     streetViewUrl,
   };
 }
