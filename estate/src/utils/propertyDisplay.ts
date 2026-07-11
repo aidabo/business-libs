@@ -1,4 +1,4 @@
-import { buildGoogleMaps3DUrl, extractLatLngFromMapUrl } from "./urlBuilders";
+import { buildGoogleMaps3DUrl, extractLatLngFromMapUrl, extractPlaceIdFromMapUrl } from "./urlBuilders";
 
 export type FieldRow = {
   key: string;
@@ -183,15 +183,17 @@ export function buildEstateMapLinks(property: any): { googleMapUrl?: string; goo
   const googleMapUrl = providedMap || (coords ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(coords)}` : address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}` : undefined);
   const streetViewUrl = providedStreet || (coords ? `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${encodeURIComponent(coords)}` : address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}&layer=c` : undefined);
 
-  // 3D / aerial: a tilted satellite view centred on the property, with a
-  // coordinate pin (see buildGoogleMaps3DUrl). The stored google_3d_url is a
-  // `/maps/place/<name>/@lat,lng…` form whose place *name* Google resolves ahead
-  // of the coordinate → can open the wrong spot, and it carries no marker. The
-  // precise coordinate lives in the map URL query (latitude/longitude columns are
-  // rounded), so prefer that, then lat/lng, then the raw stored URL.
+  // 3D / aerial: a tilted satellite view of the property that keeps its marker,
+  // anchored by the place_id feature-ID (see buildGoogleMaps3DUrl). The stored
+  // google_3d_url is a `/maps/place/<name>/…` form whose place *name* Google may
+  // fail to resolve (→ no marker) or resolve to the wrong spot. The precise
+  // coordinate + place_id live in the map URL query (latitude/longitude columns
+  // are rounded), so prefer those, then lat/lng, then the raw stored URL.
   const preciseCoord = extractLatLngFromMapUrl(providedMap) || coords;
+  const placeId = extractPlaceIdFromMapUrl(providedMap);
+  const placeLabel = stringify(firstValue(source, ["building_name", "buildingName", "name"])) || address;
   const google3dUrl =
-    (preciseCoord ? buildGoogleMaps3DUrl({ center: preciseCoord }) : "") ||
+    (preciseCoord ? buildGoogleMaps3DUrl({ center: preciseCoord, placeId, label: placeLabel }) : "") ||
     provided3d ||
     undefined;
 

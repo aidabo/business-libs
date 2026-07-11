@@ -38,20 +38,63 @@ export const extractLatLngFromMapUrl = (url?: string): string => {
   return "";
 };
 
+/** Pull the `query_place_id` (ChIJ…) out of a stored Google Maps URL. */
+export const extractPlaceIdFromMapUrl = (url?: string): string => {
+  const m = String(url || "").match(/[?&]query_place_id=([^&]+)/);
+  return m ? decodeURIComponent(m[1]) : "";
+};
+
 /**
- * Tilted 3D / aerial view of a coordinate in Google Maps (no API key needed).
- * `data=!3m1!1e3` selects the 3D/satellite globe; the `<zoom>a,<fov>y,<tilt>t`
- * segment gives an angled bird's-eye view. The `/maps/place/<lat,lng>/` prefix
- * drops a coordinate pin, so the aerial view still marks the property location
- * (a bare `/maps/@…` centers without a marker).
+ * Decode a Google place_id (`ChIJ…`) to its hex feature-ID (`0x…:0x…`). Google's
+ * 3D/earth deep links anchor a place — and keep its marker — via this feature-ID
+ * in the `!1s…` segment. The place_id base64url-decodes to a tiny protobuf with
+ * two little-endian fixed64s.
  */
-export const buildGoogleMaps3DUrl = ({ center }: { center: string }): string => {
+export const placeIdToFeatureId = (placeId?: string): string => {
+  const pid = String(placeId || "").trim();
+  if (!pid || typeof atob !== "function") return "";
+  try {
+    const b64 = pid.replace(/-/g, "+").replace(/_/g, "/");
+    const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    if (bytes[0] !== 0x0a) return "";
+    const p = bytes.subarray(2, 2 + bytes[1]);
+    if (p[0] !== 0x09 || p[9] !== 0x11) return "";
+    const dv = new DataView(p.buffer, p.byteOffset, p.byteLength);
+    return `0x${dv.getBigUint64(1, true).toString(16)}:0x${dv.getBigUint64(10, true).toString(16)}`;
+  } catch {
+    return "";
+  }
+};
+
+/**
+ * Tilted 3D / aerial view of a property in Google Maps (no API key needed).
+ * `data=!3m1!1e3` selects the 3D/satellite globe and `<alt>a,<fov>y,<tilt>t` the
+ * angled camera. When a place_id is known we anchor the exact place by feature-ID
+ * (`!1s…!8m2!3d…!4d…`), which keeps the property marker AND lets Google tilt into
+ * 3D; otherwise we drop a coordinate pin (`/maps/place/<lat,lng>/`). A bare
+ * `/maps/@…` centers with neither marker nor a reliable 3D tilt.
+ */
+export const buildGoogleMaps3DUrl = ({
+  center,
+  placeId,
+  label,
+}: {
+  center: string;
+  placeId?: string;
+  label?: string;
+}): string => {
   const [lat, lng] = String(center || "")
     .split(",")
     .map((s) => s.trim());
   if (!lat || !lng) return "";
   const coord = `${lat},${lng}`;
-  return `https://www.google.com/maps/place/${coord}/@${coord},150a,35y,45t/data=!3m1!1e3`;
+  const fid = placeIdToFeatureId(placeId);
+  if (fid) {
+    const name = encodeURIComponent(String(label || coord).trim());
+    return `https://www.google.com/maps/place/${name}/@${coord},449a,35y,39t/data=!3m1!1e3!4m5!3m4!1s${fid}!8m2!3d${lat}!4d${lng}`;
+  }
+  return `https://www.google.com/maps/place/${coord}/@${coord},449a,35y,39t/data=!3m1!1e3!4m4!3m3!8m2!3d${lat}!4d${lng}`;
 };
 
 /**
