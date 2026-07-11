@@ -1,6 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { useT } from "./hooks/useTranslation";
 import { ClockIcon, ExclamationCircleIcon, CheckCircleIcon } from "@heroicons/react/24/outline";
+import type { StackPageRuntimeApi } from "./types";
+import { ESTATE_STATE_KEYS, ESTATE_EVENTS, setPageState } from "./types";
 
 export interface OfferDetailProps {
   title?: string;
@@ -8,10 +10,15 @@ export interface OfferDetailProps {
   terms?: string[];
   expirationDate?: string;
   code?: string;
+  /** Label for the apply button (attaches the code to inquiries). */
+  applyLabel?: string;
+  /** Shared-state key the applied code is written to (read by SaleInquiry). */
+  promoCodeKey?: string;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
   style?: React.CSSProperties;
+  __stackpage?: StackPageRuntimeApi;
 }
 
 const OfferDetail: React.FC<OfferDetailProps> = ({
@@ -25,17 +32,30 @@ const OfferDetail: React.FC<OfferDetailProps> = ({
   ],
   expirationDate = "2025-12-31",
   code = "SAVE50",
+  applyLabel,
+  promoCodeKey = ESTATE_STATE_KEYS.promoCode,
   backgroundColor,
   fontSize,
   className = "",
   style,
+  __stackpage,
 }) => {
   const t = useT();
+  const [applied, setApplied] = useState(false);
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,
     fontSize,
     ...style,
+  };
+
+  // Apply = remember the code in shared state (and broadcast) so the assessment /
+  // inquiry form submits it. No validation/discount — the sales team decides.
+  const handleApply = () => {
+    if (!code) return;
+    setPageState(__stackpage, promoCodeKey, code);
+    __stackpage?.emit?.(ESTATE_EVENTS.promoApplied, { code });
+    setApplied(true);
   };
 
   return (
@@ -48,11 +68,32 @@ const OfferDetail: React.FC<OfferDetailProps> = ({
         <p className="text-lg text-blue-800 leading-relaxed opacity-90">{t(description)}</p>
 
         {code && (
-          <div className="mt-6 inline-flex items-center bg-white border border-blue-200 rounded-lg p-1 pr-4 shadow-sm">
-            <div className="bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded text-sm uppercase tracking-wider mr-3">
-              {t("Code")}
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <div className="inline-flex items-center bg-white border border-blue-200 rounded-lg p-1 pr-4 shadow-sm">
+              <div className="bg-blue-100 text-blue-700 font-bold px-3 py-1.5 rounded text-sm uppercase tracking-wider mr-3">
+                {t("Code")}
+              </div>
+              <span className="font-mono text-xl font-bold text-gray-800">{code}</span>
             </div>
-            <span className="font-mono text-xl font-bold text-gray-800">{code}</span>
+            <button
+              type="button"
+              onClick={handleApply}
+              disabled={applied}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-bold shadow-sm transition-colors ${
+                applied
+                  ? "bg-green-100 text-green-700 cursor-default"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {applied ? (
+                <>
+                  <CheckCircleIcon className="w-4 h-4" />
+                  {t("適用中")}
+                </>
+              ) : (
+                t(applyLabel || "このコードで問い合わせ")
+              )}
+            </button>
           </div>
         )}
       </div>

@@ -824,6 +824,11 @@ export const EstateDefaultProps = {
     ],
     code: "SAVE50",
     expirationDate: "2025-12-31",
+    // "Apply" writes the code to shared state (estate.promoCode); the SaleInquiry /
+    // assessment form then submits it so the sales team knows which offer applies.
+    // No validation/discount is computed — sales decides.
+    applyLabel: "このコードで問い合わせ",
+    promoCodeKey: "estate.promoCode",
   },
   SearchResult: {
     _componentDesc: 'component.searchResult.desc',

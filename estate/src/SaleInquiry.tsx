@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
-import { ESTATE_EVENTS } from "./types";
+import { ESTATE_EVENTS, ESTATE_STATE_KEYS, getPageState } from "./types";
 
 export interface SaleInquiryProps {
   title?: string;
@@ -23,6 +23,9 @@ export interface SaleInquiryProps {
   /** When set, a close (✕) button is shown and this is called on close / after a
    *  successful submit. Lets a parent (e.g. SaleHero) host the form in its own modal. */
   onClose?: () => void;
+  /** Shared-state key of an applied promo code (OfferDetail writes it); when present
+   *  it's shown on the form and included in the submission for the sales team. */
+  promoCodeKey?: string;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -39,6 +42,7 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
   openEvent = ESTATE_EVENTS.saleAssessmentOpen,
   emitOnSubmit = true,
   onClose,
+  promoCodeKey = ESTATE_STATE_KEYS.promoCode,
   backgroundColor,
   fontSize,
   className = "",
@@ -94,18 +98,24 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
   const endpointRef = useRef(endpoint);
   endpointRef.current = endpoint;
 
+  // Promo code applied via OfferDetail (shared state) — shown and submitted so the
+  // sales team can tell which offer the visitor is referring to.
+  const promoCode = String(getPageState(__stackpage, promoCodeKey, "") || "").trim();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus("loading");
 
     const payload = {
       ...param,
+      ...(promoCode ? { promoCode } : {}),
       // Keep an inquiries-compatible `message` while preserving the sale fields.
       message: [
         param.message,
         param.propertyType ? `${t("Property Type")}: ${param.propertyType}` : "",
         param.address ? `${t("Property Address")}: ${param.address}` : "",
         param.approxSqft ? `${t("Approx. Sqft (Optional)")}: ${param.approxSqft}` : "",
+        promoCode ? `${t("適用コード")}: ${promoCode}` : "",
       ]
         .filter(Boolean)
         .join(" / "),
@@ -144,6 +154,13 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
 
   const formBody = (
     <form className="space-y-6" onSubmit={handleSubmit}>
+      {promoCode && (
+        <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-sm text-green-800">
+          <span className="font-semibold">{t("適用コード")}:</span>
+          <span className="font-mono font-bold">{promoCode}</span>
+          <span className="text-green-600">{t("（お問い合わせに含めて送信します）")}</span>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">{t("Full Name")}</label>

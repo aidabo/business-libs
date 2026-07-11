@@ -26,6 +26,8 @@ export const ESTATE_STATE_KEYS = {
   transitionSource: "estate.transition.source",
   /** JSON list of properties the visitor picked for a bulk inquiry. */
   inquiryProperties: "estate.inquiry.properties",
+  /** Promo/offer code the visitor applied (OfferDetail → attached to inquiries). */
+  promoCode: "estate.promoCode",
 } as const;
 
 /** Event names for estate page-builder communication */
@@ -38,6 +40,8 @@ export const ESTATE_EVENTS = {
   agentContactSubmitted: "estate:agent:contact:submitted",
   /** SaleHero CTA → open the sale assessment (SaleInquiry) dialog. */
   saleAssessmentOpen: "estate:sale:assessment:open",
+  /** OfferDetail → visitor applied a promo/offer code. */
+  promoApplied: "estate:promo:applied",
 } as const;
 
 /** A property picked for inquiry (minimal, serialized in shared state). */
