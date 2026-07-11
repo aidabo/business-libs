@@ -98,6 +98,36 @@ function stringify(value: unknown): string {
   return String(value).trim();
 }
 
+/** True when a string is actually serialized JSON (`{...}` / `[...]`) — used to
+ *  avoid dumping a raw mlit_data snapshot into a display field. */
+function looksLikeJson(text: string): boolean {
+  const t = text.trim();
+  return (t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"));
+}
+
+/** Human-readable neighborhood summary. NEVER emits the raw mlit_data JSON snapshot;
+ *  instead it pulls the snapshot's `summary` array (a list of display strings), and
+ *  otherwise uses the explicit neighborhood/area summary fields. */
+function deriveNeighborhoodSummary(source: Record<string, any>): string {
+  const explicit = stringify(
+    firstValue(source, ["neighborhoodSummary", "neighborhood_summary", "area_summary"]),
+  );
+  if (explicit && !looksLikeJson(explicit)) return explicit;
+
+  let mlit: any = firstValue(source, ["mlit_summary_data", "mlit_data"]);
+  if (typeof mlit === "string") {
+    try {
+      mlit = JSON.parse(mlit);
+    } catch {
+      mlit = null;
+    }
+  }
+  if (mlit && Array.isArray(mlit.summary)) {
+    return mlit.summary.map((s: any) => String(s ?? "").trim()).filter(Boolean).join("\n");
+  }
+  return "";
+}
+
 function normalizeList(value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.map(stringify).filter(Boolean);
@@ -202,7 +232,7 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     id: stringify(firstValue(source, ["id", "property_id", "itemId"])) || undefined,
     buildingName: stringify(firstValue(source, ["building_name", "buildingName", "title", "name"])) || undefined,
     title: stringify(firstValue(source, ["title", "building_name", "buildingName", "name"])) || undefined,
-    summary: stringify(firstValue(source, ["summary", "description", "neighborhoodSummary", "mlit_data"])) || undefined,
+    summary: stringify(firstValue(source, ["summary", "description"])) || undefined,
     description: stringify(firstValue(source, ["description", "comment", "remarks", "summary"])) || undefined,
     address: stringify(firstValue(source, ["addressJP", "address_jp", "address", "locationLabel"])) || undefined,
     propertyType: stringify(firstValue(source, ["property_type", "propertyType", "kind", "tag", "tagJP", "tag_jp"])) || undefined,
@@ -242,7 +272,7 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     structure: stringify(firstValue(source, ["structure", "building_structure"])),
     landRight: stringify(firstValue(source, ["land_right", "landRight"])),
     features: Array.from(new Set(features)),
-    neighborhoodSummary: stringify(firstValue(source, ["neighborhoodSummary", "neighborhood_summary", "mlit_data", "area_summary"])),
+    neighborhoodSummary: deriveNeighborhoodSummary(source) || undefined,
     nearbyStores: stringify(firstValue(source, ["nearbyStores", "nearby_stores", "stores"])),
     nearbyHospitals: stringify(firstValue(source, ["nearbyHospitals", "nearby_hospitals", "hospitals"])),
     nearbySchools: stringify(firstValue(source, ["nearbySchools", "nearby_schools", "schools"])),
