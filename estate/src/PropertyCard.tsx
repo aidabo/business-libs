@@ -108,6 +108,15 @@ export interface PropertyCardProps {
   price_sale?: string | number;
   price_rent_monthly?: string | number;
   originalPrice?: string;
+  /** Reference/appraised price. When higher than the sale price, shown struck
+   *  through above the current price (元金額 → 現金額). */
+  price_valuation?: string | number;
+  priceValuation?: string | number;
+  /** Yield (%). Displayed for sale/investment listings when present. */
+  expected_yield?: string | number;
+  current_yield?: string | number;
+  expectedYield?: string | number;
+  currentYield?: string | number;
   address?: string;
   buildingName?: string;
   nearestStation?: string;
@@ -207,6 +216,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   price_rent_monthly,
   property_type,
   originalPrice,
+  price_valuation,
+  priceValuation,
+  expected_yield,
+  current_yield,
+  expectedYield,
+  currentYield,
   address = "123 Palm Avenue, Beverly Hills, CA 90210",
   buildingName,
   nearestStation,
@@ -332,6 +347,32 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       : saleFmt || t("お問い合わせ")
     : saleFmt || (rentFmt ? `${rentFmt} / 月` : "") || t("お問い合わせ");
 
+  // Two-price (元金額 → 現金額): show the appraised/reference price struck through
+  // above the sale price when it is higher (i.e. the property is priced below it).
+  // An explicit originalPrice prop always wins.
+  const toNum = (v: unknown) => {
+    const n = Number(String(v ?? "").replace(/[^0-9.]/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  };
+  const saleNum = toNum(priceProp || price_jpy || price_sale);
+  const valuationNum = toNum(price_valuation ?? priceValuation);
+  const effectiveOriginalPrice =
+    (originalPrice && String(originalPrice).trim()) ||
+    (!isRent && valuationNum > 0 && saleNum > 0 && valuationNum > saleNum
+      ? formatJpy(valuationNum)
+      : "");
+
+  // Yield (利回り, %): shown when present (mainly sale / investment). Accepts a raw
+  // number (4.68 → "4.68%") or an already-formatted string.
+  const yieldDisplay = (() => {
+    const raw = currentYield ?? current_yield ?? expectedYield ?? expected_yield;
+    if (raw === undefined || raw === null || raw === "") return "";
+    const s = String(raw).trim();
+    if (s.includes("%") || s.includes("％")) return s;
+    const n = Number(s.replace(/[^0-9.]/g, ""));
+    return Number.isFinite(n) && n > 0 ? `${n}%` : "";
+  })();
+
   // Station line: prefer the value that includes the walk time (徒歩◯分); take
   // the first line only (transport_info can be multi-line).
   const stationText = (() => {
@@ -404,11 +445,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   // ── Price display ──────────────────────────────────────────────
   const priceDisplay = (
     <div>
-      {originalPrice && (
-        <div className="text-sm text-gray-400 line-through mb-0.5">{originalPrice}</div>
+      {effectiveOriginalPrice && (
+        <div className="text-sm text-gray-400 line-through mb-0.5">{effectiveOriginalPrice}</div>
       )}
       <div className="text-xl font-bold text-gray-900 tracking-tight">
         {price}
+        {yieldDisplay && (
+          <span className="ml-2 text-sm font-semibold text-emerald-600">
+            {t("利回り")} {yieldDisplay}
+          </span>
+        )}
         {expectedRent && (
           <span className="ml-2 text-sm font-normal text-gray-500">
             {t("想定賃料")}: {expectedRent}
@@ -569,10 +615,17 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         </div>
         {/* Price overlay on image */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-3 pt-8">
-          {originalPrice && (
-            <div className="text-xs text-gray-300 line-through mb-0.5">{originalPrice}</div>
+          {effectiveOriginalPrice && (
+            <div className="text-xs text-gray-300 line-through mb-0.5">{effectiveOriginalPrice}</div>
           )}
-          <div className="text-xl font-bold text-white">{price}</div>
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <span className="text-xl font-bold text-white">{price}</span>
+            {yieldDisplay && (
+              <span className="text-sm font-semibold text-emerald-300">
+                {t("利回り")} {yieldDisplay}
+              </span>
+            )}
+          </div>
         </div>
         {selected && !selectable && (
           <div className="absolute top-3 right-3 z-10">

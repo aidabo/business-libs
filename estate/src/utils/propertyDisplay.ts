@@ -222,7 +222,13 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     managementFee: formatMoney(firstValue(source, ["price_management_fee", "management_fee", "managementFee"])),
     maintenanceFee: formatMoney(firstValue(source, ["price_maintenance_fee", "maintenance_fee", "maintenanceFee"])),
     yieldValue: (() => {
-      const v = stringify(firstValue(source, ["yieldValue", "yield_value", "yield_percent", "yieldPercent", "yield"]));
+      const v = stringify(
+        firstValue(source, [
+          "yieldValue", "yield_value", "yield_percent", "yieldPercent", "yield",
+          // Canonical DB fields (prefer current over expected).
+          "current_yield", "currentYield", "expected_yield", "expectedYield",
+        ]),
+      );
       if (!v) return undefined;
       return /\d/.test(v) && !v.includes("%") ? `${v}%` : v;
     })(),
