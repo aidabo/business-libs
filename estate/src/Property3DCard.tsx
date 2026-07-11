@@ -57,18 +57,16 @@ const Property3DCard: React.FC<Property3DCardProps> = (props) => {
     : hasAddress
       ? buildAddressSatelliteEmbedUrl(address as string)
       : "";
-  // 3D tilted view needs real coordinates. Prefer a tilted view built from the
-  // precise coordinate — the stored google_3d_url is a `/maps/place/<name>/…`
-  // form whose place *name* Google resolves ahead of the `@lat,lng`, so it can
-  // open a different spot than the (correct) marker. Fall back to the stored URL
-  // only when we have no coordinate, then to an address search.
-  const openUrl = hasCenter
-    ? buildGoogleMaps3DUrl({ center })
-    : (google3dUrl && google3dUrl.trim())
-      ? google3dUrl.trim()
+  // Prefer the resolved 3D link — buildEstateMapLinks derives it as the precise,
+  // marker-bearing map pin on satellite imagery (so the aerial view still shows
+  // the property location). Fall back to a tilted coordinate view, then address.
+  const openUrl =
+    (google3dUrl && google3dUrl.trim()) ||
+    (hasCenter
+      ? buildGoogleMaps3DUrl({ center })
       : hasAddress
         ? `https://www.google.com/maps/search/${encodeURIComponent(address as string)}`
-        : "";
+        : "");
 
   if (!embedUrl) return null;
 

@@ -41,14 +41,17 @@ export const extractLatLngFromMapUrl = (url?: string): string => {
 /**
  * Tilted 3D / aerial view of a coordinate in Google Maps (no API key needed).
  * `data=!3m1!1e3` selects the 3D/satellite globe; the `<zoom>a,<fov>y,<tilt>t`
- * segment gives an angled bird's-eye view.
+ * segment gives an angled bird's-eye view. The `/maps/place/<lat,lng>/` prefix
+ * drops a coordinate pin, so the aerial view still marks the property location
+ * (a bare `/maps/@…` centers without a marker).
  */
 export const buildGoogleMaps3DUrl = ({ center }: { center: string }): string => {
   const [lat, lng] = String(center || "")
     .split(",")
     .map((s) => s.trim());
   if (!lat || !lng) return "";
-  return `https://www.google.com/maps/@${lat},${lng},150a,35y,45t/data=!3m1!1e3`;
+  const coord = `${lat},${lng}`;
+  return `https://www.google.com/maps/place/${coord}/@${coord},150a,35y,45t/data=!3m1!1e3`;
 };
 
 /**
