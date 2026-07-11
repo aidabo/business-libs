@@ -36,6 +36,8 @@ export const ESTATE_EVENTS = {
   inquirySelectionChanged: "estate:inquiry:selection:changed",
   detailOpen: "estate:detail:open",
   agentContactSubmitted: "estate:agent:contact:submitted",
+  /** SaleHero CTA → open the sale assessment (SaleInquiry) dialog. */
+  saleAssessmentOpen: "estate:sale:assessment:open",
 } as const;
 
 /** A property picked for inquiry (minimal, serialized in shared state). */

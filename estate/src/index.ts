@@ -725,13 +725,48 @@ export const EstateDefaultProps = {
     subtitle:
       "Expert valuation, marketing strategies, and support to get you the best deal.",
     ctaText: "Get Free Assessment",
+    // Self-contained by default: the CTA opens SaleHero's own built-in assessment
+    // dialog (one widget, no wiring). Set openInDialog=false to instead broadcast
+    // ctaEvent for a separate SaleInquiry (asDialog).
+    openInDialog: true,
+    ctaEvent: "estate:sale:assessment:open",
+    endpoint: "/api/estate/inquiries",
     backgroundImage:
       "https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+    __schema: {
+      type: "object",
+      title: "SaleHero",
+      properties: {
+        title: { type: "string", title: "タイトル" },
+        subtitle: { type: "string", "x-widget": "textarea", title: "サブタイトル" },
+        ctaText: { type: "string", title: "ボタン文言" },
+        openInDialog: { type: "boolean", title: "査定ダイアログを内蔵表示（推奨）" },
+        endpoint: {
+          type: "string",
+          title: "送信APIエンドポイント",
+          enum: ["/api/estate/inquiries", "/api/estate/send-mail"],
+        },
+        ctaEvent: { type: "string", title: "CTAイベント（内蔵OFF時に発火）" },
+        inquiryTitle: { type: "string", title: "ダイアログ見出し（任意）" },
+        inquiryDescription: {
+          type: "string",
+          "x-widget": "textarea",
+          title: "ダイアログ説明（任意）",
+        },
+        backgroundImage: {
+          type: "string",
+          format: "uri",
+          "x-media-type": "image",
+          title: "背景画像",
+        },
+      },
+    },
   },
   SaleProcess: {
     _componentDesc: 'component.saleProcess.desc',
     title: "How It Works",
     subtitle: "Our simple 4-step process to sell your home.",
+    columns: 4,
   },
   SaleInquiry: {
     _componentDesc: 'component.saleInquiry.desc',
@@ -739,6 +774,35 @@ export const EstateDefaultProps = {
     description:
       "Fill out the form below and we will get back to you with a comprehensive market analysis.",
     submitLabel: "Get My Valuation",
+    endpoint: "/api/estate/inquiries",
+    // Set asDialog=true and place next to a SaleHero to open on its CTA. Default
+    // false = inline card.
+    asDialog: false,
+    openEvent: "estate:sale:assessment:open",
+    __schema: {
+      type: "object",
+      title: "SaleInquiry",
+      properties: {
+        title: { type: "string", title: "タイトル" },
+        description: { type: "string", "x-widget": "textarea", title: "説明" },
+        submitLabel: { type: "string", title: "送信ボタン" },
+        endpoint: {
+          type: "string",
+          title: "送信APIエンドポイント",
+          enum: ["/api/estate/inquiries", "/api/estate/send-mail"],
+        },
+        asDialog: { type: "boolean", title: "ダイアログ表示（SaleHeroから開く）" },
+        openEvent: { type: "string", title: "開くイベント名" },
+      },
+    },
+    __interactions: [
+      {
+        id: "sale-inquiry-open",
+        event: "estate:sale:assessment:open",
+        mode: "subscribe",
+        description: "Opens the assessment dialog (asDialog mode)",
+      },
+    ],
   },
   PromoBanner: {
     _componentDesc: 'component.promoBanner.desc',
