@@ -607,6 +607,27 @@ export const EstateDefaultProps = {
     endpoint: "/api/estate/inquiries",
     selectedPropertyIdKey: "estate.selectedPropertyId",
     inquiryPropertiesKey: "estate.inquiry.properties",
+    // Explicit schema so the auto-generator doesn't mis-type fields. Without it
+    // `endpoint` was inferred as a date input (the name contains "end") and later
+    // as an option-less dynamic select. The endpoint is a known write target, so
+    // it's a small enum pulldown (edit the JSON tab for a custom path).
+    __schema: {
+      type: "object",
+      title: "InquiryForm",
+      properties: {
+        title: { type: "string", title: "タイトル" },
+        submitLabel: { type: "string", title: "送信ボタン" },
+        endpoint: {
+          type: "string",
+          title: "送信APIエンドポイント",
+          description:
+            "スタンドアロン送信先。StackPageでは InquiryDispatcher が実際に送信します。",
+          enum: ["/api/estate/inquiries", "/api/estate/send-mail"],
+        },
+        selectedPropertyIdKey: { type: "string", title: "選択物件IDキー" },
+        inquiryPropertiesKey: { type: "string", title: "問い合わせ選択キー" },
+      },
+    },
     __interactions: [
       {
         id: "estate-inquiry-submit",
@@ -631,7 +652,12 @@ export const EstateDefaultProps = {
       type: "object",
       properties: {
         event: { type: "string", title: "受信イベント" },
-        endpoint: { type: "string", title: "送信先エンドポイント" },
+        endpoint: {
+          type: "string",
+          title: "送信先エンドポイント",
+          description: "問い合わせをPOSTする先。カスタムパスは JSON タブで編集可。",
+          enum: ["/api/estate/inquiries", "/api/estate/send-mail"],
+        },
         method: { type: "string", title: "HTTPメソッド", enum: ["POST", "PUT"] },
         bodyWrapKey: { type: "string", title: "エンベロープキー（任意）" },
         showStatus: { type: "boolean", title: "送信結果を表示" },
