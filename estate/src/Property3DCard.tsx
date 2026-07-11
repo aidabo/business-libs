@@ -1,6 +1,10 @@
 import React from "react";
 import { useT } from "./hooks/useTranslation";
-import { buildGoogleMaps3DUrl, buildGoogleSatelliteEmbedUrl } from "./utils/urlBuilders";
+import {
+  buildGoogleMaps3DUrl,
+  buildGoogleSatelliteEmbedUrl,
+  buildGoogleMapsSatelliteMarkerUrl,
+} from "./utils/urlBuilders";
 import { useResolvedMapLocation } from "./PropertyInfoCardBase";
 import type { StackPageRuntimeApi } from "./types";
 
@@ -57,9 +61,9 @@ const Property3DCard: React.FC<Property3DCardProps> = (props) => {
     : hasAddress
       ? buildAddressSatelliteEmbedUrl(address as string)
       : "";
-  // Prefer the resolved 3D link — buildEstateMapLinks derives it as the precise,
-  // marker-bearing map pin on satellite imagery (so the aerial view still shows
-  // the property location). Fall back to a tilted coordinate view, then address.
+  // Two complementary links — Google Maps can't show both at once:
+  //  • "3Dを開く": the tilted Earth/3D view (dramatic, but Earth mode drops the pin).
+  //  • "位置を確認": top-down satellite with a clear marker (shows where the building is).
   const openUrl =
     (google3dUrl && google3dUrl.trim()) ||
     (hasCenter
@@ -67,6 +71,11 @@ const Property3DCard: React.FC<Property3DCardProps> = (props) => {
       : hasAddress
         ? `https://www.google.com/maps/search/${encodeURIComponent(address as string)}`
         : "");
+  const locateUrl = hasCenter
+    ? buildGoogleMapsSatelliteMarkerUrl({ center })
+    : hasAddress
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address as string)}&basemap=satellite`
+      : "";
 
   if (!embedUrl) return null;
 
@@ -83,15 +92,29 @@ const Property3DCard: React.FC<Property3DCardProps> = (props) => {
           <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
           <p className="mt-1 text-sm text-slate-600">{t(subtitle)}</p>
         </div>
-        {openUrl && (
-          <a
-            href={openUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600"
-          >
-            {t("3Dを開く")}
-          </a>
+        {(openUrl || locateUrl) && (
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+            {locateUrl && (
+              <a
+                href={locateUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 shadow-sm ring-1 ring-amber-300 transition hover:bg-amber-50"
+              >
+                {t("位置を確認")}
+              </a>
+            )}
+            {openUrl && (
+              <a
+                href={openUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600"
+              >
+                {t("3Dを開く")}
+              </a>
+            )}
+          </div>
         )}
       </div>
 

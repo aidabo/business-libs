@@ -98,6 +98,23 @@ export const buildGoogleMaps3DUrl = ({
 };
 
 /**
+ * Top-down satellite/aerial view with a clear coordinate marker. `t=k` keeps the
+ * red pin (Google's Earth/3D mode drops it), so this reliably shows exactly where
+ * a property sits — the companion to the tilted (but marker-less) 3D view.
+ */
+export const buildGoogleMapsSatelliteMarkerUrl = ({
+  center,
+  zoom = 19,
+}: {
+  center: string;
+  zoom?: number;
+}): string => {
+  const c = String(center || "").trim();
+  if (!c.includes(",")) return "";
+  return `https://www.google.com/maps?q=${encodeURIComponent(c)}&t=k&z=${zoom}`;
+};
+
+/**
  * Google Maps satellite/hybrid tiles embed for a coordinate (`t=k`), suitable for
  * an <iframe>. No API key required.
  */
