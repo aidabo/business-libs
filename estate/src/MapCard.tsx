@@ -1,6 +1,8 @@
 import React from "react";
 import { useT } from "./hooks/useTranslation";
-import { buildGoogleMapsMapUrl } from "./utils/urlBuilders";
+import { buildGoogleMapsMarkerUrl } from "./utils/urlBuilders";
+import { useResolvedMapLocation } from "./PropertyInfoCardBase";
+import type { StackPageRuntimeApi } from "./types";
 
 export interface MapCardProps {
   title?: string;
@@ -9,7 +11,15 @@ export interface MapCardProps {
   zoom?: number;
   /** Address fallback — used when center coordinates are not available */
   address?: string;
+  /** Precise "open in Google Maps" URL (with a marker) from the places search. */
+  mapUrl?: string;
   locationLabel?: string;
+  /** Bind to a property to auto-resolve its precise location (google_map_url). */
+  items?: any[];
+  selectedPropertyId?: string;
+  selectedPropertyIdKey?: string;
+  itemIdKey?: string;
+  __stackpage?: StackPageRuntimeApi;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -30,29 +40,31 @@ function buildAddressEmbedUrl(address: string): string {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=17&output=embed`;
 }
 
-export default function MapCard({
-  title = "Location Map",
-  subtitle = "Check the neighborhood map before booking a showing.",
-  center = "35.6595,139.7005",
-  zoom = 16,
-  address,
-  locationLabel = "Shibuya, Tokyo",
-  backgroundColor,
-  fontSize,
-  className = "",
-  style,
-}: MapCardProps) {
+export default function MapCard(props: MapCardProps) {
+  const {
+    title = "Location Map",
+    subtitle = "Check the neighborhood map before booking a showing.",
+    zoom = 16,
+    locationLabel = "Shibuya, Tokyo",
+    backgroundColor,
+    fontSize,
+    className = "",
+    style,
+  } = props;
   const t = useT();
+
+  // Resolve the precise location (bound property's google_map_url, or explicit props).
+  const { center, address, mapUrl } = useResolvedMapLocation(props);
 
   // Determine embed source: prefer coordinates (OSM), fall back to address (Google Maps)
   const hasCenter = center && center.includes(",") && isFinite(Number(center.split(",")[0]));
   const hasAddress = !!address;
 
-  const mapUrl = hasCenter
-    ? buildGoogleMapsMapUrl({ center, zoom })
-    : hasAddress
-    ? buildAddressEmbedUrl(address)
-    : "";
+  // Open link: prefer the precise places URL (with a marker), else a marker search
+  // on the coordinate/address (map_action=map only centers — no pin).
+  const openUrl =
+    (mapUrl && mapUrl.trim()) ||
+    (hasCenter ? buildGoogleMapsMarkerUrl(center) : hasAddress ? buildGoogleMapsMarkerUrl(address) : "");
   const bbox = hasCenter ? centerToBbox(center, zoom) : "";
   const osmEmbedUrl = bbox
     ? `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${center}`
@@ -96,7 +108,7 @@ export default function MapCard({
           />
           {/* Open in Google Maps overlay — subtle, always visible */}
           <a
-            href={mapUrl}
+            href={openUrl}
             target="_blank"
             rel="noreferrer"
             className="absolute bottom-3 right-3 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-blue-200 backdrop-blur-sm transition hover:bg-white hover:shadow"

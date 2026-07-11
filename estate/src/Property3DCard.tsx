@@ -1,6 +1,8 @@
 import React from "react";
 import { useT } from "./hooks/useTranslation";
 import { buildGoogleMaps3DUrl, buildGoogleSatelliteEmbedUrl } from "./utils/urlBuilders";
+import { useResolvedMapLocation } from "./PropertyInfoCardBase";
+import type { StackPageRuntimeApi } from "./types";
 
 export interface Property3DCardProps {
   title?: string;
@@ -10,7 +12,15 @@ export interface Property3DCardProps {
   zoom?: number;
   /** Address fallback — used when center coordinates are not available. */
   address?: string;
+  /** Precise 3D "open" URL (place marker) from the places search. */
+  google3dUrl?: string;
   locationLabel?: string;
+  /** Bind to a property to auto-resolve its precise location (google_3d_url). */
+  items?: any[];
+  selectedPropertyId?: string;
+  selectedPropertyIdKey?: string;
+  itemIdKey?: string;
+  __stackpage?: StackPageRuntimeApi;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -22,19 +32,21 @@ function buildAddressSatelliteEmbedUrl(address: string): string {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&t=k&z=18&output=embed`;
 }
 
-const Property3DCard: React.FC<Property3DCardProps> = ({
-  title = "3D View",
-  subtitle = "航空写真で周辺のボリューム感を確認できます。",
-  center = "35.6595,139.7005",
-  zoom = 18,
-  address,
-  locationLabel = "",
-  backgroundColor,
-  fontSize,
-  className = "",
-  style,
-}) => {
+const Property3DCard: React.FC<Property3DCardProps> = (props) => {
+  const {
+    title = "3D View",
+    subtitle = "航空写真で周辺のボリューム感を確認できます。",
+    zoom = 18,
+    locationLabel = "",
+    backgroundColor,
+    fontSize,
+    className = "",
+    style,
+  } = props;
   const t = useT();
+
+  // Resolve the precise location (bound property's google_3d_url, or explicit props).
+  const { center, address, google3dUrl } = useResolvedMapLocation(props);
 
   const hasCenter =
     !!center && center.includes(",") && isFinite(Number(center.split(",")[0]));
@@ -45,12 +57,15 @@ const Property3DCard: React.FC<Property3DCardProps> = ({
     : hasAddress
       ? buildAddressSatelliteEmbedUrl(address as string)
       : "";
-  // 3D tilted view needs real coordinates; fall back to an address satellite search.
-  const openUrl = hasCenter
-    ? buildGoogleMaps3DUrl({ center })
-    : hasAddress
-      ? `https://www.google.com/maps/search/${encodeURIComponent(address as string)}`
-      : "";
+  // 3D tilted view needs real coordinates. Prefer the precise places URL (has a
+  // place marker); fall back to a tilted view on the coordinate, then address search.
+  const openUrl =
+    (google3dUrl && google3dUrl.trim()) ||
+    (hasCenter
+      ? buildGoogleMaps3DUrl({ center })
+      : hasAddress
+        ? `https://www.google.com/maps/search/${encodeURIComponent(address as string)}`
+        : "");
 
   if (!embedUrl) return null;
 

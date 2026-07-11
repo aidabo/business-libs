@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { ESTATE_STATE_KEYS, getPageState } from "./types";
 import type { StackPageRuntimeApi } from "./types";
 import { FieldRow, getEstateFieldGroups, resolveEstateProperty } from "./utils/propertyDisplay";
+import { extractLatLngFromMapUrl } from "./utils/urlBuilders";
 
 export type PropertyInfoCardDensity = "compact" | "normal" | "comfortable";
 export type PropertyUrlDisplay = "label" | "chip" | "button";
@@ -89,6 +90,40 @@ function useAutoFetchProperty(props: PropertyInfoCardProps) {
 // Hook for detail cards — auto-fetches property by selectedPropertyId if items[] is not bound.
 export function useEstatePropertyModel(props: PropertyInfoCardProps) {
   return useAutoFetchProperty(props);
+}
+
+/**
+ * Resolve the map/street-view/3D location for MapCard / StreetViewCard /
+ * Property3DCard. Works BOTH standalone (bound to items/selectedPropertyId — it
+ * pulls the property's precise, marker-bearing google_map_url/street_view_url/
+ * google_3d_url from the places search) and with explicit props (PropertyDetail
+ * passes them directly). The center is the precise coordinate parsed from the map
+ * URL, then the resolved lat/lng, then the explicit center/viewpoint prop.
+ */
+export function useResolvedMapLocation(props: PropertyInfoCardProps): {
+  center: string;
+  address: string;
+  mapUrl: string;
+  streetViewUrl: string;
+  google3dUrl: string;
+} {
+  const model: any = useAutoFetchProperty(props);
+  const mapUrl = String(props.mapUrl || model?.googleMapUrl || "").trim();
+  const streetViewUrl = String(props.streetViewUrl || model?.streetViewUrl || "").trim();
+  const google3dUrl = String(props.google3dUrl || model?.google3dUrl || "").trim();
+  const modelCoord =
+    model?.latitude != null &&
+    model?.longitude != null &&
+    String(model.latitude).trim() &&
+    String(model.longitude).trim()
+      ? `${model.latitude},${model.longitude}`
+      : "";
+  const center =
+    extractLatLngFromMapUrl(mapUrl) ||
+    modelCoord ||
+    String(props.center || props.viewpoint || "").trim();
+  const address = String(props.address || model?.address || "").trim();
+  return { center, address, mapUrl, streetViewUrl, google3dUrl };
 }
 
 // Hook version of resolveInfoCardRows — use this in card components.

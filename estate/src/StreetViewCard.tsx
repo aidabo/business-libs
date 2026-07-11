@@ -1,6 +1,8 @@
 import React from "react";
 import { useT } from "./hooks/useTranslation";
 import { buildGoogleMapsStreetViewUrl } from "./utils/urlBuilders";
+import { useResolvedMapLocation } from "./PropertyInfoCardBase";
+import type { StackPageRuntimeApi } from "./types";
 
 export interface StreetViewCardProps {
   title?: string;
@@ -11,7 +13,15 @@ export interface StreetViewCardProps {
   fov?: number;
   /** Address fallback — used when viewpoint coordinates are not available */
   address?: string;
+  /** Precise Street View "open" URL (pano at the property) from the places search. */
+  streetViewUrl?: string;
   locationLabel?: string;
+  /** Bind to a property to auto-resolve its precise location (street_view_url). */
+  items?: any[];
+  selectedPropertyId?: string;
+  selectedPropertyIdKey?: string;
+  itemIdKey?: string;
+  __stackpage?: StackPageRuntimeApi;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -32,31 +42,35 @@ function buildAddressEmbedUrl(address: string): string {
   return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=17&output=embed`;
 }
 
-export default function StreetViewCard({
-  title = "Neighborhood Street View",
-  subtitle = "Preview the surroundings for the selected property before a viewing.",
-  viewpoint = "35.6595,139.7005",
-  heading = 175,
-  pitch = 8,
-  fov = 75,
-  address,
-  locationLabel = "Shibuya, Tokyo",
-  backgroundColor,
-  fontSize,
-  className = "",
-  style,
-}: StreetViewCardProps) {
+export default function StreetViewCard(props: StreetViewCardProps) {
+  const {
+    title = "Neighborhood Street View",
+    subtitle = "Preview the surroundings for the selected property before a viewing.",
+    heading = 175,
+    pitch = 8,
+    fov = 75,
+    locationLabel = "Shibuya, Tokyo",
+    backgroundColor,
+    fontSize,
+    className = "",
+    style,
+  } = props;
   const t = useT();
+
+  // Resolve the precise location (bound property's street_view_url, or explicit props).
+  const { center: viewpoint, address, streetViewUrl: resolvedStreetViewUrl } = useResolvedMapLocation(props);
 
   // Determine source: prefer viewpoint coords, fall back to address
   const hasViewpoint = viewpoint && viewpoint.includes(",") && isFinite(Number(viewpoint.split(",")[0]));
   const hasAddress = !!address;
 
-  const streetViewUrl = hasViewpoint
-    ? buildGoogleMapsStreetViewUrl({ viewpoint, heading, pitch, fov })
-    : hasAddress
-    ? `https://www.google.com/maps?q=${encodeURIComponent(address)}`
-    : "";
+  const streetViewUrl =
+    (resolvedStreetViewUrl && resolvedStreetViewUrl.trim()) ||
+    (hasViewpoint
+      ? buildGoogleMapsStreetViewUrl({ viewpoint, heading, pitch, fov })
+      : hasAddress
+      ? `https://www.google.com/maps?q=${encodeURIComponent(address)}`
+      : "");
   const embedUrl = hasViewpoint ? buildEmbedUrl(viewpoint) : hasAddress ? buildAddressEmbedUrl(address) : "";
 
   // Show nothing if no location data at all

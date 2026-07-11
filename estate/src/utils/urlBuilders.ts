@@ -20,6 +20,24 @@ export const buildGoogleMapsMapUrl = ({
 }) =>
   `https://www.google.com/maps/@?api=1&map_action=map&center=${encodeURIComponent(center)}&zoom=${zoom}`;
 
+/** Google Maps "open" URL that drops a MARKER at the coordinate (or address). Use
+ *  this instead of map_action=map (which only centers, no pin). */
+export const buildGoogleMapsMarkerUrl = (query: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(String(query || "").trim())}`;
+
+/** Extract a precise "lat,lng" from a Google Maps URL — from a `query=`/`q=` param
+ *  or an `@lat,lng` path segment. Lets the cards reuse the precise location the
+ *  places search stored in google_map_url rather than the raw property lat/lng. */
+export const extractLatLngFromMapUrl = (url?: string): string => {
+  const raw = String(url || "");
+  if (!raw) return "";
+  const q = raw.match(/[?&](?:query|q)=(-?\d+(?:\.\d+)?)(?:%2C|,)\s*(-?\d+(?:\.\d+)?)/i);
+  if (q) return `${q[1]},${q[2]}`;
+  const at = raw.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+  if (at) return `${at[1]},${at[2]}`;
+  return "";
+};
+
 /**
  * Tilted 3D / aerial view of a coordinate in Google Maps (no API key needed).
  * `data=!3m1!1e3` selects the 3D/satellite globe; the `<zoom>a,<fov>y,<tilt>t`

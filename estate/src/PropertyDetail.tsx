@@ -13,6 +13,8 @@ import PropertyGallerySlider from "./PropertyGallerySlider";
 import MapCard from "./MapCard";
 import StreetViewCard from "./StreetViewCard";
 import Property3DCard from "./Property3DCard";
+import { buildEstateMapLinks } from "./utils/propertyDisplay";
+import { extractLatLngFromMapUrl } from "./utils/urlBuilders";
 
 
 const EMPTY_FEATURES: string[] = [];
@@ -548,7 +550,12 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     String(resolvedLng).trim()
       ? `${resolvedLat},${resolvedLng}`
       : "";
-  const hasLocation = !!coord || !!resolvedAddressJP;
+  // Precise, marker-bearing map links from the places search (address + building),
+  // stored on the property. Cards use these for their "open" links; the embed uses
+  // the precise coordinate extracted from the map URL (falls back to lat/lng).
+  const mapLinks = buildEstateMapLinks(effectiveItem || detailProperty);
+  const preciseCoord = extractLatLngFromMapUrl(mapLinks.googleMapUrl) || coord;
+  const hasLocation = !!coord || !!resolvedAddressJP || !!mapLinks.googleMapUrl;
 
   return (
     <div className={`w-full min-w-0 space-y-4 ${className}`} style={mergedStyle}>
@@ -643,16 +650,20 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
           <MapCard
             title="地図"
             subtitle={resolvedAddressJP || t("周辺の地図を確認できます。")}
-            center={coord}
+            center={preciseCoord}
             address={resolvedAddressJP}
+            mapUrl={mapLinks.googleMapUrl}
+            items={[detailProperty]}
             locationLabel={resolvedAddressJP}
           />
 
           <StreetViewCard
             title="Street View"
             subtitle={resolvedAddressJP || t("物件周辺の街並みを確認できます。")}
-            viewpoint={coord}
+            viewpoint={preciseCoord}
             address={resolvedAddressJP}
+            streetViewUrl={mapLinks.streetViewUrl}
+            items={[detailProperty]}
             locationLabel={resolvedAddressJP}
           />
 
@@ -672,8 +683,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
           <Property3DCard
             title="3D View"
-            center={coord}
+            center={preciseCoord}
             address={resolvedAddressJP}
+            google3dUrl={mapLinks.google3dUrl}
+            items={[detailProperty]}
             locationLabel={resolvedAddressJP}
           />
         </div>
