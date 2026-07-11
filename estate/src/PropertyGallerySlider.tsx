@@ -17,6 +17,7 @@ type GalleryImageInput = string | {
   kind?: string;
   media_type?: string;
   is_video?: boolean;
+  is_selected?: boolean;
 };
 
 type GalleryImage = {
@@ -25,6 +26,7 @@ type GalleryImage = {
   /** When set, the entry is a video; `src` is the poster image (may be empty). */
   videoSrc?: string;
   isVideo?: boolean;
+  isSelected?: boolean;
   title: string;
   caption: string;
 };
@@ -44,6 +46,8 @@ export interface PropertyGallerySliderProps {
   excludeImage?: string;
   emptyText?: string;
   showHeader?: boolean;
+  /** Height (px) of each slide's media area. */
+  slideHeight?: number;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -103,6 +107,7 @@ function normalizeGalleryImages(value: unknown, fallbackTitle: string): GalleryI
         src: displaySrc,
         videoSrc: videoSrc || undefined,
         isVideo,
+        isSelected: typed.is_selected === true,
         title,
         caption: typed.caption || typed.label || "",
       },
@@ -130,6 +135,7 @@ export default function PropertyGallerySlider({
   excludeImage,
   emptyText = "表示できるギャラリー画像がありません。",
   showHeader = true,
+  slideHeight = 240,
   backgroundColor,
   fontSize,
   className = "",
@@ -152,9 +158,15 @@ export default function PropertyGallerySlider({
     matchedItem?.socialMediaAssets ??
     matchedItem?.media ??
     [];
-  const slides = normalizeGalleryImages(sourceImages, fallbackTitle).filter(
+  const normalizedSlides = normalizeGalleryImages(sourceImages, fallbackTitle).filter(
     (item) => !excludeImage || item.src !== excludeImage
   );
+  // Select-or-all: if any media is flagged is_selected, show only those; otherwise
+  // show all. Mirrors the property Post rule and the edit-screen selection.
+  const anySelected = normalizedSlides.some((item) => item.isSelected);
+  const slides = anySelected
+    ? normalizedSlides.filter((item) => item.isSelected)
+    : normalizedSlides;
 
   return (
     <section
@@ -186,7 +198,7 @@ export default function PropertyGallerySlider({
               key={slide.id}
               className="w-full min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition hover:shadow-md md:min-w-[220px] md:max-w-[240px] md:shrink-0 md:snap-start"
             >
-              <div className="relative h-[190px] overflow-hidden bg-gray-100 md:h-[170px]">
+              <div className="relative overflow-hidden bg-gray-100" style={{ height: slideHeight }}>
                 {slide.isVideo && slide.videoSrc ? (
                   <video
                     src={slide.videoSrc}

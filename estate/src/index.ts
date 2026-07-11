@@ -414,6 +414,7 @@ const propertyGallerySliderSchema = {
     itemIdKey: textProp("Item ID Key"),
     excludeImage: mediaUriProp("Excluded/Main Image", "image"),
     showHeader: booleanProp("Show Header"),
+    slideHeight: numberProp("Slide Height (px)"),
     galleryImages: {
       title: "Gallery Images",
       type: "array",
