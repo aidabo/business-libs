@@ -73,6 +73,29 @@ export interface PropertyMediaItem {
   sort_order?: number;
 }
 
+/** One "why this is similar" reason. `kind` selects the chip colour. */
+export interface SimilarityMatch {
+  label: string;
+  kind: string; // "location" | "type" | "price" | "area"
+  weight?: number;
+}
+
+// Chip colour per match kind. The strongest match (first) is rendered filled; the
+// rest are shown as lighter outlined chips of the same hue.
+const SIMILARITY_CHIP_STYLES: Record<string, { best: string; rest: string }> = {
+  location: { best: "bg-blue-600 text-white", rest: "bg-blue-50 text-blue-700 ring-1 ring-blue-200" },
+  type: { best: "bg-violet-600 text-white", rest: "bg-violet-50 text-violet-700 ring-1 ring-violet-200" },
+  price: { best: "bg-emerald-600 text-white", rest: "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200" },
+  area: { best: "bg-amber-500 text-white", rest: "bg-amber-50 text-amber-700 ring-1 ring-amber-200" },
+};
+const similarityChipStyle = (kind: string, isBest: boolean) => {
+  const s = SIMILARITY_CHIP_STYLES[kind] || {
+    best: "bg-gray-700 text-white",
+    rest: "bg-gray-100 text-gray-600 ring-1 ring-gray-200",
+  };
+  return isBest ? s.best : s.rest;
+};
+
 export interface PropertyCardProps {
   id?: string;
   image?: string;
@@ -117,6 +140,9 @@ export interface PropertyCardProps {
   deliveryBox?: boolean;
   features?: string[] | string;
   property_type?: string;
+  /** "Why this is similar" match reasons (from the similar-properties datasource). */
+  similarityMatches?: SimilarityMatch[];
+  __similarity?: { score?: number; matches?: SimilarityMatch[]; bestKind?: string | null };
   variant?: "vertical" | "horizontal";
   selected?: boolean;
   onCardClick?: () => void;
@@ -198,6 +224,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   yearBuilt: yearBuiltProp,
   year_built,
   features,
+  similarityMatches,
+  __similarity,
   variant = "vertical",
   selected = false,
   onCardClick,
@@ -329,6 +357,24 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 
   const featureItems = normalizeFeatureList(features);
 
+  // Similarity "why it matched" chips (from the similar-properties datasource).
+  // First chip = the strongest match (rendered filled); rest are lighter.
+  const simMatches: SimilarityMatch[] = (
+    Array.isArray(similarityMatches) ? similarityMatches : __similarity?.matches
+  )?.filter((m): m is SimilarityMatch => !!m && typeof m.label === "string") ?? [];
+  const similarityChips = simMatches.length > 0 && (
+    <div className="flex flex-wrap gap-1.5 pt-1">
+      {simMatches.slice(0, 4).map((m, i) => (
+        <span
+          key={`${m.kind}-${m.label}-${i}`}
+          className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${similarityChipStyle(m.kind, i === 0)}`}
+        >
+          {t(m.label)}
+        </span>
+      ))}
+    </div>
+  );
+
   const handleClick = () => {
     if (onCardClick) {
       // The caller (e.g. PropertyGrid) owns selection + navigation, including the
@@ -423,6 +469,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
   const cardContent = (
     <>
       {priceDisplay}
+      {similarityChips}
       <div className="flex items-start gap-1.5 text-sm text-gray-500">
         <MapPinIcon className="w-4 h-4 shrink-0 mt-0.5" />
         <span className="line-clamp-1">{address}</span>
@@ -544,6 +591,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
             {buildingName || building_name}
           </div>
         )}
+
+        {/* Similarity match reasons (colored chips; best match filled) */}
+        {similarityChips}
 
         {/* Address */}
         <div className="flex items-start gap-1.5 text-sm text-gray-500">
