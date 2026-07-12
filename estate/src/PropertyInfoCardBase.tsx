@@ -101,6 +101,18 @@ function resolveSelectedPropertyId(props: PropertyInfoCardProps): string {
   ).trim();
 }
 
+// True when a StackPage page-level data source is bound to feed this card's
+// property (items/property __binding). The page-init pre-fetch loads that source
+// ONCE for the whole page, so the card must NOT self-fetch — it would race the
+// binding and duplicate the request. On the first render the bound value hasn't
+// landed yet (source data is async), so we detect intent from __bindings, not from
+// whether items is already populated, and wait for the pre-fetch to arrive.
+function isBoundToProperty(props: PropertyInfoCardProps): boolean {
+  const b = props.__bindings;
+  if (!b || typeof b !== "object") return false;
+  return !!(b.items?.sourceId || b.property?.sourceId);
+}
+
 function matchRecordInItems(items: any[], selectedId: string, itemIdKey?: string): any | null {
   if (!items.length) return null;
   if (!selectedId) return items[0] ?? null;
@@ -129,8 +141,10 @@ export function useResolvedPropertyRecord(props: PropertyInfoCardProps, enabled 
   const [fetchedData, setFetchedData] = useState<any | null>(null);
   const [fetchedId, setFetchedId] = useState<string>("");
 
+  const boundToProperty = isBoundToProperty(props);
+
   useEffect(() => {
-    if (!enabled || hasItems || !selectedPropertyId || fetchedId === selectedPropertyId) return;
+    if (!enabled || hasItems || boundToProperty || !selectedPropertyId || fetchedId === selectedPropertyId) return;
     let cancelled = false;
     fetchPropertyRecord(selectedPropertyId).then((record) => {
       if (cancelled) return;
@@ -140,7 +154,7 @@ export function useResolvedPropertyRecord(props: PropertyInfoCardProps, enabled 
     return () => {
       cancelled = true;
     };
-  }, [selectedPropertyId, hasItems, enabled]);
+  }, [selectedPropertyId, hasItems, enabled, boundToProperty]);
 
   if (!enabled) return props.property ?? null;
   if (hasItems) return matchRecordInItems(items, selectedPropertyId, props.itemIdKey) ?? props.property ?? null;
@@ -155,11 +169,13 @@ function useAutoFetchProperty(props: PropertyInfoCardProps) {
   const items = Array.isArray(props.items) ? props.items : [];
   const hasItems = items.length > 0;
 
+  const boundToProperty = isBoundToProperty(props);
+
   const [fetchedData, setFetchedData] = useState<any | null>(null);
   const [fetchedId, setFetchedId] = useState<string>("");
 
   useEffect(() => {
-    if (hasItems || !selectedPropertyId || fetchedId === selectedPropertyId) return;
+    if (hasItems || boundToProperty || !selectedPropertyId || fetchedId === selectedPropertyId) return;
     let cancelled = false;
     fetchPropertyRecord(selectedPropertyId).then((record) => {
       if (cancelled) return;
@@ -169,7 +185,7 @@ function useAutoFetchProperty(props: PropertyInfoCardProps) {
     return () => {
       cancelled = true;
     };
-  }, [selectedPropertyId, hasItems]);
+  }, [selectedPropertyId, hasItems, boundToProperty]);
 
   if (hasItems) return resolveEstateProperty({ ...props, selectedPropertyId });
   if (fetchedData && fetchedId === selectedPropertyId) return resolveEstateProperty(fetchedData);
