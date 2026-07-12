@@ -1,7 +1,8 @@
 import React from "react";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
-import { ESTATE_STATE_KEYS, getPageState } from "./types";
+import { ESTATE_STATE_KEYS } from "./types";
+import { useResolvedPropertyRecord } from "./PropertyInfoCardBase";
 
 type GalleryImageInput = string | {
   id?: string;
@@ -53,18 +54,6 @@ export interface PropertyGallerySliderProps {
   className?: string;
   style?: React.CSSProperties;
   __stackpage?: StackPageRuntimeApi;
-}
-
-function resolveItem(items: any[] | undefined, selectedId: string, itemIdKey: string): any | null {
-  if (!items || !items.length || !selectedId) return null;
-  return (
-    items.find((item) => {
-      if (!item || typeof item !== "object") return false;
-      return [item[itemIdKey], item.id, item.itemId, item.property_id, item.address, item.building_name].some(
-        (candidate) => String(candidate ?? "") === selectedId
-      );
-    }) || null
-  );
 }
 
 function normalizeGalleryImages(value: unknown, fallbackTitle: string): GalleryImage[] {
@@ -143,8 +132,15 @@ export default function PropertyGallerySlider({
   __stackpage,
 }: PropertyGallerySliderProps) {
   const t = useT();
-  const selectedId = selectedPropertyId || String(getPageState(__stackpage, selectedPropertyIdKey, ""));
-  const matchedItem = resolveItem(items, selectedId, itemIdKey);
+  // Resolve from bound items[] / selectedPropertyId / ?item (shared cache: one
+  // fetch per property per page, even when several cards resolve the same id).
+  const matchedItem = useResolvedPropertyRecord({
+    items,
+    selectedPropertyId,
+    selectedPropertyIdKey,
+    itemIdKey,
+    __stackpage,
+  });
   const fallbackTitle = matchedItem?.building_name || matchedItem?.buildingName || title;
   const sourceImages =
     galleryImages ??

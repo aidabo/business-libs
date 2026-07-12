@@ -52,14 +52,106 @@ function extractProperty(data: any): any | null {
   return data;
 }
 
+/** Read the `?item=<property_id>` URL param — a detail page opened directly. */
+export function getUrlItemParam(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return new URLSearchParams(window.location.search).get("item") || "";
+  } catch {
+    return "";
+  }
+}
+
+// Shared per-session cache so every card on a page that resolves the same ?item
+// id shares ONE network request. A detail page built from ~10 individual cards
+// would otherwise self-fetch the same property ~10 times. In-flight requests are
+// deduped and resolved records cached by id (view pages are read-mostly — reload
+// to pick up an edit).
+const propertyRecordCache = new Map<string, any>();
+const propertyRecordInflight = new Map<string, Promise<any>>();
+
+export function fetchPropertyRecord(id: string): Promise<any | null> {
+  const key = String(id || "").trim();
+  if (!key) return Promise.resolve(null);
+  if (propertyRecordCache.has(key)) return Promise.resolve(propertyRecordCache.get(key));
+  const inflight = propertyRecordInflight.get(key);
+  if (inflight) return inflight;
+  const req = fetch(`/ghost/api/admin/estate/properties/${encodeURIComponent(key)}/`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      const record = extractProperty(data) || null;
+      propertyRecordCache.set(key, record);
+      propertyRecordInflight.delete(key);
+      return record;
+    })
+    .catch(() => {
+      propertyRecordInflight.delete(key);
+      return null;
+    });
+  propertyRecordInflight.set(key, req);
+  return req;
+}
+
+// Selected property id: explicit prop → shared page state → ?item URL param.
+function resolveSelectedPropertyId(props: PropertyInfoCardProps): string {
+  return (
+    props.selectedPropertyId ||
+    String(getPageState(props.__stackpage, props.selectedPropertyIdKey || ESTATE_STATE_KEYS.selectedPropertyId, "")) ||
+    getUrlItemParam()
+  ).trim();
+}
+
+function matchRecordInItems(items: any[], selectedId: string, itemIdKey?: string): any | null {
+  if (!items.length) return null;
+  if (!selectedId) return items[0] ?? null;
+  return (
+    items.find(
+      (item) =>
+        item &&
+        typeof item === "object" &&
+        [item[itemIdKey || "id"], item.id, item.itemId, item.property_id, item.address, item.building_name].some(
+          (candidate) => String(candidate ?? "") === selectedId,
+        ),
+    ) || null
+  );
+}
+
+// Shared record resolver used by every self-resolving card. Returns the RAW
+// property record from bound items[] / selectedPropertyId / ?item, auto-fetching
+// (through the shared cache) when no items[] list is bound. `enabled=false` skips
+// resolution entirely — e.g. a PropertyCard already fed direct content by a grid
+// must not hijack itself to the page's ?item property.
+export function useResolvedPropertyRecord(props: PropertyInfoCardProps, enabled = true): any | null {
+  const selectedPropertyId = enabled ? resolveSelectedPropertyId(props) : "";
+  const items = Array.isArray(props.items) ? props.items : [];
+  const hasItems = items.length > 0;
+
+  const [fetchedData, setFetchedData] = useState<any | null>(null);
+  const [fetchedId, setFetchedId] = useState<string>("");
+
+  useEffect(() => {
+    if (!enabled || hasItems || !selectedPropertyId || fetchedId === selectedPropertyId) return;
+    let cancelled = false;
+    fetchPropertyRecord(selectedPropertyId).then((record) => {
+      if (cancelled) return;
+      setFetchedData(record);
+      setFetchedId(selectedPropertyId);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPropertyId, hasItems, enabled]);
+
+  if (!enabled) return props.property ?? null;
+  if (hasItems) return matchRecordInItems(items, selectedPropertyId, props.itemIdKey) ?? props.property ?? null;
+  if (fetchedData && fetchedId === selectedPropertyId) return fetchedData;
+  return props.property ?? null;
+}
+
 // Auto-fetches property by ID when items[] is not bound.
 // Returns resolved display model — on first render uses static props (demo), then re-renders with live data.
 function useAutoFetchProperty(props: PropertyInfoCardProps) {
-  const selectedPropertyId = (
-    props.selectedPropertyId ||
-    String(getPageState(props.__stackpage, props.selectedPropertyIdKey || ESTATE_STATE_KEYS.selectedPropertyId, ""))
-  ).trim();
-
+  const selectedPropertyId = resolveSelectedPropertyId(props);
   const items = Array.isArray(props.items) ? props.items : [];
   const hasItems = items.length > 0;
 
@@ -69,16 +161,14 @@ function useAutoFetchProperty(props: PropertyInfoCardProps) {
   useEffect(() => {
     if (hasItems || !selectedPropertyId || fetchedId === selectedPropertyId) return;
     let cancelled = false;
-    fetch(`/ghost/api/admin/estate/properties/${encodeURIComponent(selectedPropertyId)}/`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => {
-        if (cancelled) return;
-        const p = extractProperty(data);
-        setFetchedData(p || null);
-        setFetchedId(selectedPropertyId);
-      })
-      .catch(() => {});
-    return () => { cancelled = true; };
+    fetchPropertyRecord(selectedPropertyId).then((record) => {
+      if (cancelled) return;
+      setFetchedData(record);
+      setFetchedId(selectedPropertyId);
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [selectedPropertyId, hasItems]);
 
   if (hasItems) return resolveEstateProperty({ ...props, selectedPropertyId });

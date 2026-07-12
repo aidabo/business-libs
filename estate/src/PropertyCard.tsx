@@ -9,6 +9,7 @@ import {
   setPageState,
 } from "./types";
 import { buildPropertyDetailPath } from "./utils/urlBuilders";
+import { useResolvedPropertyRecord } from "./PropertyInfoCardBase";
 
 // ── Skeleton loader ─────────────────────────────────────────────────
 
@@ -158,6 +159,14 @@ export interface PropertyCardProps {
   /** Detail page — a bare page id/slug OR a full/relative page URL. */
   detailPageId?: string;
   itemId?: string;
+  /** Detail-page self-resolution: bind a property list, a selected id, or rely on
+   *  the ?item URL param. Used when a lone PropertyCard is dropped on a detail page
+   *  (grid cards keep passing direct scalar props and are left untouched). */
+  property?: any;
+  items?: any[];
+  selectedPropertyId?: string;
+  selectedPropertyIdKey?: string;
+  itemIdKey?: string;
   /** Show an inquiry-selection checkbox on the card. */
   selectable?: boolean;
   selectedForInquiry?: boolean;
@@ -205,7 +214,7 @@ const normalizeFeatureList = (value: unknown): string[] => {
 
 // ── Main Component ─────────────────────────────────────────────────
 
-const PropertyCard: React.FC<PropertyCardProps> = ({
+const PropertyCardBase: React.FC<PropertyCardProps> = ({
   id,
   image: imageProp,
   feature_image,
@@ -674,6 +683,32 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
       </div>
     </div>
   );
+};
+
+// Self-resolving wrapper: a lone PropertyCard dropped on a detail page (?item, a
+// bound items[]+selectedPropertyId, or an explicit `property`) fetches and renders
+// that property. Grid cards keep passing direct scalar props (id/price/…) and are
+// detected as "already fed", so they render untouched with no extra fetch. The
+// resolved record is snake_case — the same field names PropertyCard already reads —
+// so it is spread as defaults and any explicit prop still wins.
+const PropertyCard: React.FC<PropertyCardProps> = (props) => {
+  const hasDirectContent = !!(
+    props.id ||
+    props.itemId ||
+    props.price ||
+    props.price_jpy ||
+    props.price_sale ||
+    props.price_rent_monthly ||
+    (Array.isArray(props.images) && props.images.length > 0)
+  );
+  const record = useResolvedPropertyRecord(props, !hasDirectContent);
+  if (record && !hasDirectContent) {
+    const explicit = Object.fromEntries(
+      Object.entries(props).filter(([, value]) => value !== undefined),
+    );
+    return <PropertyCardBase {...record} {...explicit} />;
+  }
+  return <PropertyCardBase {...props} />;
 };
 
 export default PropertyCard;
