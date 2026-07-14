@@ -70,19 +70,32 @@ export function getUrlItemParam(): string {
 const propertyRecordCache = new Map<string, any>();
 const propertyRecordInflight = new Map<string, Promise<any>>();
 
+const fetchRecordFrom = (url: string): Promise<any | null> =>
+  fetch(url)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => extractProperty(data) || null)
+    .catch(() => null);
+
 export function fetchPropertyRecord(id: string): Promise<any | null> {
   const key = String(id || "").trim();
   if (!key) return Promise.resolve(null);
   if (propertyRecordCache.has(key)) return Promise.resolve(propertyRecordCache.get(key));
   const inflight = propertyRecordInflight.get(key);
   if (inflight) return inflight;
-  const req = fetch(`/ghost/api/admin/estate/properties/${encodeURIComponent(key)}/`)
-    .then((r) => (r.ok ? r.json() : null))
-    .then((data) => {
-      const record = extractProperty(data) || null;
-      propertyRecordCache.set(key, record);
+  const encoded = encodeURIComponent(key);
+  // Public route first: it is the only one that attaches the gallery media
+  // (`feature_image` + `images`) — the admin route returns neither, which is why a
+  // self-fetching card used to render "No Image" while PropertyGrid cards (fed from
+  // the public search datasource) showed photos. It also works with no login, so
+  // cards resolve on /pages-public/view too.
+  // Admin fallback: the public route only serves published properties, so an editor
+  // previewing a draft still resolves it.
+  const req = fetchRecordFrom(`/api/estate/properties-public/${encoded}/`)
+    .then((record) => record || fetchRecordFrom(`/ghost/api/admin/estate/properties/${encoded}/`))
+    .then((record) => {
+      propertyRecordCache.set(key, record ?? null);
       propertyRecordInflight.delete(key);
-      return record;
+      return record ?? null;
     })
     .catch(() => {
       propertyRecordInflight.delete(key);
