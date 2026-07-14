@@ -277,14 +277,23 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   // first non-video media URL and drop a video-valued candidate.
   const isVideoUrl = (u?: string) =>
     /\.(?:mp4|mov|m4v|webm|avi|mkv|ogv|flv|wmv)(?:[?#].*)?$/i.test(String(u || ""));
+  // `images[]` is the whole gallery folder: the PDF-extraction pipeline also stores
+  // manifest/text artifacts (media_type "other", a .json url). Never use one as the
+  // card thumbnail.
+  const isNonMediaUrl = (u?: string) =>
+    /\.(?:json|txt|csv|pdf|xml|ya?ml)(?:[?#].*)?$/i.test(String(u || ""));
   const firstMediaUrl = (() => {
     if (!Array.isArray(images)) return "";
     for (const entry of images) {
+      if (entry && typeof entry === "object") {
+        const kind = String(entry.media_type || "").toLowerCase();
+        if (kind && !kind.includes("image") && !kind.includes("video")) continue;
+      }
       const url =
         typeof entry === "string"
           ? entry
           : entry?.url || entry?.storage_url || entry?.thumbnail_url || "";
-      if (url && !isVideoUrl(url)) return url;
+      if (url && !isVideoUrl(url) && !isNonMediaUrl(url)) return url;
     }
     return "";
   })();
@@ -685,30 +694,54 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   );
 };
 
-// Self-resolving wrapper: a lone PropertyCard dropped on a detail page (?item, a
-// bound items[]+selectedPropertyId, or an explicit `property`) fetches and renders
-// that property. Grid cards keep passing direct scalar props (id/price/…) and are
-// detected as "already fed", so they render untouched with no extra fetch. The
-// resolved record is snake_case — the same field names PropertyCard already reads —
-// so it is spread as defaults and any explicit prop still wins.
+// Props that carry property data. A self-resolving card takes these from its
+// resolved record; the values sitting in its widget config are the preview defaults
+// the page builder merges into every placed component, so they must not shadow it.
+const PROPERTY_DATA_PROPS = new Set<string>([
+  "id", "itemId", "tag",
+  "image", "feature_image", "images",
+  "price", "price_jpy", "price_sale", "price_rent_monthly", "property_type",
+  "originalPrice", "price_valuation", "priceValuation",
+  "expected_yield", "current_yield", "expectedYield", "currentYield",
+  "address", "buildingName", "building_name",
+  "nearestStation", "nearest_station", "transportInfo", "transport_info", "transport",
+  "floorPlan", "floor_plan", "areaSize", "expectedRent", "expected_rent",
+  "yearBuilt", "year_built", "floor_area", "land_area", "building_area",
+  "beds", "baths", "sqft", "features",
+]);
+
+const TAG_BY_PROPERTY_TYPE: Record<string, string> = {
+  rent: "賃貸",
+  sale: "売買",
+  investment: "投資",
+};
+
+// Self-resolving wrapper. A PropertyCard placed directly on a page resolves its own
+// property the same way every other detail card does (bound items[] + selected id,
+// an explicit `property`, or ?item) and renders its primary image, price, and —
+// when present — yield and valuation.
+//
+// The one thing that makes this card different from PropertyBasicInfoCard & co. is
+// that it is ALSO rendered as a child of PropertyGrid / SearchResult, which already
+// feed it the real record as scalar props. Such a child must not resolve, or it
+// would hijack itself to the page's ?item property. That parent is detected by the
+// `onCardClick` it always passes — NOT by the presence of id/price/image, which is
+// unusable as a signal: the builder merges preview defaults into every widget, so a
+// standalone card always *looks* fed (and would render "$850,000" forever).
 const PropertyCard: React.FC<PropertyCardProps> = (props) => {
-  const hasDirectContent = !!(
-    props.id ||
-    props.itemId ||
-    props.price ||
-    props.price_jpy ||
-    props.price_sale ||
-    props.price_rent_monthly ||
-    (Array.isArray(props.images) && props.images.length > 0)
+  const isListChild = typeof props.onCardClick === "function";
+  const record = useResolvedPropertyRecord(props, !isListChild);
+  if (isListChild || !record) return <PropertyCardBase {...props} />;
+
+  // Keep the author's presentation/config props (variant, detailPageId, styling…),
+  // drop the data props so the resolved record wins.
+  const config = Object.fromEntries(
+    Object.entries(props).filter(
+      ([key, value]) => value !== undefined && !PROPERTY_DATA_PROPS.has(key),
+    ),
   );
-  const record = useResolvedPropertyRecord(props, !hasDirectContent);
-  if (record && !hasDirectContent) {
-    const explicit = Object.fromEntries(
-      Object.entries(props).filter(([, value]) => value !== undefined),
-    );
-    return <PropertyCardBase {...record} {...explicit} />;
-  }
-  return <PropertyCardBase {...props} />;
+  const tag = TAG_BY_PROPERTY_TYPE[String(record.property_type || "").toLowerCase()];
+  return <PropertyCardBase {...record} {...(tag ? { tag } : {})} {...config} />;
 };
 
 export default PropertyCard;
