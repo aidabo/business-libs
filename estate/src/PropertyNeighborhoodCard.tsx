@@ -1,4 +1,51 @@
+import { useState } from "react";
 import { PropertyInfoCardProps, PropertyInfoCardShell, useEstatePropertyModel, useInfoCardRows } from "./PropertyInfoCardBase";
+
+const ChevronIcon = ({ open }: { open: boolean }) => (
+  <svg
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    aria-hidden="true"
+    className={`h-4 w-4 shrink-0 text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+  >
+    <path
+      fillRule="evenodd"
+      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+/** One collapsed-by-default section. The neighborhood card can carry ~6 groups of
+ *  ~5 entries each; rendered open they make the card far taller than the rest of the
+ *  detail page, so each group starts folded and shows only its title + item count. */
+function CollapsibleGroup({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: React.ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-expanded={open}
+        className="flex w-full items-center justify-between gap-2 px-3 py-2 text-left transition hover:bg-gray-50"
+      >
+        <span className="min-w-0 truncate text-xs font-semibold text-gray-600">
+          {title} <span className="text-gray-400">({count})</span>
+        </span>
+        <ChevronIcon open={open} />
+      </button>
+      {open ? <div className="border-t border-gray-100 p-2">{children}</div> : null}
+    </div>
+  );
+}
 
 function splitItems(value: unknown): string[] {
   if (Array.isArray(value)) return value.map((item) => String(item || "").trim()).filter(Boolean);
@@ -36,23 +83,22 @@ function NearbyGroup({ label, value, address }: { label: string; value: unknown;
   const items = splitItems(value);
   if (items.length === 0) return null;
   return (
-    <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3">
-      <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-blue-500">{label}</div>
-      <div className="mt-2 flex min-w-0 flex-wrap gap-2">
+    <CollapsibleGroup title={label} count={items.length}>
+      <div className="flex min-w-0 flex-wrap gap-2">
         {items.map((item) => (
           <a
             key={`${label}-${item}`}
             href={googleSearchUrl(item, address)}
             target="_blank"
             rel="noreferrer"
-            className="max-w-full break-words rounded-full bg-white px-3 py-1 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-blue-100 transition hover:bg-blue-100"
+            className="max-w-full break-words rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-blue-100 transition hover:bg-blue-100"
             title={`${item} をGoogle Mapsで検索`}
           >
             {item}
           </a>
         ))}
       </div>
-    </div>
+    </CollapsibleGroup>
   );
 }
 
@@ -86,10 +132,9 @@ function PlaceResults({ data }: { data: any }) {
           : Array.isArray(data?.[group.key]?.items) ? data[group.key].items : [];
         if (!items.length) return null;
         return (
-          <div key={group.key} className="space-y-1.5">
-            <div className="text-xs font-semibold text-gray-500">{group.title} ({items.length})</div>
+          <CollapsibleGroup key={group.key} title={group.title} count={items.length}>
             <div className="space-y-1.5">
-              {items.slice(0, 5).map((item: any, index: number) => {
+              {items.map((item: any, index: number) => {
                 const name = String(item?.name || item?.address || `item-${index + 1}`).trim();
                 const address = String(item?.address || "").trim();
                 const typeLabel = String(item?.category || item?.primaryTypeLabel || item?.primaryType || "").trim();
@@ -108,7 +153,18 @@ function PlaceResults({ data }: { data: any }) {
                   <div key={`${group.key}-${index}-${item?.placeId || name || index}`} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
                     <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                       <div className="min-w-0 flex-1">
-                        <div className="break-words text-sm font-semibold leading-5 text-gray-900">{name}</div>
+                        {mapsUrl ? (
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="break-words text-sm font-semibold leading-5 text-blue-700 hover:text-blue-900 hover:underline"
+                          >
+                            {name}
+                          </a>
+                        ) : (
+                          <div className="break-words text-sm font-semibold leading-5 text-gray-900">{name}</div>
+                        )}
                         {address ? <div className="break-words text-xs leading-5 text-gray-500">{address}</div> : null}
                         <div className="text-xs leading-5 text-gray-500">{[typeLabel, distanceLabel].filter(Boolean).join(" ・ ") || " "}</div>
                       </div>
@@ -122,7 +178,7 @@ function PlaceResults({ data }: { data: any }) {
                 );
               })}
             </div>
-          </div>
+          </CollapsibleGroup>
         );
       })}
     </div>
