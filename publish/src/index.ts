@@ -44,6 +44,7 @@ import BriefItem from "./BriefItem";
 import EditorialCard from "./EditorialCard";
 import SectionHeader from "./SectionHeader";
 import PullQuote from "./PullQuote";
+import DeepZoomViewer from "./DeepZoomViewer";
 import { PublishProvider } from "./contexts/PublishContext";
 
 // Map for ComponentsProvider (page builder registration)
@@ -94,6 +95,7 @@ export const PublishComponents = {
   EditorialCard,
   SectionHeader,
   PullQuote,
+  DeepZoomViewer,
   PublishProvider,
 };
 
@@ -2426,6 +2428,37 @@ export const PublishDefaultProps = {
     },
     __interactions: [],
   },
+  DeepZoomViewer: {
+    _componentDesc: "component.DeepZoomViewer.desc",
+    title: "Asahi Shimbun — June 29, 2026",
+    dziUrls: [],
+    showPageNav: true,
+    selectedContentIdKey: "publish.selectedContentId",
+    __schema: {
+      type: "object",
+      title: "DeepZoomViewer",
+      properties: {
+        title: { type: "string", title: "Publication Title" },
+        dziUrls: {
+          type: "array",
+          title: "DZI URLs",
+          items: { type: "string", format: "uri" },
+        },
+        showPageNav: { type: "boolean", title: "Show Page Navigation" },
+        jobId: { type: "string", title: "Job ID" },
+      },
+    },
+    __interactions: [
+      {
+        id: "deepzoom-page-select",
+        event: "page-change",
+        action: "emit-event",
+        targetPath: "publish:content:selected",
+        valueFrom: "$.id",
+        enabled: true,
+      },
+    ],
+  },
 };
 
 export { PublishProvider };
@@ -2492,6 +2525,8 @@ export { default as EventFilterBar } from "./EventFilterBar";
 export type { EventFilterBarProps } from "./EventFilterBar";
 export { default as VerticalTextContainer } from "./VerticalTextContainer";
 export type { VerticalTextContainerProps } from "./VerticalTextContainer";
+export { default as DeepZoomViewer } from "./DeepZoomViewer";
+export type { DeepZoomViewerProps } from "./DeepZoomViewer";
 export { default as VerticalArticle } from "./VerticalArticle";
 export type { VerticalArticleProps } from "./VerticalArticle";
 export { default as WritingModeToggle } from "./WritingModeToggle";
