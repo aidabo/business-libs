@@ -52,26 +52,28 @@ const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
     },
   ];
   return (
-    <div className={`py-16 bg-white overflow-hidden ${className}`} style={mergedStyle}>
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="relative z-10 text-center max-w-2xl mx-auto mb-16">
-          <h2 className="text-base font-semibold leading-7 text-blue-600 uppercase tracking-wide">
+    <div className={`py-10 bg-white overflow-hidden ${className}`} style={mergedStyle}>
+      <div className="container mx-auto px-4 max-w-6xl">
+        <div className="relative z-10 text-center max-w-2xl mx-auto mb-8">
+          <h2 className="text-sm font-semibold leading-6 text-blue-600 uppercase tracking-wide">
             {t("当社の特長")}
           </h2>
-          <p className="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+          <p className="mt-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
             {title}
           </p>
-          <p className="mt-6 text-lg leading-8 text-gray-600">{subtitle}</p>
+          <p className="mt-2 text-base leading-7 text-gray-600">{subtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {features.map((feature) => (
-            <div key={feature.name} className="flex flex-col items-center text-center p-6 bg-gray-50 rounded-2xl hover:bg-blue-50 transition-colors duration-300">
-              <div className="flex items-center justify-center h-16 w-16 rounded-full bg-blue-100 text-blue-600 mb-6">
-                <feature.icon className="h-8 w-8" aria-hidden="true" />
+            <div key={feature.name} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors duration-300">
+              <div className="flex items-center justify-center h-10 w-10 shrink-0 rounded-full bg-blue-100 text-blue-600">
+                <feature.icon className="h-5 w-5" aria-hidden="true" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.name}</h3>
-              <p className="text-gray-600 leading-relaxed">{feature.description}</p>
+              <div className="min-w-0">
+                <h3 className="text-base font-bold text-gray-900 mb-1">{feature.name}</h3>
+                <p className="text-sm text-gray-600 leading-relaxed">{feature.description}</p>
+              </div>
             </div>
           ))}
         </div>

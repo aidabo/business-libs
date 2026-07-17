@@ -7,6 +7,12 @@ export interface HeroSectionProps {
   title?: string;
   subtitle?: string;
   backgroundImage?: string;
+  /** Optional background video (mp4/webm). When set it plays muted/looping and
+   *  covers the background; `backgroundImage` is used as its poster/fallback. */
+  backgroundVideo?: string;
+  /** Dark overlay strength over the background, 0 (none) → 1 (black). Accepts a
+   *  0–100 percentage too. Keeps the title readable over bright media. */
+  overlayOpacity?: number;
   showSearch?: boolean;
   keywordKey?: string;
   backgroundColor?: string;
@@ -20,6 +26,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   title = "理想の住まいを見つけよう",
   subtitle = "あなたにぴったりの物件を、最新のラインナップから検索できます。",
   backgroundImage = "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+  backgroundVideo,
+  overlayOpacity = 0.4,
   showSearch = true,
   keywordKey = ESTATE_STATE_KEYS.keyword,
   backgroundColor,
@@ -30,6 +38,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({
 }) => {
   const t = useT();
   const [searchValue, setSearchValue] = React.useState("");
+
+  // Normalize overlay opacity: allow 0–1 or a 0–100 percentage, then clamp.
+  const overlayAlpha = (() => {
+    const raw = Number(overlayOpacity);
+    if (!Number.isFinite(raw)) return 0.4;
+    const v = raw > 1 ? raw / 100 : raw;
+    return Math.min(1, Math.max(0, v));
+  })();
 
   const handleSearch = () => {
     if (__stackpage) {
@@ -50,12 +66,28 @@ const HeroSection: React.FC<HeroSectionProps> = ({
       className={`relative w-full h-full min-h-[300px] flex items-center justify-center text-center text-white ${className}`}
       style={mergedStyle}
     >
-      {/* Background Image with Overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: `url(${backgroundImage})` }}
-      >
-        <div className="absolute inset-0 bg-black/40" />
+      {/* Background media (video preferred, else image) with a dark overlay */}
+      <div className="absolute inset-0 overflow-hidden">
+        {backgroundVideo ? (
+          <video
+            className="absolute inset-0 w-full h-full object-cover"
+            src={backgroundVideo}
+            poster={backgroundImage}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${backgroundImage})` }}
+          />
+        )}
+        <div
+          className="absolute inset-0"
+          style={{ backgroundColor: `rgba(0, 0, 0, ${overlayAlpha})` }}
+        />
       </div>
 
       {/* Content */}

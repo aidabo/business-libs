@@ -459,7 +459,28 @@ export const EstateDefaultProps = {
     subtitle: "Discover the perfect property in the best locations.",
     backgroundImage:
       "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
+    // Optional background video; when set it plays over the image (image = poster).
+    backgroundVideo: "",
+    // Dark overlay strength over the background (0 = none, 1 = black).
+    overlayOpacity: 0.4,
     showSearch: true,
+    __schema: {
+      type: "object",
+      title: "HeroSection",
+      properties: {
+        title: textProp("Title"),
+        subtitle: textareaProp("Subtitle"),
+        backgroundImage: mediaUriProp("Background Image", "image"),
+        backgroundVideo: mediaUriProp("Background Video", "video"),
+        overlayOpacity: numberProp("Overlay Opacity (0-1)", {
+          minimum: 0,
+          maximum: 1,
+          default: 0.4,
+        }),
+        showSearch: booleanProp("Show Search Bar"),
+        keywordKey: textProp("Keyword State Key"),
+      },
+    },
   },
   PropertyCard: {
     _componentDesc: 'component.propertyCard.desc',
