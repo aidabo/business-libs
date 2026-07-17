@@ -64,7 +64,13 @@ const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
           <p className="mt-2 text-base leading-7 text-gray-600">{subtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Container-width responsive: columns are driven by the component's own
+            box, not the viewport — so a narrow placement on a wide PC screen
+            still stacks the cards vertically instead of cramming 4 columns. */}
+        <div
+          className="grid gap-4"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}
+        >
           {features.map((feature) => (
             <div key={feature.name} className="flex items-start gap-3 p-4 bg-gray-50 rounded-xl hover:bg-blue-50 transition-colors duration-300">
               <div className="flex items-center justify-center h-10 w-10 shrink-0 rounded-full bg-blue-100 text-blue-600">
