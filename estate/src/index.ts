@@ -321,6 +321,32 @@ const searchResultSchema = {
 
 delete (searchResultSchema.properties as Record<string, any>).properties;
 
+// PropertyTable renders a searchable list of horizontal "image left / info right"
+// cards — same search-event + navigation contract as PropertyGrid, no column config.
+const propertyTableSchema = {
+  type: "object",
+  title: "PropertyTable",
+  properties: {
+    loading: booleanProp("Loading"),
+    selectable: booleanProp("Selectable (inquiry checkbox on rows)"),
+    inquiryPropertiesKey: textProp("Inquiry Selection State Key"),
+    selectedPropertyIdKey: textProp("Selected Property ID State Key"),
+    keywordKey: textProp("Keyword State Key"),
+    intentKey: textProp("Intent State Key"),
+    detailPageId: textProp("Detail Page ID or URL"),
+    requirePost: booleanProp("Require linked Post (else PropertyDetail-only)"),
+    openDetailInNewWindow: booleanProp("Open detail in a new window/tab"),
+    searchableFields: stringArrayProp("Searchable Fields"),
+    properties: {
+      title: "Properties",
+      type: "array",
+      items: propertyListItemSchema,
+      "x-array-binding": true,
+    },
+  },
+  required: [],
+};
+
 const galleryImageItemSchema = {
   type: "object",
   properties: {
@@ -1253,8 +1279,19 @@ export const EstateDefaultProps = {
   },
   PropertyTable: {
     _componentDesc: 'component.propertyTable.desc',
-    columns: "address,property_type,floor_plan,floor_area,price_sale,price_rent_monthly,nearest_station,year_built",
+    __schema: propertyTableSchema,
     loading: false,
+    // Detail page a row click opens (page id or pasted detail-page URL). Set from
+    // the Properties tab; empty → a row click updates selection + emits an event
+    // but does not navigate.
+    detailPageId: "",
+    requirePost: false,
+    openDetailInNewWindow: true,
+    selectable: true,
+    inquiryPropertiesKey: "estate.inquiry.properties",
+    selectedPropertyIdKey: "estate.selectedPropertyId",
+    keywordKey: "estate.keyword",
+    intentKey: "estate.filter.intent",
     properties: [
       {
         id: "table-sakura-terrace",
@@ -1262,12 +1299,19 @@ export const EstateDefaultProps = {
         property_type: "sale",
         address: "東京都世田谷区桜新町2-14-12",
         building_name: "サクラテラス世田谷",
+        feature_image:
+          "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
         floor_plan: "3LDK",
         floor_area: 72.4,
+        floor_number: 4,
+        floors_total: 8,
+        structure: "RC造",
         price_sale: 58000000,
+        price_valuation: 62000000,
         nearest_station: "桜新町駅 徒歩7分",
         year_built: 2018,
-        features: "オートロック, 宅配ボックス",
+        summary: "陽当たり良好な南向き角部屋。閑静な住宅街で暮らしやすい3LDK。",
+        features: "オートロック, 宅配ボックス, 南向き",
       },
       {
         id: "table-riverside-nakameguro",
@@ -1275,13 +1319,19 @@ export const EstateDefaultProps = {
         property_type: "rent",
         address: "東京都目黒区中目黒3-5-1",
         building_name: "リバーサイド中目黒",
+        feature_image:
+          "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
         floor_plan: "1LDK",
         floor_area: 42.8,
+        floor_number: 6,
+        floors_total: 12,
+        structure: "SRC造",
         price_rent_monthly: 165000,
         nearest_station: "中目黒駅 徒歩6分",
         year_built: 2021,
         pets_allowed: true,
-        features: "ペット可, 宅配ボックス",
+        summary: "目黒川沿いの築浅デザイナーズ。ペット相談可の1LDK。",
+        features: "ペット可, 宅配ボックス, 浴室乾燥機",
       },
       {
         id: "table-ark-view-akasaka",
@@ -1289,13 +1339,27 @@ export const EstateDefaultProps = {
         property_type: "investment",
         address: "東京都港区赤坂4-8-5",
         building_name: "アークビュー赤坂",
+        feature_image:
+          "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
         floor_plan: "投資用",
         floor_area: 118.2,
+        floors_total: 15,
+        structure: "RC造",
         price_sale: 320000000,
         nearest_station: "赤坂駅 徒歩4分",
         year_built: 2014,
         expected_yield: 4.2,
+        summary: "駅近・管理良好の一棟投資物件。安定した賃貸需要が見込めます。",
         features: "管理良好, 駅近, 高利回り",
+      },
+    ],
+    __interactions: [
+      {
+        id: "estate-table-select",
+        event: "estate:property:selected",
+        action: "set-shared-state",
+        targetPath: "estate.selectedPropertyId",
+        valueFrom: "$.id",
       },
     ],
   },
