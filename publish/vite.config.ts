@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react'
 import dts from 'vite-plugin-dts'
 import { resolve } from 'path'
 
+// Compatibility package name. The domain is Publishing (media/news and
+// publication experiences), not the generic action of publishing a post.
+
 export default defineConfig({
   plugins: [
     react(),

@@ -1,3 +1,11 @@
+/**
+ * Publishing business component package.
+ *
+ * The package exports retain `Publish*` names for compatibility with the
+ * existing `@ghost-next/publish` package. This package covers publishing,
+ * media, and news experiences; `published` post status is separate.
+ */
+
 import ContentCard from "./ContentCard";
 import ContentGrid from "./ContentGrid";
 import HeroBanner from "./HeroBanner";
