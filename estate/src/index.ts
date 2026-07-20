@@ -492,7 +492,7 @@ export const EstateDefaultProps = {
     itemId: "property-card-preview",
     beds: 3,
     baths: 2,
-    sqft: 2400,
+    sqm: 223,
     tag: "FOR SALE",
   },
   PropertyGrid: {

@@ -279,7 +279,7 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
       return /\d/.test(v) && !v.includes("%") ? `${v}%` : v;
     })(),
     floorPlan: stringify(firstValue(source, ["floor_plan", "floorPlan", "rooms"])),
-    floorArea: formatArea(firstValue(source, ["floor_area", "floorArea", "areaSqm", "area_sqm", "area"])),
+    floorArea: formatArea(firstValue(source, ["floor_area", "floorArea", "sqm", "areaSqm", "area_sqm", "area"])),
     landArea: formatArea(firstValue(source, ["land_area", "landArea"])),
     buildingArea: formatArea(firstValue(source, ["building_area", "buildingArea"])),
     floorNumber: stringify(firstValue(source, ["floor_number", "floorNumber", "floor_no"])),

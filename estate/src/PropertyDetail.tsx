@@ -69,7 +69,9 @@ export interface PropertyDetailProps {
   beds?: number;
   /** @deprecated Use floorPlan */
   baths?: number;
-  /** @deprecated Use areaSqm */
+  /** Canonical floor area in square metres. */
+  sqm?: number;
+  /** @deprecated Use sqm or areaSqm */
   sqft?: number;
   /** @deprecated Use tagJP */
   tag?: string;
@@ -263,6 +265,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   image,
   buildingName,
   price,
+  sqm,
+  sqft,
   address,
   tag,
   area,
@@ -425,8 +429,12 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.tagJP ?? effectiveItem?.tag_jp ?? tagJP ?? effectiveItem?.tag ?? tag ?? "";
   const resolvedPropertyType =
     effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
+  const legacySqft = effectiveItem?.sqft ?? sqft;
+  const legacySqm = legacySqft == null || legacySqft === ""
+    ? ""
+    : `${(Number(legacySqft) * 0.092903).toFixed(1)}㎡`;
   const resolvedAreaSqm =
-    effectiveItem?.areaSqm ?? effectiveItem?.area_sqm ?? areaSqm ?? effectiveItem?.area ?? area ?? "";
+    effectiveItem?.areaSqm ?? effectiveItem?.area_sqm ?? effectiveItem?.sqm ?? sqm ?? areaSqm ?? area ?? legacySqm;
   const resolvedTsubo = effectiveItem?.tsubo ?? tsubo;
   const resolvedFloorPlan =
     effectiveItem?.floorPlan ?? effectiveItem?.floor_plan ?? floorPlan ?? effectiveItem?.rooms ?? rooms ?? "";

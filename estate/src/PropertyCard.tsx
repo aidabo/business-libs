@@ -127,6 +127,9 @@ export interface PropertyCardProps {
   transport_info?: string;
   beds?: number;
   baths?: number;
+  /** Canonical floor area in square metres. */
+  sqm?: number;
+  /** @deprecated Use sqm or area_sqm. Kept for legacy integrations. */
   sqft?: number;
   tag?: string;
   transport?: string;
@@ -243,6 +246,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   floorPlan: floorPlanProp,
   floor_plan,
   areaSize: areaSizeProp,
+  sqm,
   floor_area,
   expectedRent,
   yearBuilt: yearBuiltProp,
@@ -404,7 +408,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
 
   const floorPlan = floorPlanProp || floor_plan;
   const areaSize =
-    areaSizeProp || (floor_area ? `${floor_area}㎡` : "");
+    areaSizeProp || (floor_area ? `${floor_area}㎡` : sqm ? `${sqm}㎡` : "");
   const yearBuilt =
     yearBuiltProp || (year_built ? `${year_built}年` : "");
 
@@ -707,7 +711,7 @@ const PROPERTY_DATA_PROPS = new Set<string>([
   "nearestStation", "nearest_station", "transportInfo", "transport_info", "transport",
   "floorPlan", "floor_plan", "areaSize", "expectedRent", "expected_rent",
   "yearBuilt", "year_built", "floor_area", "land_area", "building_area",
-  "beds", "baths", "sqft", "features",
+  "beds", "baths", "sqm", "area_sqm", "sqft", "features",
 ]);
 
 const TAG_BY_PROPERTY_TYPE: Record<string, string> = {

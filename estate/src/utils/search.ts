@@ -21,6 +21,8 @@ export const DEFAULT_SEARCHABLE_FIELDS = [
   "transport",
   "floorPlan",
   "areaSize",
+  "sqm",
+  "area_sqm",
   "expectedRent",
   "yearBuilt",
   "features",
@@ -201,19 +203,24 @@ function includesText(source: unknown, token: string): boolean {
 
 function extractAreaValue(property: Record<string, unknown>): number | null {
   const p = property as Record<string, any>;
-  const directCandidates = [
+  const sqmCandidates = [
+    p.sqm,
+    p.area_sqm,
+    p.areaSqm,
     p.floorArea,
     p.floor_area,
     p.landArea,
     p.land_area,
     p.buildingArea,
     p.building_area,
-    p.sqft,
   ];
-  for (const candidate of directCandidates) {
+  for (const candidate of sqmCandidates) {
     const num = toNumberOrNull(candidate);
     if (num != null) return num;
   }
+
+  const legacySqft = toNumberOrNull(p.sqft);
+  if (legacySqft != null) return legacySqft * 0.092903;
 
   const sizeText = String(
     p.areaSize ?? p.floor_area ?? p.land_area ?? p.building_area ?? ""

@@ -71,7 +71,7 @@ const FALLBACK_RESULTS = Array.from({ length: 9 }, (_, index) => ({
   address: "123 Palm Avenue, Beverly Hills, CA 90210",
   beds: 3,
   baths: 2,
-  sqft: 2400,
+  sqm: 223,
   tag: "FOR SALE",
 }));
 

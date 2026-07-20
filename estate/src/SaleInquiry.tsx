@@ -69,7 +69,7 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
     phone: "",
     address: "",
     propertyType: "house",
-    approxSqft: "",
+    approxSqm: "",
     message: "",
   };
   const [param, setParam] = useState(emptyForm);
@@ -114,7 +114,7 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
         param.message,
         param.propertyType ? `${t("Property Type")}: ${param.propertyType}` : "",
         param.address ? `${t("Property Address")}: ${param.address}` : "",
-        param.approxSqft ? `${t("Approx. Sqft (Optional)")}: ${param.approxSqft}` : "",
+        param.approxSqm ? `${t("Approx. Sqm (Optional)")}: ${param.approxSqm}` : "",
         promoCode ? `${t("Promo code")}: ${promoCode}` : "",
       ]
         .filter(Boolean)
@@ -221,11 +221,11 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">{t("Approx. Sqft (Optional)")}</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">{t("Approx. Sqm (Optional)")}</label>
           <input
             type="text"
-            name="approxSqft"
-            value={param.approxSqft}
+            name="approxSqm"
+            value={param.approxSqm}
             onChange={handleChange}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
           />
