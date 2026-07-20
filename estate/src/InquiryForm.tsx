@@ -128,13 +128,13 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
   };
   const validateForm = () => {
     const errors: { name?: string; email?: string; phone?: string; message?: string } = {};
-    if (!param.name.trim()) errors.name = t("お名前を入力してください。");
-    if (!param.email.trim()) errors.email = t("メールアドレスを入力してください。");
+    if (!param.name.trim()) errors.name = t("Please enter your name.");
+    if (!param.email.trim()) errors.email = t("Please enter your email address.");
     else if (!isValidEmail(param.email))
-      errors.email = t("正しいメールアドレスを入力してください。");
+      errors.email = t("Please enter a valid email address.");
     if (param.phone.trim() && !isValidPhone(param.phone))
-      errors.phone = t("正しい電話番号を入力してください（例: 090-1234-5678）。");
-    if (!param.message.trim()) errors.message = t("お問い合わせ内容を入力してください。");
+      errors.phone = t("Please enter a valid phone number (e.g. 090-1234-5678).");
+    if (!param.message.trim()) errors.message = t("Please enter your inquiry.");
     return errors;
   };
 
@@ -379,17 +379,17 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
           <div className="space-y-2">
             <div className="space-y-1 rounded-lg bg-green-100 p-3 text-sm text-green-800">
               <div className="font-medium">
-                {t("お問い合わせを受け付けました。担当者より折り返しご連絡いたします。")}
+                {t("Your inquiry has been received. A representative will contact you.")}
               </div>
               {result?.referenceCode && (
                 <div>
-                  {t("受付番号")}:{" "}
+                  {t("Inquiry reference number")}:{" "}
                   <span className="font-semibold tracking-wide">{result.referenceCode}</span>
                 </div>
               )}
               {result?.propertyNames && result.propertyNames.length > 0 && (
                 <div>
-                  {t("対象物件")}: {result.propertyNames.join(" / ")}
+                  {t("Property concerned")}: {result.propertyNames.join(" / ")}
                 </div>
               )}
             </div>
@@ -398,7 +398,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
               <div className="space-y-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
                 <div>
                   {t(
-                    "確認メールを送信できませんでした。メールアドレスをご確認のうえ再送信してください。"
+                    "Unable to send the confirmation email. Check the address and try again."
                   )}
                 </div>
                 <div className="flex flex-col gap-2 sm:flex-row">
@@ -415,12 +415,12 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
                     disabled={resendStatus === "loading" || !resendEmail.trim()}
                     className="rounded-lg bg-amber-600 px-4 py-1.5 font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:bg-amber-300"
                   >
-                    {resendStatus === "loading" ? t("送信中...") : t("確認メール再送信")}
+                    {resendStatus === "loading" ? t("Submitting...") : t("Resend confirmation email")}
                   </button>
                 </div>
                 {resendStatus === "error" && (
                   <div className="text-red-700">
-                    {t("再送信に失敗しました。アドレスをご確認ください。")}
+                    {t("Resending failed. Check the address.")}
                   </div>
                 )}
               </div>
@@ -428,7 +428,7 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
 
             {customerMailOk === true && resendStatus === "success" && (
               <div className="rounded-lg bg-green-100 p-3 text-sm text-green-800">
-                {t("確認メールを再送信しました。")}
+                {t("Confirmation email resent.")}
               </div>
             )}
           </div>

@@ -101,7 +101,7 @@ const Property3DCard: React.FC<Property3DCardProps> = (props) => {
                 rel="noreferrer"
                 className="rounded-lg bg-white px-3 py-1.5 text-xs font-semibold text-amber-700 shadow-sm ring-1 ring-amber-300 transition hover:bg-amber-50"
               >
-                {t("位置を確認")}
+                {t("Check location")}
               </a>
             )}
             {openUrl && (
@@ -111,7 +111,7 @@ const Property3DCard: React.FC<Property3DCardProps> = (props) => {
                 rel="noreferrer"
                 className="rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-600"
               >
-                {t("3Dを開く")}
+                {t("Open 3D view")}
               </a>
             )}
           </div>

@@ -84,15 +84,15 @@ const InquiryDispatcher: React.FC<InquiryDispatcherProps> = ({
   const label = t(_componentDesc || "問い合わせ送信ハンドラ");
   const statusText =
     status === "sending"
-      ? t("送信中…")
+      ? t("Submitting…")
       : status === "success"
         ? successMessage
           ? t(successMessage)
-          : t("問い合わせを送信しました")
+          : t("Inquiry sent")
         : status === "error"
           ? errorMessage
             ? t(errorMessage)
-            : t("送信に失敗しました")
+            : t("Submission failed")
           : "";
 
   const statusColor =

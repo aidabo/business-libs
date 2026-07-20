@@ -189,7 +189,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
       ? `¥${valuationNum.toLocaleString("ja-JP")}`
       : "";
 
-  const title = m.buildingName || m.title || m.address || t("物件");
+  const title = m.buildingName || m.title || m.address || t("Property");
   const station = (m.nearestStation || m.transportInfo || "").split(/\r?\n/)[0].trim();
 
   const infoItems: Array<{ label: string; value: string }> = [
@@ -256,11 +256,11 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
           )}
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className="text-xl font-bold text-gray-900 tracking-tight">
-              {priceMain || t("お問い合わせ")}
+              {priceMain || t("Inquiry")}
             </span>
             {m.yieldValue && (
               <span className="text-sm font-semibold text-emerald-600">
-                {t("利回り")} {m.yieldValue}
+                {t("Yield")} {m.yieldValue}
               </span>
             )}
           </div>
@@ -317,7 +317,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
         {navigable && (
           <div className="mt-auto pt-2 flex justify-end">
             <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700 transition-colors">
-              {t("詳細を見る")} →
+              {t("View details")} →
             </span>
           </div>
         )}
@@ -468,16 +468,16 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
       {__stackpage && (
         <div className="mb-4 flex flex-wrap items-center gap-2 text-sm text-gray-500">
           <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-            {t("表示中")} {filtered.length}
+            {t("Showing")} {filtered.length}
           </span>
           {keyword && (
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-              {t("キーワード")}: {keyword}
+              {t("Keyword")}: {keyword}
             </span>
           )}
           {activeIntent !== "all" && (
             <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-              {t("条件")}: {t(activeIntent)}
+              {t("Criteria")}: {t(activeIntent)}
             </span>
           )}
         </div>

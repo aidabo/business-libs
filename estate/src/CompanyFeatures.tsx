@@ -31,23 +31,23 @@ const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
 
   const features = [
     {
-      name: t("豊富な実績"),
-      description: t("地域で5,000件以上の取引実績。多くのお客様から信頼をいただいています。"),
+      name: t("Extensive experience"),
+      description: t("Over 5,000 transactions in the area, trusted by many clients."),
       icon: UserGroupIcon,
     },
     {
-      name: t("厳選物件"),
-      description: t("一般には公開されない限定物件や高級物件など、多数の優良物件をご紹介できます。"),
+      name: t("Curated properties"),
+      description: t("We can introduce exclusive and premium properties, including listings not generally available to the public."),
       icon: HomeModernIcon,
     },
     {
-      name: t("安心の取引"),
-      description: t("提携の司法書士・税理士が取引の透明性と安全性を確保。初めての方も安心です。"),
+      name: t("Trusted transactions"),
+      description: t("Partner judicial scriveners and tax accountants ensure transparent and secure transactions."),
       icon: ShieldCheckIcon,
     },
     {
-      name: t("最適な価格提案"),
-      description: t("市場分析に基づいた適正価格でのご提案。お客様の資産価値を最大化します。"),
+      name: t("Optimal pricing proposal"),
+      description: t("Fair pricing proposals based on market analysis to maximize your asset value."),
       icon: CurrencyDollarIcon,
     },
   ];
@@ -56,7 +56,7 @@ const CompanyFeatures: React.FC<CompanyFeaturesProps> = ({
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="relative z-10 text-center max-w-2xl mx-auto mb-8">
           <h2 className="text-sm font-semibold leading-6 text-blue-600 uppercase tracking-wide">
-            {t("当社の特長")}
+            {t("Our advantages")}
           </h2>
           <p className="mt-1 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
             {title}

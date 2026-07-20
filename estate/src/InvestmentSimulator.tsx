@@ -304,7 +304,7 @@ const InvestmentSimulator: React.FC<InvestmentSimulatorProps> = ({
 
           {!result && !loading && (
             <div className="flex items-center justify-center py-12 text-sm text-gray-400">
-              Adjust parameters and click "Run Simulation"
+              {t("Adjust parameters and click Run Simulation")}
             </div>
           )}
         </div>

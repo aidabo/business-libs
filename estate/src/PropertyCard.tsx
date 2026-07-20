@@ -362,8 +362,8 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   const price = isRent
     ? rentFmt
       ? `${rentFmt} / 月`
-      : saleFmt || t("お問い合わせ")
-    : saleFmt || (rentFmt ? `${rentFmt} / 月` : "") || t("お問い合わせ");
+      : saleFmt || t("Inquiry")
+    : saleFmt || (rentFmt ? `${rentFmt} / 月` : "") || t("Inquiry");
 
   // Two-price (元金額 → 現金額): show the appraised/reference price struck through
   // above the sale price when it is higher (i.e. the property is priced below it).
@@ -470,12 +470,12 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
         {price}
         {yieldDisplay && (
           <span className="ml-2 text-sm font-semibold text-emerald-600">
-            {t("利回り")} {yieldDisplay}
+            {t("Yield")} {yieldDisplay}
           </span>
         )}
         {expectedRent && (
           <span className="ml-2 text-sm font-normal text-gray-500">
-            {t("想定賃料")}: {expectedRent}
+            {t("Estimated rent")}: {expectedRent}
           </span>
         )}
       </div>
@@ -524,7 +524,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   const detailLink = detailTarget && (
     <div className="pt-3 border-t border-gray-100 mt-auto">
       <span className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-        {t("詳細を見る")} →
+        {t("View details")} →
       </span>
     </div>
   );
@@ -640,7 +640,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
             <span className="text-xl font-bold text-white">{price}</span>
             {yieldDisplay && (
               <span className="text-sm font-semibold text-emerald-300">
-                {t("利回り")} {yieldDisplay}
+                {t("Yield")} {yieldDisplay}
               </span>
             )}
           </div>
@@ -682,7 +682,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
         {/* Expected rent */}
         {expectedRent && !floorPlan && !areaSize && (
           <div className="text-sm text-gray-500">
-            <span className="text-gray-400">{t("想定賃料")}:</span>{" "}
+            <span className="text-gray-400">{t("Estimated rent")}:</span>{" "}
             <span className="font-medium text-gray-700">{expectedRent}</span>
           </div>
         )}

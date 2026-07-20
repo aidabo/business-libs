@@ -53,7 +53,7 @@ export default function MapCard(props: MapCardProps) {
   } = props;
   const t = useT();
   const resolvedTitle = title || t("Location overview");
-  const resolvedSubtitle = subtitle || t("住所、交通、Google Map / Street View を確認できます。");
+  const resolvedSubtitle = subtitle || t("Review the address, access, Google Map, and Street View.");
 
   // Resolve the precise location (bound property's google_map_url, or explicit props).
   const { center, address, mapUrl } = useResolvedMapLocation(props);
@@ -115,7 +115,7 @@ export default function MapCard(props: MapCardProps) {
             rel="noreferrer"
             className="absolute bottom-3 right-3 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-blue-200 backdrop-blur-sm transition hover:bg-white hover:shadow"
           >
-            {t("Google Maps で開く")}
+            {t("Open in Google Maps")}
           </a>
         </div>
       )}

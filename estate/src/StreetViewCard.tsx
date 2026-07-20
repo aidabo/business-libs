@@ -57,7 +57,7 @@ export default function StreetViewCard(props: StreetViewCardProps) {
   } = props;
   const t = useT();
   const resolvedTitle = title || t("Location lane");
-  const resolvedSubtitle = subtitle || t("住所、交通、Google Map / Street View を確認できます。");
+  const resolvedSubtitle = subtitle || t("Review the address, access, Google Map, and Street View.");
 
   // Resolve the precise location (bound property's street_view_url, or explicit props).
   const { center: viewpoint, address, streetViewUrl: resolvedStreetViewUrl } = useResolvedMapLocation(props);

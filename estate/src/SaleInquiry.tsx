@@ -115,7 +115,7 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
         param.propertyType ? `${t("Property Type")}: ${param.propertyType}` : "",
         param.address ? `${t("Property Address")}: ${param.address}` : "",
         param.approxSqft ? `${t("Approx. Sqft (Optional)")}: ${param.approxSqft}` : "",
-        promoCode ? `${t("適用コード")}: ${promoCode}` : "",
+        promoCode ? `${t("Promo code")}: ${promoCode}` : "",
       ]
         .filter(Boolean)
         .join(" / "),
@@ -156,9 +156,9 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
     <form className="space-y-6" onSubmit={handleSubmit}>
       {promoCode && (
         <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-4 py-2 text-sm text-green-800">
-          <span className="font-semibold">{t("適用コード")}:</span>
+          <span className="font-semibold">{t("Promo code")}:</span>
           <span className="font-mono font-bold">{promoCode}</span>
-          <span className="text-green-600">{t("（お問い合わせに含めて送信します）")}</span>
+          <span className="text-green-600">{t("(Included with your inquiry)")}</span>
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -283,7 +283,7 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
           <button
             type="button"
             onClick={close}
-            aria-label={t("閉じる")}
+            aria-label={t("Close")}
             className="absolute top-4 right-4 text-white/80 hover:text-white"
           >
             <XMarkIcon className="h-7 w-7" />
@@ -305,7 +305,7 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
       {!open && (
         <div className={`w-full ${className}`} style={style}>
           <span className="inline-flex items-center gap-2 rounded-full border border-dashed border-gray-300 bg-white px-3 py-1 text-xs text-gray-500">
-            {t("査定ダイアログ")} <code className="text-[10px] text-gray-400">{openEvent}</code>
+            {t("Valuation dialog")} <code className="text-[10px] text-gray-400">{openEvent}</code>
           </span>
         </div>
       )}

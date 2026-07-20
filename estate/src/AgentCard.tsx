@@ -97,14 +97,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
   const validate = (): boolean => {
     const next: Partial<Record<keyof ContactFields, string>> = {};
-    if (!fields.email.trim()) next.email = t("メールアドレスを入力してください");
-    else if (!EMAIL_RE.test(fields.email.trim())) next.email = t("メールアドレスの形式が正しくありません");
-    if (!fields.name.trim()) next.name = t("名前を入力してください");
-    if (!fields.nameKana.trim()) next.nameKana = t("フリガナを入力してください");
-    if (!fields.phone.trim()) next.phone = t("電話番号を入力してください");
-    if (!fields.message.trim()) next.message = t("お問い合わせ内容を入力してください");
-    if (!fields.consent) next.consent = t("個人情報の取り扱いに同意してください");
-    if (!fields.confirmed) next.confirmed = t("入力内容をご確認ください");
+    if (!fields.email.trim()) next.email = t("Please enter your email address.");
+    else if (!EMAIL_RE.test(fields.email.trim())) next.email = t("The email address format is invalid.");
+    if (!fields.name.trim()) next.name = t("Please enter your name");
+    if (!fields.nameKana.trim()) next.nameKana = t("Please enter the phonetic name.");
+    if (!fields.phone.trim()) next.phone = t("Please enter your phone number");
+    if (!fields.message.trim()) next.message = t("Please enter your inquiry.");
+    if (!fields.consent) next.consent = t("Please agree to the Privacy Policy");
+    if (!fields.confirmed) next.confirmed = t("Please review your entries");
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -146,14 +146,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
       });
     } catch (err: any) {
       setStatus("error");
-      setServerError(err?.message || t("送信に失敗しました"));
+      setServerError(err?.message || t("Submission failed"));
     }
   };
 
   const inputCls =
     "w-full border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500";
   const labelCls = "block text-sm text-gray-700 mb-1";
-  const reqMark = <span className="text-red-500 text-xs ml-1">{t("(必須)")}</span>;
+  const reqMark = <span className="text-red-500 text-xs ml-1">{t("(Required)")}</span>;
 
   return (
     <div
@@ -201,14 +201,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
             >
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
                 <h4 className="text-lg font-bold text-gray-900">
-                  {t("お問い合わせ")}
+                  {t("Inquiry")}
                   {name ? ` — ${name}` : ""}
                 </h4>
                 <button
                   type="button"
                   onClick={closeModal}
                   className="text-gray-400 hover:text-gray-700"
-                  aria-label={t("閉じる")}
+                  aria-label={t("Close")}
                 >
                   <XMarkIcon className="h-6 w-6" />
                 </button>
@@ -218,28 +218,28 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 {status === "success" ? (
               <div className="p-8 text-center">
                 <p className="text-green-600 font-semibold mb-2">
-                  {t("お問い合わせを送信しました。")}
+                  {t("Inquiry sent.")}
                 </p>
                 <p className="text-gray-600 text-sm mb-6">
-                  {t("担当者より折り返しご連絡いたします。")}
+                  {t("A representative will contact you shortly.")}
                 </p>
                 <button
                   type="button"
                   onClick={closeModal}
                   className="bg-gray-900 hover:bg-gray-800 text-white font-semibold py-2 px-6 rounded-lg"
                 >
-                  {t("閉じる")}
+                  {t("Close")}
                 </button>
               </div>
             ) : (
               <form className="p-6 space-y-4" onSubmit={handleSubmit} noValidate>
                 <p className="text-sm text-gray-600">
-                  {t("ご質問などございましたら、以下お問い合わせフォームよりお気軽にご連絡ください。")}
+                  {t("If you have any questions, please contact us using the inquiry form below.")}
                 </p>
 
                 <div>
                   <label className={labelCls}>
-                    {t("メールアドレス")}
+                    {t("Email address")}
                     {reqMark}
                   </label>
                   <input
@@ -253,22 +253,22 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 </div>
 
                 <div>
-                  <label className={labelCls}>{t("会社名(法人の方のみ)")}</label>
+                  <label className={labelCls}>{t("Company name (corporations only)")}</label>
                   <input
                     type="text"
                     className={inputCls}
-                    placeholder={t("〇〇〇〇〇株式会社")}
+                    placeholder={t("Example Real Estate Co., Ltd.")}
                     value={fields.company}
                     onChange={(e) => setField("company", e.target.value)}
                   />
                 </div>
 
                 <div>
-                  <label className={labelCls}>{t("会社名(フリガナ)")}</label>
+                  <label className={labelCls}>{t("Company name (phonetic)")}</label>
                   <input
                     type="text"
                     className={inputCls}
-                    placeholder={t("〇〇〇〇〇")}
+                    placeholder={t("Example Real Estate")}
                     value={fields.companyKana}
                     onChange={(e) => setField("companyKana", e.target.value)}
                   />
@@ -277,13 +277,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className={labelCls}>
-                      {t("名前(法人の場合は担当者)")}
+                      {t("Name (representative for corporations)")}
                       {reqMark}
                     </label>
                     <input
                       type="text"
                       className={inputCls}
-                      placeholder={t("山田 太郎")}
+                      placeholder={t("Taro Yamada")}
                       value={fields.name}
                       onChange={(e) => setField("name", e.target.value)}
                     />
@@ -291,13 +291,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
                   </div>
                   <div>
                     <label className={labelCls}>
-                      {t("名前(フリガナ)")}
+                      {t("Name (phonetic)")}
                       {reqMark}
                     </label>
                     <input
                       type="text"
                       className={inputCls}
-                      placeholder={t("ヤマダ タロウ")}
+                      placeholder={t("Taro Yamada")}
                       value={fields.nameKana}
                       onChange={(e) => setField("nameKana", e.target.value)}
                     />
@@ -309,7 +309,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
                 <div>
                   <label className={labelCls}>
-                    {t("電話番号")}
+                    {t("Phone number")}
                     {reqMark}
                   </label>
                   <input
@@ -324,7 +324,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
                 <div>
                   <label className={labelCls}>
-                    {t("お問い合わせ内容")}
+                    {t("Inquiry details")}
                     {reqMark}
                   </label>
                   <textarea
@@ -340,7 +340,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
                 <div className="text-sm text-gray-600">
                   <p className="mb-1">
-                    {t("お問い合わせの際には")}
+                    {t("When making an inquiry")}
                     {privacyPolicyUrl ? (
                       <a
                         href={privacyPolicyUrl}
@@ -348,14 +348,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
                         rel="noopener noreferrer"
                         className="text-blue-600 underline mx-1"
                       >
-                        {t("「個人情報の取り扱いについて」")}
+                        {t("Privacy Policy")}
                       </a>
                     ) : (
                       <span className="text-blue-600 mx-1">
-                        {t("「個人情報の取り扱いについて」")}
+                        {t("Privacy Policy")}
                       </span>
                     )}
-                    {t("をお読みいただき、予め同意の上、お問い合わせください。")}
+                    {t("Please read and agree to the policy before submitting your inquiry.")}
                   </p>
                   <label className="flex items-center gap-2">
                     <input
@@ -364,7 +364,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
                       onChange={(e) => setField("consent", e.target.checked)}
                     />
                     <span>
-                      {t("個人情報の取り扱いについて同意する")}
+                      {t("I agree to the Privacy Policy")}
                       {reqMark}
                     </span>
                   </label>
@@ -375,7 +375,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
                 <div className="text-sm text-gray-600">
                   <p className="mb-1">
-                    {t("確認画面は表示されません。送信ボタンを押す前に、入力内容に間違えがないかご確認ください。")}
+                    {t("There is no confirmation screen. Review your entries before submitting.")}
                   </p>
                   <label className="flex items-center gap-2">
                     <input
@@ -384,7 +384,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
                       onChange={(e) => setField("confirmed", e.target.checked)}
                     />
                     <span>
-                      {t("確認した")}
+                      {t("Acknowledged")}
                       {reqMark}
                     </span>
                   </label>
@@ -402,7 +402,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
                   disabled={status === "loading"}
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-semibold py-3 rounded-md transition-colors"
                 >
-                  {status === "loading" ? t("送信中...") : t("送信")}
+                  {status === "loading" ? t("Submitting...") : t("Submit")}
                 </button>
               </form>
                 )}

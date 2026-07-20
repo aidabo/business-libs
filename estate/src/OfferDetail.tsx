@@ -88,7 +88,7 @@ const OfferDetail: React.FC<OfferDetailProps> = ({
               {applied ? (
                 <>
                   <CheckCircleIcon className="w-4 h-4" />
-                  {t("適用中")}
+                  {t("Applied")}
                 </>
               ) : (
                 t(applyLabel || "このコードで問い合わせ")

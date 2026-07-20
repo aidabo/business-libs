@@ -109,14 +109,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({
               value={searchValue}
               onChange={(e) => setSearchValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder={t("エリア・駅名・キーワードで検索")}
+              placeholder={t("Search by area, station, or keyword")}
               className="flex-grow px-4 py-3 text-gray-800 placeholder-gray-500 bg-transparent focus:outline-none text-lg"
             />
             <button
               onClick={handleSearch}
               className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full font-semibold transition-colors duration-200"
             >
-              {t("検索")}
+              {t("Search")}
             </button>
           </div>
         )}

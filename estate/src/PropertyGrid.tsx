@@ -260,16 +260,16 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
           {__stackpage && (
             <div className="flex flex-wrap justify-center gap-2 mt-3">
               <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-              {t("表示中")} {filteredProperties.length}
+              {t("Showing")} {filteredProperties.length}
               </span>
               {keyword && (
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                  {t("キーワード")}: {keyword}
+                  {t("Keyword")}: {keyword}
                 </span>
               )}
               {activeIntent !== "all" && (
                 <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-600">
-                  {t("条件")}: {t(activeIntent)}
+                  {t("Criteria")}: {t(activeIntent)}
                 </span>
               )}
             </div>
@@ -294,10 +294,10 @@ const PropertyGrid: React.FC<PropertyGridProps> = ({
               </svg>
             </div>
             <h3 className="text-lg font-medium text-gray-600 mb-2">
-              {t("物件が見つかりません")}
+              {t("No properties found")}
             </h3>
             <p className="text-sm text-gray-400 max-w-md mx-auto">
-              {t("条件を変えて再度お試しください。")}
+              {t("Try changing your criteria and search again.")}
             </p>
           </div>
         )}

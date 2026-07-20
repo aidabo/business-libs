@@ -199,7 +199,7 @@ export default function PropertySlider({
           <h3 className="text-xl font-semibold text-gray-900">{t(title)}</h3>
         </div>
         <div className="px-5 py-10 text-center">
-          <p className="text-sm text-gray-400">{t("現在表示できる物件はありません。")}</p>
+          <p className="text-sm text-gray-400">{t("No properties are currently available.")}</p>
         </div>
       </div>
     );
@@ -217,7 +217,7 @@ export default function PropertySlider({
             <p className="mt-1 text-sm text-gray-600">{t(description)}</p>
           </div>
           <span className="rounded-full bg-blue-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
-            {t("特選")}
+            {t("Featured properties")}
           </span>
         </div>
       </div>
@@ -263,7 +263,7 @@ export default function PropertySlider({
                     onClick={() => openDetail(item)}
                     className="rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 transition hover:bg-blue-100"
                   >
-                    {t("詳細")} →
+                    {t("Details")} →
                   </button>
                 </div>
               </div>

@@ -444,7 +444,7 @@ export default function PropertyFilterBar({
 
             <TextFilterField
               label={t("Station / line")}
-              placeholder={t("e.g. 本駒込駅, 南北線")}
+              placeholder={t("e.g. Honkomagome Station, Namboku Line")}
               stateKey={ESTATE_FILTER_STATE_KEYS.stationKeyword}
               __stackpage={__stackpage}
             />
@@ -485,7 +485,7 @@ export default function PropertyFilterBar({
             <CheckboxGroupField
               label={t("Facing direction")}
               options={directionOptions}
-              displaySuffix={t("向き")}
+              displaySuffix={t("Orientation")}
               stateKey={ESTATE_FILTER_STATE_KEYS.directions}
               __stackpage={__stackpage}
             />

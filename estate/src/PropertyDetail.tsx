@@ -234,7 +234,7 @@ function DetailError({
     >
       <div className="bg-gradient-to-r from-red-50 via-white to-red-50 px-5 py-4">
         <h3 className="text-xl font-semibold text-red-900">
-          {t("エラーが発生しました")}
+          {t("An error occurred")}
         </h3>
         <p className="mt-1 text-sm text-red-600">{message}</p>
       </div>
@@ -246,7 +246,7 @@ function DetailError({
               onClick={onRetry}
               className="mt-3 rounded-lg bg-red-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-red-700"
             >
-              {t("再試行")}
+              {t("Retry")}
             </button>
           )}
         </div>
@@ -498,7 +498,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
           <div className="mb-2 text-3xl">🏠</div>
           <p>{t(emptyText)}</p>
           <p className="mt-1 text-xs text-gray-400">
-            {t("一覧から物件を選択してください")}
+            {t("Select a property from the list")}
           </p>
         </div>
       </div>
@@ -608,7 +608,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
           )}
           {resolvedPriceJPY && (
             <div className="absolute bottom-4 right-4 rounded-xl bg-rose-600/90 px-4 py-2 text-right text-white shadow-lg backdrop-blur-sm">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-rose-100">{t("価格")}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-rose-100">{t("Price")}</div>
               <div className="text-xl font-bold leading-tight">{resolvedPriceJPY}</div>
             </div>
           )}
@@ -649,7 +649,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         <div className="space-y-4">
           <MapCard
             title="地図"
-            subtitle={resolvedAddressJP || t("周辺の地図を確認できます。")}
+            subtitle={resolvedAddressJP || t("You can review a map of the surrounding area.")}
             center={preciseCoord}
             address={resolvedAddressJP}
             mapUrl={mapLinks.googleMapUrl}
@@ -659,7 +659,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
           <StreetViewCard
             title="Street View"
-            subtitle={resolvedAddressJP || t("物件周辺の街並みを確認できます。")}
+            subtitle={resolvedAddressJP || t("Review the streetscape around the property.")}
             viewpoint={preciseCoord}
             address={resolvedAddressJP}
             streetViewUrl={mapLinks.streetViewUrl}
@@ -673,7 +673,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 {t("Access")}
               </div>
               <h3 className="mt-1 text-lg font-semibold text-slate-900">
-                {t("交通アクセス")}
+                {t("Access and transportation")}
               </h3>
               <p className="mt-2 whitespace-pre-line break-words text-sm leading-6 text-slate-700">
                 {resolvedTransport}

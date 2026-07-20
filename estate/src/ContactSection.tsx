@@ -37,16 +37,16 @@ const ContactSection: React.FC<ContactSectionProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Contact Info */}
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-6">{t("お問い合わせ")}</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-6">{t("Inquiry")}</h2>
             <p className="text-lg text-gray-600 mb-8">
-              {t("不動産の売買・賃貸に関するご質問やご相談がございましたら、お気軽にお問い合わせください。経験豊富なスタッフが丁寧に対応いたします。")}
+              {t("For questions or advice about buying, selling, or renting property, please contact us. Our experienced staff will assist you carefully.")}
             </p>
 
             <div className="space-y-6">
               <div className="flex items-start">
                 <MapPinIcon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1 mr-4" />
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{t("所在地")}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">{t("Location")}</h4>
                   <p className="text-gray-600">{companyName}</p>
                   <p className="text-gray-600">{address}</p>
                 </div>
@@ -55,16 +55,16 @@ const ContactSection: React.FC<ContactSectionProps> = ({
               <div className="flex items-start">
                 <PhoneIcon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1 mr-4" />
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{t("電話番号")}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">{t("Phone number")}</h4>
                   <p className="text-gray-600">{phone}</p>
-                  <p className="text-sm text-gray-500">{t("月〜金 9:00〜18:00")}</p>
+                  <p className="text-sm text-gray-500">{t("Monday–Friday: 9:00–18:00")}</p>
                 </div>
               </div>
 
               <div className="flex items-start">
                 <EnvelopeIcon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1 mr-4" />
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{t("メールアドレス")}</h4>
+                  <h4 className="text-lg font-semibold text-gray-900">{t("Email address")}</h4>
                   <p className="text-gray-600">{email}</p>
                 </div>
               </div>
@@ -72,10 +72,10 @@ const ContactSection: React.FC<ContactSectionProps> = ({
               <div className="flex items-start">
                 <ClockIcon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1 mr-4" />
                 <div>
-                  <h4 className="text-lg font-semibold text-gray-900">{t("営業時間")}</h4>
-                  <p className="text-gray-600">{t("月曜日〜金曜日: 9:00〜18:00")}</p>
-                  <p className="text-gray-600">{t("土曜日: 10:00〜16:00")}</p>
-                  <p className="text-gray-600">{t("日曜日・祝日: 定休日")}</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{t("Business hours")}</h4>
+                  <p className="text-gray-600">{t("Monday–Friday: 9:00–18:00")}</p>
+                  <p className="text-gray-600">{t("Saturday: 10:00–16:00")}</p>
+                  <p className="text-gray-600">{t("Closed Sundays and public holidays")}</p>
                 </div>
               </div>
             </div>
@@ -88,14 +88,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({
               target="_blank"
               rel="noopener noreferrer"
               className="group block bg-gray-100 rounded-2xl h-[400px] w-full relative overflow-hidden flex items-center justify-center hover:bg-blue-50 transition-colors"
-              aria-label={t("Googleマップで見る")}
+              aria-label={t("View in Google Maps")}
             >
               <div className="text-center">
                 <MapPinIcon className="h-12 w-12 text-blue-500 group-hover:text-blue-700 mx-auto mb-2 transition-colors" />
-                <span className="text-gray-700 font-semibold">{t("アクセスマップ")}</span>
+                <span className="text-gray-700 font-semibold">{t("Access map")}</span>
                 <p className="text-sm text-gray-500 mt-1">{address}</p>
                 <span className="mt-3 inline-block text-xs text-blue-500 underline group-hover:text-blue-700">
-                  {t("Googleマップで見る →")}
+                  {t("View in Google Maps →")}
                 </span>
               </div>
             </a>
@@ -103,7 +103,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({
             <div className="bg-gray-200 rounded-2xl h-[400px] w-full relative overflow-hidden flex items-center justify-center">
               <div className="text-center">
                 <MapPinIcon className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                <span className="text-gray-500 font-medium">{t("アクセスマップ")}</span>
+                <span className="text-gray-500 font-medium">{t("Access map")}</span>
               </div>
             </div>
           )}

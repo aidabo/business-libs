@@ -175,7 +175,7 @@ function GalleryLightbox({
       <button
         type="button"
         onClick={onClose}
-        aria-label={t("閉じる")}
+        aria-label={t("Close")}
         className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-gray-900 shadow-lg transition hover:bg-white"
       >
         <XMarkIcon className="h-6 w-6" />
