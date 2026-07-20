@@ -1,6 +1,7 @@
 import React from 'react';
 import VerticalTextContainer from './VerticalTextContainer';
 import { getDefaultWritingMode } from './themes';
+import { useT } from './contexts/PublishContext';
 import type { ContentType, WritingMode } from './types';
 
 export interface ContentDetailProps {
@@ -51,6 +52,7 @@ const ContentDetail: React.FC<ContentDetailProps> = ({
   location,
   ticketUrl,
 }) => {
+  const t = useT();
   const wm = writingMode ?? getDefaultWritingMode(_contentType);
 
   return (
@@ -76,12 +78,12 @@ const ContentDetail: React.FC<ContentDetailProps> = ({
       )}
       {/* Meta info block */}
       <div className="mb-6 flex flex-wrap gap-4 text-sm text-gray-600">
-        {publisher && <span>Publisher: {publisher}</span>}
-        {isbn && <span>ISBN: {isbn}</span>}
-        {pageCount && <span>Pages: {pageCount}</span>}
-        {startDate && <span>Start: {startDate}</span>}
-        {endDate && <span>End: {endDate}</span>}
-        {location && <span>Location: {location}</span>}
+        {publisher && <span>{t('Publisher')}: {publisher}</span>}
+        {isbn && <span>{t('ISBN')}: {isbn}</span>}
+        {pageCount && <span>{t('Pages')}: {pageCount}</span>}
+        {startDate && <span>{t('Start')}: {startDate}</span>}
+        {endDate && <span>{t('End')}: {endDate}</span>}
+        {location && <span>{t('Location')}: {location}</span>}
       </div>
       {content && (
         <VerticalTextContainer writingMode={wm} columnCount={2}>
@@ -96,7 +98,7 @@ const ContentDetail: React.FC<ContentDetailProps> = ({
             rel="noopener noreferrer"
             className="inline-block rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            Get Tickets
+            {t('Get tickets')}
           </a>
         </div>
       )}

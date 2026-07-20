@@ -22,12 +22,20 @@ export interface PublishProviderProps {
   t?: (key: string) => string;
 }
 
+const fallbackT = (key: string): string => key;
+
 export const PublishProvider: React.FC<PublishProviderProps> = ({ children, t }) => {
   const [selectedContentId, setSelectedContentId] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [contentTypeFilter, setContentTypeFilter] = useState<ContentType | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'detail'>('grid');
+  const translate = t ?? fallbackT;
+  const updateSelectedContentId = useCallback((id: string | null) => setSelectedContentId(id), []);
+  const updateActiveSection = useCallback((section: string | null) => setActiveSection(section), []);
+  const updateContentTypeFilter = useCallback((ct: ContentType | 'all') => setContentTypeFilter(ct), []);
+  const updateSearchQuery = useCallback((q: string) => setSearchQuery(q), []);
+  const updateViewMode = useCallback((mode: 'grid' | 'list' | 'detail') => setViewMode(mode), []);
 
   return (
     <PublishContext.Provider
@@ -37,12 +45,12 @@ export const PublishProvider: React.FC<PublishProviderProps> = ({ children, t })
         contentTypeFilter,
         searchQuery,
         viewMode,
-        setSelectedContentId: useCallback((id) => setSelectedContentId(id), []),
-        setActiveSection: useCallback((s) => setActiveSection(s), []),
-        setContentTypeFilter: useCallback((ct) => setContentTypeFilter(ct), []),
-        setSearchQuery: useCallback((q) => setSearchQuery(q), []),
-        setViewMode: useCallback((m) => setViewMode(m), []),
-        t,
+        setSelectedContentId: updateSelectedContentId,
+        setActiveSection: updateActiveSection,
+        setContentTypeFilter: updateContentTypeFilter,
+        setSearchQuery: updateSearchQuery,
+        setViewMode: updateViewMode,
+        t: translate,
       }}
     >
       {children}
@@ -54,4 +62,9 @@ export const usePublishContext = (): PublishContextValue => {
   const ctx = useContext(PublishContext);
   if (!ctx) throw new Error('usePublishContext must be used within PublishProvider');
   return ctx;
+};
+
+export const useT = (): ((key: string) => string) => {
+  const ctx = useContext(PublishContext);
+  return ctx?.t ?? fallbackT;
 };

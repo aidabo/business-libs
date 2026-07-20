@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useT } from "./hooks/useTranslation";
 import { PropertyInfoCardProps, PropertyInfoCardShell, useEstatePropertyModel, useInfoCardRows } from "./PropertyInfoCardBase";
 
 const ChevronIcon = ({ open }: { open: boolean }) => (
@@ -80,6 +81,7 @@ function formatDistance(distanceMeters: any, walkingMinutes: any): string {
 }
 
 function NearbyGroup({ label, value, address }: { label: string; value: unknown; address?: string }) {
+  const t = useT();
   const items = splitItems(value);
   if (items.length === 0) return null;
   return (
@@ -92,7 +94,7 @@ function NearbyGroup({ label, value, address }: { label: string; value: unknown;
             target="_blank"
             rel="noreferrer"
             className="max-w-full break-words rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-blue-100 transition hover:bg-blue-100"
-            title={`${item} をGoogle Mapsで検索`}
+            title={t(`${item} をGoogle Mapsで検索`)}
           >
             {item}
           </a>
@@ -103,6 +105,7 @@ function NearbyGroup({ label, value, address }: { label: string; value: unknown;
 }
 
 function PlaceResults({ data }: { data: any }) {
+  const t = useT();
   const groups = [
     { key: "school", title: "学校候補" },
     { key: "park", title: "公園" },
@@ -122,7 +125,7 @@ function PlaceResults({ data }: { data: any }) {
 
   return (
     <div className="min-w-0 space-y-3 rounded-xl border border-gray-200 bg-white p-3">
-      <div className="text-[11px] font-semibold text-gray-500">Google Places results</div>
+      <div className="text-[11px] font-semibold text-gray-500">{t("Google Places results")}</div>
       {groups.map((group) => {
         const items = group.key === "transport"
           ? [
@@ -168,11 +171,11 @@ function PlaceResults({ data }: { data: any }) {
                         {address ? <div className="break-words text-xs leading-5 text-gray-500">{address}</div> : null}
                         <div className="text-xs leading-5 text-gray-500">{[typeLabel, distanceLabel].filter(Boolean).join(" ・ ") || " "}</div>
                       </div>
-                      {mapsUrl ? (
-                        <a href={mapsUrl} target="_blank" rel="noreferrer" className="shrink-0 self-start text-xs font-semibold text-blue-600 hover:text-blue-800">
-                          開く
-                        </a>
-                      ) : null}
+                        {mapsUrl ? (
+                          <a href={mapsUrl} target="_blank" rel="noreferrer" className="shrink-0 self-start text-xs font-semibold text-blue-600 hover:text-blue-800">
+                          {t("開く")}
+                          </a>
+                        ) : null}
                     </div>
                   </div>
                 );
@@ -186,12 +189,13 @@ function PlaceResults({ data }: { data: any }) {
 }
 
 export default function PropertyNeighborhoodCard(props: PropertyInfoCardProps) {
+  const t = useT();
   const model = useEstatePropertyModel(props);
   const fallbackRows = useInfoCardRows(props, "neighborhood");
   const googlePlacesData = parseJson(model.raw?.google_places_data || model.raw?.googlePlacesData);
   const showStructured = Boolean(googlePlacesData || model.nearbyStores || model.nearbyHospitals || model.nearbySchools || model.nearbyParks);
   if (!showStructured) {
-    return <PropertyInfoCardShell eyebrow="Nearby" title={props.title || "周辺情報"} description={props.description || "生活施設、教育施設、公園、地図リンクを表示します。"} rows={fallbackRows} accent="blue" showHeader={props.headerVisible ?? props.showHeader ?? true} density={props.density} compact={props.compact} contentPadding={props.contentPadding} rowPaddingY={props.rowPaddingY} rowGap={props.rowGap} linkDisplay={props.linkDisplay} mobileTwoColumn={props.mobileTwoColumn} />;
+    return <PropertyInfoCardShell eyebrow={t("Nearby")} title={props.title || t("周辺情報")} description={props.description || t("生活施設、教育施設、公園、地図リンクを表示します。")} rows={fallbackRows} accent="blue" showHeader={props.headerVisible ?? props.showHeader ?? true} density={props.density} compact={props.compact} contentPadding={props.contentPadding} rowPaddingY={props.rowPaddingY} rowGap={props.rowGap} linkDisplay={props.linkDisplay} mobileTwoColumn={props.mobileTwoColumn} />;
   }
   const showHeader = props.headerVisible ?? props.showHeader ?? true;
   const compact = props.compact || props.density === "compact";
@@ -200,9 +204,9 @@ export default function PropertyNeighborhoodCard(props: PropertyInfoCardProps) {
     <section className="w-full min-w-0 max-w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       {showHeader && (
         <div className="border-b border-blue-200 bg-blue-50 px-5 py-4 text-blue-700">
-          <div className="text-xs font-semibold uppercase tracking-[0.2em]">Nearby</div>
-          <h4 className="mt-1 text-lg font-semibold text-slate-950">{props.title || "周辺情報"}</h4>
-          <p className="mt-1 text-sm text-slate-600">{props.description || "学校、病院、スーパーなどをGoogle Mapsで確認できます。"}</p>
+          <div className="text-xs font-semibold uppercase tracking-[0.2em]">{t("Nearby")}</div>
+          <h4 className="mt-1 text-lg font-semibold text-slate-950">{props.title || t("周辺情報")}</h4>
+          <p className="mt-1 text-sm text-slate-600">{props.description || t("学校、病院、スーパーなどをGoogle Mapsで確認できます。")}</p>
         </div>
       )}
       <div className="min-w-0 space-y-3" style={{ padding }}>
@@ -218,7 +222,7 @@ export default function PropertyNeighborhoodCard(props: PropertyInfoCardProps) {
         ) : null}
         {model.googleMapUrl ? (
           <a href={model.googleMapUrl} target="_blank" rel="noreferrer" className="inline-flex rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
-            Google Mapを開く
+            {t("Google Mapを開く")}
           </a>
         ) : null}
       </div>

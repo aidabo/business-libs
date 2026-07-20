@@ -34,8 +34,8 @@ export interface AccessCardProps {
 }
 
 export default function AccessCard({
-  title = "Access and location",
-  description = "Street view, map, and quick property context in one calm panel.",
+  title,
+  description,
   items,
   spots,
   selectedPropertyIdKey = "estate.selectedPropertyId",
@@ -46,6 +46,8 @@ export default function AccessCard({
   __stackpage,
 }: AccessCardProps) {
   const t = useT();
+  const resolvedTitle = title || t("Access and location");
+  const resolvedDescription = description || t("Street view, map, and quick property context in one calm panel.");
   const selectedId = String(__stackpage?.getPageState?.(selectedPropertyIdKey, "") || "");
   const selectedItem = (items || []).find((item) => item.id === selectedId) || (items || [])[0] || null;
   const selectedSpot = selectedItem && spots
@@ -67,8 +69,8 @@ export default function AccessCard({
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
               {t("Access panel")}
             </div>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
-            <p className="mt-1 text-sm text-slate-600">{t(description)}</p>
+            <h3 className="mt-1 text-xl font-semibold text-slate-900">{resolvedTitle}</h3>
+            <p className="mt-1 text-sm text-slate-600">{resolvedDescription}</p>
           </div>
           <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
             {selectedItem.locationLabel || t("Location")}

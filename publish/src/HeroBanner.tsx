@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { StackPageRuntimeApi } from './types';
+import { useT } from './contexts/PublishContext';
 
 export interface HeroBannerProps {
   title: string;
@@ -25,13 +26,15 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
   badgeColor = 'bg-red-600',
   ctaText,
   showSearch = false,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder,
   keywordKey,
   __stackpage,
   onSearch,
   onCtaClick,
 }) => {
   const [keyword, setKeyword] = useState('');
+  const t = useT();
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t('Search headlines...');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,14 +75,14 @@ const HeroBanner: React.FC<HeroBannerProps> = ({
                 type="text"
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder={searchPlaceholder}
+                placeholder={resolvedSearchPlaceholder}
                 className="flex-1 rounded-lg border-0 px-4 py-3 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
                 type="submit"
                 className="rounded-lg bg-blue-600 px-6 py-3 font-semibold text-white transition-colors hover:bg-blue-700"
               >
-                Search
+                {t('Search')}
               </button>
             </form>
           )}

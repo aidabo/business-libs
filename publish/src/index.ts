@@ -53,7 +53,7 @@ import EditorialCard from "./EditorialCard";
 import SectionHeader from "./SectionHeader";
 import PullQuote from "./PullQuote";
 import DeepZoomViewer from "./DeepZoomViewer";
-import { PublishProvider } from "./contexts/PublishContext";
+import { PublishProvider, useT } from "./contexts/PublishContext";
 
 // Map for ComponentsProvider (page builder registration)
 export const PublishComponents = {
@@ -105,6 +105,7 @@ export const PublishComponents = {
   PullQuote,
   DeepZoomViewer,
   PublishProvider,
+  useT,
 };
 
 // Map for componentPropsProvider (default props for each component)

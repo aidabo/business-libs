@@ -42,8 +42,8 @@ function buildAddressEmbedUrl(address: string): string {
 
 export default function MapCard(props: MapCardProps) {
   const {
-    title = "Location Map",
-    subtitle = "Check the neighborhood map before booking a showing.",
+    title,
+    subtitle,
     zoom = 16,
     locationLabel = "Shibuya, Tokyo",
     backgroundColor,
@@ -52,6 +52,8 @@ export default function MapCard(props: MapCardProps) {
     style,
   } = props;
   const t = useT();
+  const resolvedTitle = title || t("Location overview");
+  const resolvedSubtitle = subtitle || t("住所、交通、Google Map / Street View を確認できます。");
 
   // Resolve the precise location (bound property's google_map_url, or explicit props).
   const { center, address, mapUrl } = useResolvedMapLocation(props);
@@ -87,8 +89,8 @@ export default function MapCard(props: MapCardProps) {
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
               {t("Location overview")}
             </div>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
-            <p className="mt-1 text-sm text-slate-600">{t(subtitle)}</p>
+            <h3 className="mt-1 text-xl font-semibold text-slate-900">{resolvedTitle}</h3>
+            <p className="mt-1 text-sm text-slate-600">{resolvedSubtitle}</p>
           </div>
           <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
             {t("map")}
@@ -113,7 +115,7 @@ export default function MapCard(props: MapCardProps) {
             rel="noreferrer"
             className="absolute bottom-3 right-3 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-blue-700 shadow-sm ring-1 ring-blue-200 backdrop-blur-sm transition hover:bg-white hover:shadow"
           >
-            Google Maps で開く
+            {t("Google Maps で開く")}
           </a>
         </div>
       )}

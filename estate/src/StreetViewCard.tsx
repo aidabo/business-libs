@@ -44,8 +44,8 @@ function buildAddressEmbedUrl(address: string): string {
 
 export default function StreetViewCard(props: StreetViewCardProps) {
   const {
-    title = "Neighborhood Street View",
-    subtitle = "Preview the surroundings for the selected property before a viewing.",
+    title,
+    subtitle,
     heading = 175,
     pitch = 8,
     fov = 75,
@@ -56,6 +56,8 @@ export default function StreetViewCard(props: StreetViewCardProps) {
     style,
   } = props;
   const t = useT();
+  const resolvedTitle = title || t("Location lane");
+  const resolvedSubtitle = subtitle || t("住所、交通、Google Map / Street View を確認できます。");
 
   // Resolve the precise location (bound property's street_view_url, or explicit props).
   const { center: viewpoint, address, streetViewUrl: resolvedStreetViewUrl } = useResolvedMapLocation(props);
@@ -89,8 +91,8 @@ export default function StreetViewCard(props: StreetViewCardProps) {
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
               {t("Location lane")}
             </div>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
-            <p className="mt-1 text-sm text-slate-600">{t(subtitle)}</p>
+            <h3 className="mt-1 text-xl font-semibold text-slate-900">{resolvedTitle}</h3>
+            <p className="mt-1 text-sm text-slate-600">{resolvedSubtitle}</p>
           </div>
           <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
             {t("street view")}

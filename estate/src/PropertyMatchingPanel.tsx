@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useT } from "./hooks/useTranslation";
 
 interface MatchResult {
   id: string;
@@ -31,6 +32,7 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
   userId,
   apiBase = "",
 }) => {
+  const t = useT();
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [preferences, setPreferences] = useState<PreferenceData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
 
   const loadMatches = async () => {
     if (!userId) {
-      setError("User ID is required. Sign in to view property matches.");
+      setError(t("User ID is required. Sign in to view property matches."));
       return;
     }
 
@@ -69,10 +71,10 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
       setPreferences(data.preferences || null);
 
       if (!data.has_preferences) {
-        setError("No preferences yet. Search for properties to build a profile.");
+        setError(t("No preferences yet. Search for properties to build a profile."));
       }
     } catch (e: any) {
-      setError(e.message || "Failed to load matches");
+      setError(e.message || t("Failed to load matches"));
     } finally {
       setLoading(false);
     }
@@ -92,13 +94,13 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-gray-900">Property Matches</h2>
+        <h2 className="text-lg font-bold text-gray-900">{t("Property Matches")}</h2>
         <button
           onClick={loadMatches}
           disabled={loading}
           className="rounded bg-blue-500 px-3 py-1 text-sm text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
         >
-          {loading ? "Loading..." : "Refresh"}
+          {loading ? t("Loading...") : t("Refresh")}
         </button>
       </div>
 
@@ -106,7 +108,7 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
       <div className="mb-4 flex flex-wrap items-center gap-4 rounded bg-gray-50 p-3">
         <div>
           <label className="text-xs font-medium text-gray-500">
-            Min Score: {Math.round(minScore * 100)}%
+            {t("Min Score")}: {Math.round(minScore * 100)}%
           </label>
           <input
             type="range"
@@ -124,7 +126,7 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
             onChange={(e) => setNotifyEnabled(e.target.checked)}
             className="rounded"
           />
-          Send notification
+          {t("Send notification")}
         </label>
       </div>
 
@@ -134,11 +136,11 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
           <p className="mb-1 font-medium">Your preferences</p>
           <p className="text-blue-600">
             {[
-              preferences.location && `Near: ${preferences.location}`,
-              preferences.price_min && `From: ${formatPrice(preferences.price_min)}`,
-              preferences.price_max && `To: ${formatPrice(preferences.price_max)}`,
-              preferences.property_type && `Type: ${preferences.property_type}`,
-              preferences.search_count > 0 && `${preferences.search_count} searches`,
+              preferences.location && `${t("Near")}: ${preferences.location}`,
+              preferences.price_min && `${t("From")}: ${formatPrice(preferences.price_min)}`,
+              preferences.price_max && `${t("To")}: ${formatPrice(preferences.price_max)}`,
+              preferences.property_type && `${t("Type")}: ${preferences.property_type}`,
+              preferences.search_count > 0 && `${preferences.search_count} ${t("searches")}`,
             ]
               .filter(Boolean)
               .join(" | ")}
@@ -156,7 +158,7 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
       {/* Match results */}
       {matches.length > 0 && (
         <div className="space-y-3">
-          <p className="text-sm text-gray-500">{matches.length} matching properties found</p>
+          <p className="text-sm text-gray-500">{matches.length} {t("matching properties found")}</p>
           {matches.map((match) => (
             <div
               key={match.id}
@@ -204,9 +206,9 @@ const PropertyMatchingPanel: React.FC<PropertyMatchingPanelProps> = ({
       {/* Empty state */}
       {!loading && !error && matches.length === 0 && preferences && (
         <div className="py-8 text-center text-sm text-gray-400">
-          No properties match your current preferences at the minimum score level.
+          {t("No properties match your current preferences at the minimum score level.")}
           <br />
-          Try lowering the score threshold or searching for more properties.
+          {t("Try lowering the score threshold or searching for more properties.")}
         </div>
       )}
     </div>

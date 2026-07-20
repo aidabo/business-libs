@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useT } from './contexts/PublishContext';
 
 export interface InterestCategory {
   id: string;
@@ -18,17 +19,23 @@ export interface SubscriptionFormProps {
 
 const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   title = 'Subscribe',
-  description = 'Get the latest updates delivered to your inbox.',
-  placeholder = 'Enter your email',
-  buttonLabel = 'Subscribe',
+  description,
+  placeholder,
+  buttonLabel,
   interestCategories,
-  successMessage = 'Thank you for subscribing!',
+  successMessage,
   variant = 'inline',
   onSubmit,
 }) => {
   const [email, setEmail] = useState('');
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [submitted, setSubmitted] = useState(false);
+  const t = useT();
+  const resolvedTitle = title ?? t('Subscribe');
+  const resolvedDescription = description ?? t('Get the latest updates delivered to your inbox.');
+  const resolvedPlaceholder = placeholder ?? t('Enter your email');
+  const resolvedButtonLabel = buttonLabel ?? t('Subscribe');
+  const resolvedSuccessMessage = successMessage ?? t('Thank you for subscribing!');
 
   const toggleInterest = (id: string) => {
     setSelectedInterests((prev) =>
@@ -46,7 +53,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   if (submitted) {
     return (
       <section className={`rounded-lg bg-blue-50 p-8 text-center ${variant === 'banner' ? 'py-12' : ''}`}>
-        <p className="text-lg font-semibold text-blue-800">{successMessage}</p>
+        <p className="text-lg font-semibold text-blue-800">{resolvedSuccessMessage}</p>
       </section>
     );
   }
@@ -58,11 +65,11 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
   return (
     <section className={containerClass}>
       <h3 className={`mb-2 text-xl font-bold ${variant === 'banner' ? 'text-white' : 'text-gray-900'}`}>
-        {title}
+        {resolvedTitle}
       </h3>
-      {description && (
+      {resolvedDescription && (
         <p className={`mb-4 ${variant === 'banner' ? 'text-gray-300' : 'text-gray-600'}`}>
-          {description}
+          {resolvedDescription}
         </p>
       )}
       <form onSubmit={handleSubmit}>
@@ -71,7 +78,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder={placeholder}
+            placeholder={resolvedPlaceholder}
             required
             className="flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
           />
@@ -79,7 +86,7 @@ const SubscriptionForm: React.FC<SubscriptionFormProps> = ({
             type="submit"
             className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
           >
-            {buttonLabel}
+            {resolvedButtonLabel}
           </button>
         </div>
         {interestCategories && interestCategories.length > 0 && (
