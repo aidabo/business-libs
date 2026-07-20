@@ -77,6 +77,12 @@ export const EstateComponents = {
   InvestmentSimulator,
 };
 
+/**
+ * Components kept in the runtime registry for backwards-compatible saved
+ * pages, but omitted from the new-component picker.
+ */
+export const EstateDeprecatedComponents = new Set(["InquiryDispatcher"] as const);
+
 const estateSampleProperty = {
   id: "estate-sample-001",
   building_name: "ファミニューナ大森南",
