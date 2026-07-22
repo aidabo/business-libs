@@ -363,6 +363,41 @@ const galleryImageItemSchema = {
   },
 };
 
+const newsFeedItemSchema = {
+  type: "object",
+  properties: {
+    id: textProp("ID"),
+    date: textProp("Date"),
+    title: textProp("Title"),
+    excerpt: textareaProp("Excerpt"),
+    category: textProp("Category"),
+    url: textProp("URL"),
+  },
+};
+
+const newsFeedSchema = {
+  type: "object",
+  title: "NewsFeed",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    items: {
+      title: "News items",
+      type: "array",
+      description: "Notification items shown in the feed. Bind this array to a datasource to load dynamic news.",
+      items: newsFeedItemSchema,
+      "x-array-binding": true,
+    },
+    maxItems: numberProp("Maximum items", { minimum: 1, maximum: 50 }),
+    showAllLink: textProp("Show all link"),
+    showAllLabel: textProp("Show all label"),
+    emptyText: textProp("Empty state text"),
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
 const propertyDetailSchema = {
   type: "object",
   title: "PropertyDetail",
@@ -1048,8 +1083,32 @@ export const EstateDefaultProps = {
   },
   NewsFeed: {
     _componentDesc: 'component.newsFeed.desc',
+    __schema: newsFeedSchema,
     title: "お知らせ",
     description: "最新の情報をお届けします。",
+    items: [
+      {
+        id: "news-1",
+        date: "2024-09-26",
+        title: "サイトをリニューアルしました",
+        excerpt: "より使いやすく、情報が探しやすいサイトに生まれ変わりました。",
+        category: "お知らせ",
+      },
+      {
+        id: "news-2",
+        date: "2024-08-15",
+        title: "夏季休業のお知らせ",
+        excerpt: "誠に勝手ながら、8月13日から8月16日まで夏季休業とさせていただきます。",
+        category: "お知らせ",
+      },
+      {
+        id: "news-3",
+        date: "2024-07-01",
+        title: "新着物件のお知らせ",
+        excerpt: "世田谷区・三鷹市・大田区に新着物件が追加されました。",
+        category: "物件情報",
+      },
+    ],
     maxItems: 5,
   },
   CompanyProfile: {
