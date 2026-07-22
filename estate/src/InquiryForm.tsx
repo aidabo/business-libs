@@ -95,8 +95,8 @@ const InquiryForm: React.FC<InquiryFormProps> = ({
     return list;
   })();
 
-  const displayTitle = title || t("Interested in this property?");
-  const displaySubmitLabel = submitLabel || t("Send Message");
+  const displayTitle = t(title || "Interested in this property?");
+  const displaySubmitLabel = t(submitLabel || "Send Message");
   const [param, setParam] = useState({
     name: "",
     email: "",
