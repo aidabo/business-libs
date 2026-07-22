@@ -469,7 +469,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   const priceDisplay = (
     <div>
       {effectiveOriginalPrice && (
-        <div className="text-sm font-bold text-gray-500 line-through mb-0.5">{effectiveOriginalPrice}</div>
+        <div className="text-sm font-bold text-orange-600 line-through mb-0.5">{effectiveOriginalPrice}</div>
       )}
       <div className={`text-xl font-bold tracking-tight ${hasDiscount ? "text-red-600" : "text-gray-900"}`}>
         {price}
@@ -639,7 +639,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
         {/* Price overlay on image */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent p-3 pt-8">
           {effectiveOriginalPrice && (
-            <div className="text-xs font-bold text-gray-200 line-through mb-0.5">{effectiveOriginalPrice}</div>
+            <div className="text-xs font-bold text-orange-300 line-through mb-0.5">{effectiveOriginalPrice}</div>
           )}
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className={`text-xl font-bold ${hasDiscount ? "text-red-300" : "text-white"}`}>{price}</span>
