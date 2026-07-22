@@ -193,12 +193,23 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
       : m.price || m.salePrice || ""
     : m.salePrice || m.price || "";
 
-  // Valuation struck-through above sale price (元金額 → 現金額) when it is higher.
-  const saleNum = toNum(m.salePrice || m.price);
+  // Show the original/reference amount only when it is higher than the current
+  // amount. This supports explicit originalPrice as well as the existing
+  // appraisal field used by estate search results.
+  const currentPriceNum = toNum(isRent ? m.monthlyRent || m.price || m.salePrice : m.salePrice || m.price);
+  const explicitOriginalPrice = source.originalPrice ?? source.original_price ?? source.price_original;
   const valuationNum = toNum(source.price_valuation ?? source.priceValuation);
+  const originalPriceNum = toNum(explicitOriginalPrice || (!isRent ? valuationNum : 0));
+  const formatTablePrice = (value: unknown) => {
+    const text = String(value ?? "").trim();
+    if (!text) return "";
+    if (/[¥￥円万]/.test(text)) return text;
+    const number = toNum(text);
+    return number > 0 ? `¥${number.toLocaleString("ja-JP")}` : text;
+  };
   const strikePrice =
-    !isRent && valuationNum > 0 && saleNum > 0 && valuationNum > saleNum
-      ? `¥${valuationNum.toLocaleString("ja-JP")}`
+    originalPriceNum > currentPriceNum && currentPriceNum > 0
+      ? formatTablePrice(explicitOriginalPrice || valuationNum)
       : "";
 
   const title = m.buildingName || m.title || m.address || t("Property");
@@ -267,7 +278,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
             <div className="text-xs text-gray-400 line-through leading-none mb-0.5">{strikePrice}</div>
           )}
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-xl font-bold text-gray-900 tracking-tight">
+            <span className={`text-xl font-bold tracking-tight ${strikePrice ? "text-red-600" : "text-gray-900"}`}>
               {priceMain || t("Inquiry")}
             </span>
             {m.yieldValue && (

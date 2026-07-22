@@ -108,7 +108,7 @@ export interface PropertyCardProps {
   price_jpy?: string | number;
   price_sale?: string | number;
   price_rent_monthly?: string | number;
-  originalPrice?: string;
+  originalPrice?: string | number;
   /** Reference/appraised price. When higher than the sale price, shown struck
    *  through above the current price (元金額 → 現金額). */
   price_valuation?: string | number;
@@ -383,6 +383,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
     (!isRent && valuationNum > 0 && saleNum > 0 && valuationNum > saleNum
       ? formatJpy(valuationNum)
       : "");
+  const hasDiscount = Boolean(effectiveOriginalPrice);
 
   // Yield (利回り, %): shown when present (mainly sale / investment). Accepts a raw
   // number (4.68 → "4.68%") or an already-formatted string.
@@ -470,7 +471,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
       {effectiveOriginalPrice && (
         <div className="text-sm text-gray-400 line-through mb-0.5">{effectiveOriginalPrice}</div>
       )}
-      <div className="text-xl font-bold text-gray-900 tracking-tight">
+      <div className={`text-xl font-bold tracking-tight ${hasDiscount ? "text-red-600" : "text-gray-900"}`}>
         {price}
         {yieldDisplay && (
           <span className="ml-2 text-sm font-semibold text-emerald-600">
@@ -641,7 +642,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
             <div className="text-xs text-gray-300 line-through mb-0.5">{effectiveOriginalPrice}</div>
           )}
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-xl font-bold text-white">{price}</span>
+            <span className={`text-xl font-bold ${hasDiscount ? "text-red-300" : "text-white"}`}>{price}</span>
             {yieldDisplay && (
               <span className="text-sm font-semibold text-emerald-300">
                 {t("Yield")} {yieldDisplay}
