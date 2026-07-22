@@ -340,6 +340,9 @@ const propertyTableSchema = {
     keywordKey: textProp("Keyword State Key"),
     intentKey: textProp("Intent State Key"),
     detailPageId: textProp("Detail Page ID or URL"),
+    saleDetailPageId: textProp("Sale Detail Page ID or URL"),
+    rentDetailPageId: textProp("Rent Detail Page ID or URL"),
+    investmentDetailPageId: textProp("Investment Detail Page ID or URL"),
     requirePost: booleanProp("Require linked Post (else PropertyDetail-only)"),
     openDetailInNewWindow: booleanProp("Open detail in a new window/tab"),
     searchableFields: stringArrayProp("Searchable Fields"),
@@ -1380,6 +1383,9 @@ export const EstateDefaultProps = {
     // the Properties tab; empty → a row click updates selection + emits an event
     // but does not navigate.
     detailPageId: "",
+    saleDetailPageId: "",
+    rentDetailPageId: "",
+    investmentDetailPageId: "",
     requirePost: false,
     openDetailInNewWindow: true,
     selectable: true,

@@ -43,6 +43,10 @@ export interface PropertyTableProps {
    * UI. When empty, rows do not navigate (selection state + event still fire).
    */
   detailPageId?: string;
+  /** Optional per-property-type detail destinations. Empty values fall back to detailPageId. */
+  saleDetailPageId?: string;
+  rentDetailPageId?: string;
+  investmentDetailPageId?: string;
   /**
    * Whether the detail page needs the property's linked Post (lets Post-backed and
    * PropertyDetail-only detail pages coexist):
@@ -102,6 +106,14 @@ const TAG_BY_TYPE: Record<string, { label: string; color: string }> = {
   rent: { label: "賃貸", color: "bg-emerald-600" },
   investment: { label: "投資", color: "bg-violet-600" },
 };
+
+function normalizePropertyType(value: unknown): "sale" | "rent" | "investment" | "" {
+  const type = String(value ?? "").trim().toLowerCase();
+  if (type.includes("rent") || type.includes("賃貸")) return "rent";
+  if (type.includes("invest") || type.includes("投資")) return "investment";
+  if (type.includes("sale") || type.includes("売買") || type.includes("売却")) return "sale";
+  return "";
+}
 
 // ── Icons ──────────────────────────────────────────────────────────
 
@@ -336,6 +348,9 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   selectedPropertyIdKey = ESTATE_STATE_KEYS.selectedPropertyId,
   searchableFields = DEFAULT_SEARCHABLE_FIELDS,
   detailPageId,
+  saleDetailPageId,
+  rentDetailPageId,
+  investmentDetailPageId,
   requirePost = false,
   openDetailInNewWindow = true,
   selectable = true,
@@ -353,7 +368,21 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   const keyword = String(getPageState(__stackpage, keywordKey, "")).trim();
   const activeIntent = String(getPageState(__stackpage, intentKey, "all")).toLowerCase();
   const selectedId = String(getPageState(__stackpage, selectedPropertyIdKey, ""));
-  const detailTarget = String(detailPageId || "").trim();
+  const defaultDetailTarget = String(detailPageId || "").trim();
+
+  const detailTargetForProperty = (property: Record<string, any>) => {
+    const model = resolveEstateProperty(property);
+    const type = normalizePropertyType(model.propertyType || property.property_type || property.propertyType);
+    const typeSpecificTarget =
+      type === "sale"
+        ? saleDetailPageId
+        : type === "rent"
+          ? rentDetailPageId
+          : type === "investment"
+            ? investmentDetailPageId
+            : "";
+    return String(typeSpecificTarget || defaultDetailTarget).trim();
+  };
 
   const detailFilters = {
     stationKeyword: String(getPageState(__stackpage, ESTATE_FILTER_STATE_KEYS.stationKeyword, "") || ""),
@@ -419,6 +448,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
       setPageState(__stackpage, selectedPropertyIdKey, item.id);
       __stackpage.emit(ESTATE_EVENTS.propertySelected, buildPropertySelectionEvent(item, "search"));
     }
+    const detailTarget = detailTargetForProperty(prop);
     if (detailTarget) {
       const postId = resolvePropertyPostId(prop);
       if (requirePost && !postId) {
@@ -493,7 +523,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
               selected={!!resolvedItemId && resolvedItemId === selectedId}
               selectable={selectable}
               selectedForInquiry={selectedInquiryIds.has(resolvedItemId)}
-              navigable={!!detailTarget}
+              navigable={!!detailTargetForProperty(prop)}
               onClick={() => handleRowClick(prop)}
               onToggleSelect={() => handleToggleSelect(prop)}
             />
