@@ -13,6 +13,8 @@ export interface HeroSectionProps {
   /** Dark overlay strength over the background, 0 (none) → 1 (black). Accepts a
    *  0–100 percentage too. Keeps the title readable over bright media. */
   overlayOpacity?: number;
+  /** Opacity of the configured background color, image, or video only. */
+  backgroundOpacity?: number;
   showSearch?: boolean;
   keywordKey?: string;
   backgroundColor?: string;
@@ -28,6 +30,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   backgroundImage = "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
   backgroundVideo,
   overlayOpacity = 0.4,
+  backgroundOpacity = 1,
   showSearch = true,
   keywordKey = ESTATE_STATE_KEYS.keyword,
   backgroundColor,
@@ -43,6 +46,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({
   const overlayAlpha = (() => {
     const raw = Number(overlayOpacity);
     if (!Number.isFinite(raw)) return 0.4;
+    const v = raw > 1 ? raw / 100 : raw;
+    return Math.min(1, Math.max(0, v));
+  })();
+
+  const backgroundAlpha = (() => {
+    const raw = Number(backgroundOpacity);
+    if (!Number.isFinite(raw)) return 1;
     const v = raw > 1 ? raw / 100 : raw;
     return Math.min(1, Math.max(0, v));
   })();
@@ -68,11 +78,18 @@ const HeroSection: React.FC<HeroSectionProps> = ({
     >
       {/* Background media (video preferred, else image) with a dark overlay */}
       <div className="absolute inset-0 overflow-hidden">
+        {backgroundColor && (
+          <div
+            className="absolute inset-0"
+            style={{ backgroundColor, opacity: backgroundAlpha }}
+          />
+        )}
         {backgroundVideo ? (
           <video
             className="absolute inset-0 w-full h-full object-cover"
             src={backgroundVideo}
             poster={backgroundImage}
+            style={{ opacity: backgroundAlpha }}
             autoPlay
             muted
             loop
@@ -81,7 +98,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({
         ) : (
           <div
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${backgroundImage})` }}
+            style={{ backgroundImage: `url(${backgroundImage})`, opacity: backgroundAlpha }}
           />
         )}
         <div

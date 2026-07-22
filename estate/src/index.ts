@@ -502,6 +502,9 @@ export const EstateDefaultProps = {
       "https://images.unsplash.com/photo-1600596542815-6ad4c1277855?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
     // Optional background video; when set it plays over the image (image = poster).
     backgroundVideo: "",
+    backgroundColor: "",
+    // Opacity of the selected background color, image, or video (0 = transparent, 1 = opaque).
+    backgroundOpacity: 1,
     // Dark overlay strength over the background (0 = none, 1 = black).
     overlayOpacity: 0.4,
     showSearch: true,
@@ -513,6 +516,12 @@ export const EstateDefaultProps = {
         subtitle: textareaProp("Subtitle"),
         backgroundImage: mediaUriProp("Background Image", "image"),
         backgroundVideo: mediaUriProp("Background Video", "video"),
+        backgroundColor: textProp("Background Color", { format: "color" }),
+        backgroundOpacity: numberProp("Background Opacity (0-1)", {
+          minimum: 0,
+          maximum: 1,
+          default: 1,
+        }),
         overlayOpacity: numberProp("Overlay Opacity (0-1)", {
           minimum: 0,
           maximum: 1,
