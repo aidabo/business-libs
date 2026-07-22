@@ -275,7 +275,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
         {/* Price */}
         <div>
           {strikePrice && (
-            <div className="text-xs text-gray-400 line-through leading-none mb-0.5">{strikePrice}</div>
+            <div className="text-xs font-bold text-gray-500 line-through leading-none mb-0.5">{strikePrice}</div>
           )}
           <div className="flex items-baseline gap-2 flex-wrap">
             <span className={`text-xl font-bold tracking-tight ${strikePrice ? "text-red-600" : "text-gray-900"}`}>
