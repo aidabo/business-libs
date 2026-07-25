@@ -251,8 +251,8 @@ const INTENT_META: Record<string, { labelKey: string; badgeKey: string }> = {
 };
 
 export default function PropertyFilterBar({
-  title = "Browse properties",
-  description = "Filter the showcase by sale or rent, and narrow the results with a keyword.",
+  title = "物件を探す",
+  description = "キーワード、駅、間取り、面積、築年数、ペット可などの条件と取引種別で物件を絞り込めます。",
   intentKey = ESTATE_FILTER_STATE_KEYS.intent,
   keywordKey = ESTATE_FILTER_STATE_KEYS.keyword,
   activeIntent = "all",
@@ -369,8 +369,8 @@ export default function PropertyFilterBar({
             <div className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
               {t("Filter bar")}
             </div>
-            <h3 className="mt-1 text-xl font-semibold text-slate-900">{t(title)}</h3>
-            <p className="mt-1 text-sm text-slate-600">{t(description)}</p>
+            <h3 className="mt-1 text-xl font-semibold text-slate-900">{title}</h3>
+            <p className="mt-1 text-sm text-slate-600">{description}</p>
           </div>
           <span className="rounded-full border border-blue-200 bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-blue-700">
             {t(intentMeta.badgeKey)}

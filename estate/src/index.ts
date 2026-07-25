@@ -876,11 +876,12 @@ export const EstateDefaultProps = {
   },
   SaleInquiry: {
     _componentDesc: 'component.saleInquiry.desc',
-    title: "Request a Free Property Valuation",
+    title: "無料物件査定を依頼する",
     description:
-      "Fill out the form below and we will get back to you with a comprehensive market analysis.",
+      "以下のフォームにご記入ください。包括的な市場分析結果とともに折り返しご連絡いたします。",
     submitLabel: "Get My Valuation",
     endpoint: "/api/estate/inquiries",
+    agentUserId: "",
     // Set asDialog=true and place next to a SaleHero to open on its CTA. Default
     // false = inline card.
     asDialog: false,
@@ -892,6 +893,17 @@ export const EstateDefaultProps = {
         title: { type: "string", title: "タイトル" },
         description: { type: "string", "x-widget": "textarea", title: "説明" },
         submitLabel: { type: "string", title: "送信ボタン" },
+        agentUserId: {
+          type: "string",
+          title: "査定担当者",
+          description:
+            "査定依頼メールの送信先をGhostユーザーから選択します。宛先メールはサーバー側でこのIDから解決され、訪問者には公開されません。未設定の場合は環境変数 ESTATE_AGENT_INBOX が使われます。",
+          "x-dynamic-select": true,
+          "x-options-url": "/ghost/api/admin/estate/staff-users",
+          "x-options-root": "staffusers",
+          "x-options-value": "id",
+          "x-options-label": "label",
+        },
         endpoint: {
           type: "string",
           title: "送信APIエンドポイント",
@@ -1158,8 +1170,8 @@ export const EstateDefaultProps = {
   },
   PropertyFilterBar: {
     _componentDesc: 'component.propertyFilterBar.desc',
-    title: "Browse properties",
-    description: "Filter by keyword, station, floor plan, area, year built, and pets, then narrow the list further by intent.",
+    title: "物件を探す",
+    description: "キーワード、駅、間取り、面積、築年数、ペット可などの条件と取引種別で物件を絞り込めます。",
     intentKey: "estate.filter.intent",
     keywordKey: "estate.keyword",
     activeIntent: "all",

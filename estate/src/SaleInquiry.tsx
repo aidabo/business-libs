@@ -12,6 +12,12 @@ export interface SaleInquiryProps {
   /** Endpoint the assessment request is POSTed to. */
   endpoint?: string;
   /**
+   * Valuation staff recipient as an opaque Ghost user id. The server resolves
+   * the staff email; the browser never receives or submits an email address.
+   * When empty, the backend falls back to ESTATE_AGENT_INBOX.
+   */
+  agentUserId?: string;
+  /**
    * Render as a dialog instead of an inline card. When true the form is hidden
    * until `openEvent` is received (e.g. SaleHero's CTA), then shown as a modal.
    */
@@ -34,10 +40,11 @@ export interface SaleInquiryProps {
 }
 
 const SaleInquiry: React.FC<SaleInquiryProps> = ({
-  title,
-  description,
+  title = "無料物件査定を依頼する",
+  description = "以下のフォームにご記入ください。包括的な市場分析結果とともに折り返しご連絡いたします。",
   submitLabel,
   endpoint = "/api/estate/inquiries",
+  agentUserId = "",
   asDialog = false,
   openEvent = ESTATE_EVENTS.saleAssessmentOpen,
   emitOnSubmit = true,
@@ -57,11 +64,9 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
     ...style,
   };
 
-  const displayTitle = title || t("Request a Free Property Valuation");
-  const displayDescription =
-    description ||
-    t("Fill out the form below and we will get back to you with a comprehensive market analysis.");
-  const displaySubmitLabel = submitLabel || t("Get My Valuation");
+  const displaySubmitLabel = submitLabel
+    ? t(submitLabel)
+    : t("Get My Valuation");
 
   const emptyForm = {
     name: "",
@@ -120,6 +125,8 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
         .filter(Boolean)
         .join(" / "),
       source: "sale-assessment",
+      inquiry_type: "valuation",
+      agent_user_id: agentUserId || null,
     };
 
     // StackPage rule: also broadcast so an InquiryDispatcher/listeners can react.
@@ -277,8 +284,8 @@ const SaleInquiry: React.FC<SaleInquiryProps> = ({
       style={mergedStyle}
     >
       <div className="bg-blue-900 py-8 px-8 text-center relative">
-        <h3 className="text-3xl font-bold text-white mb-2">{displayTitle}</h3>
-        <p className="text-blue-100">{displayDescription}</p>
+        <h3 className="text-3xl font-bold text-white mb-2">{title}</h3>
+        <p className="text-blue-100">{description}</p>
         {showClose && (
           <button
             type="button"
