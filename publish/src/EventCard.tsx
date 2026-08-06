@@ -1,7 +1,8 @@
 import React from 'react';
-import type { StackPageRuntimeApi } from './types';
+import {buildContentSelectionEvent, type StackPageRuntimeApi} from './types';
 
 export interface EventCardProps {
+  id?: string;
   title: string;
   description?: string;
   image?: string;
@@ -15,6 +16,7 @@ export interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({
+  id,
   title,
   description,
   image,
@@ -28,7 +30,13 @@ const EventCard: React.FC<EventCardProps> = ({
 }) => {
   const isPast = startDate ? new Date(startDate) < new Date() : false;
   const handleClick = () => {
-    __stackpage?.emit('select', { id: '', title, source: 'event-card' });
+    __stackpage?.emit(
+      'select',
+      buildContentSelectionEvent(
+        {id: id || title, title, contentType: 'entertainment'},
+        'event-card',
+      ),
+    );
   };
 
   const dateStr = startDate
@@ -43,6 +51,14 @@ const EventCard: React.FC<EventCardProps> = ({
         isPast ? 'opacity-60' : ''
       }`}
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
     >
       {image && (
         <div className="relative w-full overflow-hidden aspect-[16/9]">

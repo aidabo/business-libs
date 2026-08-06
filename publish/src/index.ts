@@ -34,13 +34,11 @@ import AuthorProfile from "./AuthorProfile";
 import ReviewCard from "./ReviewCard";
 import SeriesCard from "./SeriesCard";
 import RankingBoard from "./RankingBoard";
-import NewsArticleCard from "./NewsArticleCard";
 import EventCalendar from "./EventCalendar";
 import TicketCard from "./TicketCard";
 import VenueCard from "./VenueCard";
 import ScheduleList from "./ScheduleList";
 import EventFilterBar from "./EventFilterBar";
-import BookCard from "./BookCard";
 import VerticalArticle from "./VerticalArticle";
 import WritingModeToggle from "./WritingModeToggle";
 import RelatedArticles from "./RelatedArticles";
@@ -85,13 +83,11 @@ export const PublishComponents = {
   ReviewCard,
   SeriesCard,
   RankingBoard,
-  NewsArticleCard,
   EventCalendar,
   TicketCard,
   VenueCard,
   ScheduleList,
   EventFilterBar,
-  BookCard,
   VerticalArticle,
   WritingModeToggle,
   RelatedArticles,
@@ -112,6 +108,7 @@ export const PublishComponents = {
 export const PublishDefaultProps = {
   ContentCard: {
     _componentDesc: "component.contentCard.desc",
+    id: "sample-content-1",
     title: "Markets Hit All-Time High as Economy Surges",
     excerpt:
       "Global markets reached unprecedented levels driven by strong consumer spending and corporate earnings.",
@@ -126,6 +123,7 @@ export const PublishDefaultProps = {
       type: "object",
       title: "ContentCard",
       properties: {
+        id: { type: "string", title: "Content ID" },
         title: { type: "string", title: "Title" },
         excerpt: { type: "string", title: "Excerpt", "x-widget": "textarea" },
         image: {
@@ -579,6 +577,7 @@ export const PublishDefaultProps = {
   },
   PublicationCard: {
     _componentDesc: "component.publicationCard.desc",
+    id: "sample-publication-1",
     title: "The Great Adventure",
     coverImage:
       "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
@@ -587,6 +586,44 @@ export const PublishDefaultProps = {
     format: "Hardcover",
     price: "$24.99",
     description: "An epic journey through uncharted territories.",
+    __schema: {
+      type: "object",
+      title: "PublicationCard",
+      properties: {
+        id: {type: "string", title: "Publication ID"},
+        title: {type: "string", title: "Title"},
+        coverImage: {
+          type: "string",
+          title: "Cover Image URL",
+          format: "uri",
+          "x-media-type": "image",
+        },
+        author: {type: "string", title: "Author"},
+        publisher: {type: "string", title: "Publisher"},
+        format: {type: "string", title: "Format"},
+        price: {type: "string", title: "Price"},
+        description: {type: "string", title: "Description", "x-widget": "textarea"},
+        rating: {type: "number", title: "Rating", minimum: 0, maximum: 5},
+      },
+    },
+    __interactions: [
+      {
+        id: "publication-card-select-state",
+        event: "select",
+        action: "set-shared-state",
+        targetPath: "publish.selectedContentId",
+        valueFrom: "$.id",
+        enabled: true,
+      },
+      {
+        id: "publication-card-select-event",
+        event: "select",
+        action: "emit-event",
+        targetPath: "publish:content:selected",
+        valueFrom: "$",
+        enabled: true,
+      },
+    ],
   },
   PublicationGrid: {
     _componentDesc: "component.publicationGrid.desc",
@@ -627,6 +664,7 @@ export const PublishDefaultProps = {
   },
   EventCard: {
     _componentDesc: "component.eventCard.desc",
+    id: "sample-event-1",
     title: "Summer Music Festival 2026",
     description:
       "Three-day outdoor music festival featuring top international artists.",
@@ -637,6 +675,45 @@ export const PublishDefaultProps = {
     location: "Central Park, New York",
     category: "Music",
     price: "$150",
+    __schema: {
+      type: "object",
+      title: "EventCard",
+      properties: {
+        id: {type: "string", title: "Event ID"},
+        title: {type: "string", title: "Title"},
+        description: {type: "string", title: "Description", "x-widget": "textarea"},
+        image: {
+          type: "string",
+          title: "Image URL",
+          format: "uri",
+          "x-media-type": "image",
+        },
+        startDate: {type: "string", title: "Start Date"},
+        endDate: {type: "string", title: "End Date"},
+        location: {type: "string", title: "Location"},
+        category: {type: "string", title: "Category"},
+        price: {type: "string", title: "Price"},
+        ticketUrl: {type: "string", title: "Ticket URL", format: "uri"},
+      },
+    },
+    __interactions: [
+      {
+        id: "event-card-select-state",
+        event: "select",
+        action: "set-shared-state",
+        targetPath: "publish.selectedContentId",
+        valueFrom: "$.id",
+        enabled: true,
+      },
+      {
+        id: "event-card-select-event",
+        event: "select",
+        action: "emit-event",
+        targetPath: "publish:content:selected",
+        valueFrom: "$",
+        enabled: true,
+      },
+    ],
   },
   ComicReader: {
     _componentDesc: "component.comicReader.desc",
@@ -1792,63 +1869,6 @@ export const PublishDefaultProps = {
       },
     ],
   },
-  BookCard: {
-    _componentDesc: "component.bookCard.desc",
-    title: "The Great Adventure",
-    coverImage:
-      "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80",
-    author: "John Smith",
-    publisher: "Chronicle Books",
-    format: "Hardcover",
-    price: "$24.99",
-    description: "An epic journey through uncharted territories.",
-    rating: 4,
-    __schema: {
-      type: "object",
-      title: "BookCard",
-      properties: {
-        title: { type: "string", title: "Title" },
-        coverImage: {
-          type: "string",
-          title: "Cover Image URL",
-          format: "uri",
-          "x-media-type": "image",
-        },
-        author: { type: "string", title: "Author" },
-        publisher: { type: "string", title: "Publisher" },
-        format: {
-          type: "string",
-          title: "Format",
-          enum: ["Hardcover", "Paperback", "eBook", "Audiobook"],
-        },
-        price: { type: "string", title: "Price" },
-        description: {
-          type: "string",
-          title: "Description",
-          "x-widget": "textarea",
-        },
-        rating: { type: "integer", title: "Rating", minimum: 1, maximum: 5 },
-      },
-    },
-    __interactions: [
-      {
-        id: "book-card-select-state",
-        event: "select",
-        action: "set-shared-state",
-        targetPath: "publish.selectedContentId",
-        valueFrom: "$.id",
-        enabled: true,
-      },
-      {
-        id: "book-card-select-event",
-        event: "select",
-        action: "emit-event",
-        targetPath: "publish:content:selected",
-        valueFrom: "$",
-        enabled: true,
-      },
-    ],
-  },
   VerticalArticle: {
     _componentDesc: "component.verticalArticle.desc",
     title: "近代文学の展望 — Perspectives on Modern Literature",
@@ -2012,68 +2032,6 @@ export const PublishDefaultProps = {
       },
       {
         id: "related-article-select-event",
-        event: "select",
-        action: "emit-event",
-        targetPath: "publish:content:selected",
-        valueFrom: "$",
-        enabled: true,
-      },
-    ],
-  },
-  NewsArticleCard: {
-    _componentDesc: "component.newsArticleCard.desc",
-    title: "Markets Hit All-Time High as Economy Surges",
-    excerpt:
-      "Global markets reached unprecedented levels driven by strong consumer spending and corporate earnings, with major indices posting record gains across all sectors.",
-    image:
-      "https://images.unsplash.com/photo-1504711434969-e33886168d6c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
-    source: "Financial Times",
-    category: "Business",
-    author: "Jane Doe",
-    publishedAt: "May 22, 2026",
-    contentType: "news",
-    featured: false,
-    __schema: {
-      type: "object",
-      title: "NewsArticleCard",
-      properties: {
-        title: { type: "string", title: "Title" },
-        excerpt: { type: "string", title: "Excerpt", "x-widget": "textarea" },
-        image: {
-          type: "string",
-          title: "Image URL",
-          format: "uri",
-          "x-media-type": "image",
-        },
-        source: { type: "string", title: "Source" },
-        category: { type: "string", title: "Category" },
-        author: { type: "string", title: "Author" },
-        avatar: {
-          type: "string",
-          title: "Avatar URL",
-          format: "uri",
-          "x-media-type": "image",
-        },
-        publishedAt: { type: "string", title: "Date" },
-        contentType: {
-          type: "string",
-          title: "Type",
-          enum: ["news", "government", "publication", "comic", "entertainment"],
-        },
-        featured: { type: "boolean", title: "Featured" },
-      },
-    },
-    __interactions: [
-      {
-        id: "news-card-select-state",
-        event: "select",
-        action: "set-shared-state",
-        targetPath: "publish.selectedContentId",
-        valueFrom: "$.id",
-        enabled: true,
-      },
-      {
-        id: "news-card-select-event",
         event: "select",
         action: "emit-event",
         targetPath: "publish:content:selected",
@@ -2472,11 +2430,12 @@ export const PublishDefaultProps = {
 
 export { PublishProvider };
 
-// ── API client layer ──
-export * from "./api";
-
 // ── Sample page templates ──
-export { PUBLISH_SEED_PAGES } from "./sample-pages";
+export {
+  PUBLISH_ALL_SAMPLE_PAGES,
+  PUBLISH_SEED_PAGES,
+  PUBLISH_SHOWCASE_PAGES,
+} from "./sample-pages";
 export type { SeedPageData } from "./sample-pages";
 
 // ── Themes and variant components ──

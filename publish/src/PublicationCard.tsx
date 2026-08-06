@@ -1,7 +1,8 @@
 import React from 'react';
-import type { StackPageRuntimeApi } from './types';
+import {buildContentSelectionEvent, type StackPageRuntimeApi} from './types';
 
 export interface PublicationCardProps {
+  id?: string;
   title: string;
   coverImage?: string;
   author?: string;
@@ -14,6 +15,7 @@ export interface PublicationCardProps {
 }
 
 const PublicationCard: React.FC<PublicationCardProps> = ({
+  id,
   title,
   coverImage,
   author,
@@ -25,13 +27,27 @@ const PublicationCard: React.FC<PublicationCardProps> = ({
   __stackpage,
 }) => {
   const handleClick = () => {
-    __stackpage?.emit('select', { id: '', title, source: 'publication-card' });
+    __stackpage?.emit(
+      'select',
+      buildContentSelectionEvent(
+        {id: id || title, title, contentType: 'publication'},
+        'publication-card',
+      ),
+    );
   };
 
   return (
     <article
       className="group flex flex-col overflow-hidden rounded-lg bg-white shadow-sm transition-shadow hover:shadow-md border-t-[3px] border-t-purple-500 cursor-pointer"
       onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          handleClick();
+        }
+      }}
     >
       <div className="relative w-full overflow-hidden aspect-[3/4] bg-purple-50">
         {coverImage && (

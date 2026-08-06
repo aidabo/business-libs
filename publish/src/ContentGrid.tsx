@@ -85,6 +85,7 @@ const ContentGrid: React.FC<ContentGridProps> = ({
         {sorted.map((item) => (
           <div key={item.id}>
             <ContentCard
+              id={item.id}
               title={item.title}
               excerpt={item.excerpt}
               image={item.image}

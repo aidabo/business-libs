@@ -39,7 +39,6 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
   maxArticles = 6,
   columns = 3,
   contentType = 'news',
-  selectedContentIdKey = 'publish.selectedContentId',
   __stackpage,
 }) => {
   const displayArticles = articles.slice(0, maxArticles);
@@ -53,13 +52,10 @@ const RelatedArticles: React.FC<RelatedArticlesProps> = ({
   };
 
   const handleClick = (article: RelatedArticleItem) => {
-    __stackpage?.emit('publish:content:selected', {
+    __stackpage?.emit('select', {
       id: article.id, title: article.title,
       contentType: article.contentType || contentType, source: 'related',
     });
-    if (selectedContentIdKey) {
-      __stackpage?.setState?.(selectedContentIdKey, article.id);
-    }
   };
 
   return (

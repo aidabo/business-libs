@@ -10,9 +10,34 @@ export interface EventFilterBarProps {
   __stackpage?: StackPageRuntimeApi;
 }
 
+export interface EventFilterValues {
+  category: string;
+  area: string;
+  dateFrom: string;
+  dateTo: string;
+  priceRange: string;
+  keyword: string;
+}
+
+export const buildEventFilterPayload = (
+  current: EventFilterValues,
+  overrides: Partial<EventFilterValues> = {},
+) => {
+  const next = {...current, ...overrides};
+  return {
+    category: next.category,
+    area: next.area,
+    dateFrom: next.dateFrom || null,
+    dateTo: next.dateTo || null,
+    priceRange: next.priceRange,
+    keyword: next.keyword || null,
+  };
+};
+
 const EventFilterBar: React.FC<EventFilterBarProps> = ({
   categories = [],
   areas = [],
+  keywordKey = 'publish.searchQuery',
   __stackpage,
 }) => {
   const t = useT();
@@ -23,15 +48,15 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
   const [dateTo, setDateTo] = useState('');
   const [priceRange, setPriceRange] = useState<string>('all');
 
-  const emitFilter = () => {
-    __stackpage?.emit('filter-change', {
+  const emitFilter = (overrides: Partial<EventFilterValues> = {}) => {
+    __stackpage?.emit('filter-change', buildEventFilterPayload({
       category: activeCat,
       area: activeArea,
-      dateFrom: dateFrom || null,
-      dateTo: dateTo || null,
+      dateFrom,
+      dateTo,
       priceRange,
-      keyword: search || null,
-    });
+      keyword: search,
+    }, overrides));
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,19 +65,19 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
 
   const handleSearchSubmit = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      __stackpage?.emit('search', { keyword: search, key: 'publish.searchQuery' });
+      __stackpage?.emit('search', {keyword: search, key: keywordKey});
       emitFilter();
     }
   };
 
   const handleCatChange = (cat: string) => {
     setActiveCat(cat);
-    setTimeout(emitFilter, 0);
+    emitFilter({category: cat});
   };
 
   const handleAreaChange = (area: string) => {
     setActiveArea(area);
-    setTimeout(emitFilter, 0);
+    emitFilter({area});
   };
 
   const clearAll = () => {
@@ -62,8 +87,15 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
     setDateFrom('');
     setDateTo('');
     setPriceRange('all');
-    __stackpage?.emit('search', { keyword: '', key: 'publish.searchQuery' });
-    __stackpage?.emit('filter-change', { category: 'all', area: 'all', dateFrom: null, dateTo: null, priceRange: 'all', keyword: null });
+    __stackpage?.emit('search', {keyword: '', key: keywordKey});
+    emitFilter({
+      category: 'all',
+      area: 'all',
+      dateFrom: '',
+      dateTo: '',
+      priceRange: 'all',
+      keyword: '',
+    });
   };
 
   const hasFilters = activeCat !== 'all' || activeArea !== 'all' || dateFrom || dateTo || priceRange !== 'all' || search;
@@ -77,6 +109,7 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
             value={search}
             onChange={handleSearch}
             onKeyDown={handleSearchSubmit}
+            aria-label={t('Search events')}
             placeholder={t('Search broadcasts...')}
             className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-pink-500 focus:outline-none"
           />
@@ -88,7 +121,9 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
           <p className="mb-1 text-xs font-semibold text-gray-500">{t('Category')}</p>
           <div className="flex flex-wrap gap-1.5">
             <button
+              type="button"
               onClick={() => handleCatChange('all')}
+              aria-pressed={activeCat === 'all'}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 activeCat === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
@@ -97,8 +132,10 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
             </button>
             {categories.map(cat => (
               <button
+                type="button"
                 key={cat.id}
                 onClick={() => handleCatChange(cat.id)}
+                aria-pressed={activeCat === cat.id}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   activeCat === cat.id ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
@@ -116,7 +153,9 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
           <p className="mb-1 text-xs font-semibold text-gray-500">{t('Region')}</p>
           <div className="flex flex-wrap gap-1.5">
             <button
+              type="button"
               onClick={() => handleAreaChange('all')}
+              aria-pressed={activeArea === 'all'}
               className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                 activeArea === 'all' ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
@@ -125,8 +164,10 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
             </button>
             {areas.map(area => (
               <button
+                type="button"
                 key={area.id}
                 onClick={() => handleAreaChange(area.id)}
+                aria-pressed={activeArea === area.id}
                 className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
                   activeArea === area.id ? 'bg-pink-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                 }`}
@@ -142,17 +183,26 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
       <div className="mb-3 flex flex-wrap gap-3">
         <div className="flex-1">
           <label className="mb-0.5 block text-xs font-semibold text-gray-500">{t('From')}</label>
-          <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)}
+          <input type="date" value={dateFrom} onChange={e => {
+            setDateFrom(e.target.value);
+            emitFilter({dateFrom: e.target.value});
+          }}
             className="w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-pink-500 focus:outline-none" />
         </div>
         <div className="flex-1">
           <label className="mb-0.5 block text-xs font-semibold text-gray-500">{t('To')}</label>
-          <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)}
+          <input type="date" value={dateTo} onChange={e => {
+            setDateTo(e.target.value);
+            emitFilter({dateTo: e.target.value});
+          }}
             className="w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-pink-500 focus:outline-none" />
         </div>
         <div className="flex-1">
           <label className="mb-0.5 block text-xs font-semibold text-gray-500">{t('Price')}</label>
-          <select value={priceRange} onChange={e => setPriceRange(e.target.value)}
+          <select value={priceRange} onChange={e => {
+            setPriceRange(e.target.value);
+            emitFilter({priceRange: e.target.value});
+          }}
             className="w-full rounded border border-gray-300 px-2 py-1.5 text-xs focus:border-pink-500 focus:outline-none">
             <option value="all">{t('Any price')}</option>
             <option value="free">{t('Free')}</option>
@@ -165,6 +215,7 @@ const EventFilterBar: React.FC<EventFilterBarProps> = ({
 
       {hasFilters && (
         <button
+          type="button"
           onClick={clearAll}
           className="text-xs font-medium text-gray-500 hover:text-gray-700 hover:underline"
         >

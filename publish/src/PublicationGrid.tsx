@@ -1,17 +1,20 @@
 import React from 'react';
 import PublicationCard from './PublicationCard';
 import type { Publication } from './types';
+import type { StackPageRuntimeApi } from './types';
 
 export interface PublicationGridProps {
   title?: string;
   publications: Publication[];
   columns?: 1 | 2 | 3;
+  __stackpage?: StackPageRuntimeApi;
 }
 
 const PublicationGrid: React.FC<PublicationGridProps> = ({
   title,
   publications,
   columns = 2,
+  __stackpage,
 }) => {
   const gridCols: Record<number, string> = {
     1: 'grid-cols-1',
@@ -29,6 +32,7 @@ const PublicationGrid: React.FC<PublicationGridProps> = ({
         {publications.map((pub) => (
           <PublicationCard
             key={pub.id}
+            id={pub.id}
             title={pub.title}
             coverImage={pub.coverImage}
             author={pub.author}
@@ -36,6 +40,7 @@ const PublicationGrid: React.FC<PublicationGridProps> = ({
             format={pub.format}
             price={pub.price}
             description={pub.description}
+            __stackpage={__stackpage}
           />
         ))}
       </div>

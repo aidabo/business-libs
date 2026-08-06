@@ -113,7 +113,7 @@ const ComicReader: React.FC<ComicReaderProps> = ({
     const clamped = Math.max(0, Math.min(page, totalPages - 1));
     setInternalPage(clamped);
     onPageChange?.(clamped);
-    __stackpage?.emit('publish:content:selected', {
+    __stackpage?.emit('page-change', {
       id: `page-${clamped + 1}`, title: `Page ${clamped + 1}`,
       contentType: 'comic', source: 'comic-reader',
     });

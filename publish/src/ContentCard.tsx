@@ -2,9 +2,10 @@ import React from 'react';
 import VerticalTextContainer from './VerticalTextContainer';
 import { verticalDotClass } from './themes';
 import type { ContentType, WritingMode } from './types';
-import type { StackPageRuntimeApi } from './types';
+import {buildContentSelectionEvent, type StackPageRuntimeApi} from './types';
 
 export interface ContentCardProps {
+  id?: string;
   title: string;
   excerpt: string;
   image?: string;
@@ -52,6 +53,7 @@ const contentTypeChipBg: Record<string, string> = {
 };
 
 const ContentCard: React.FC<ContentCardProps> = ({
+  id,
   title,
   excerpt,
   image,
@@ -71,7 +73,13 @@ const ContentCard: React.FC<ContentCardProps> = ({
   // Cards are compact — always use horizontal writing; vertical mode is for full articles only
   const wm = writingMode ?? 'horizontal-tb';
   const handleClick = () => {
-    __stackpage?.emit('select', { id: '', title, contentType, source: 'content-card' });
+    __stackpage?.emit(
+      'select',
+      buildContentSelectionEvent(
+        {id: id || title, title, contentType},
+        'content-card',
+      ),
+    );
     onClick?.();
   };
   const borderColor = contentType ? contentTypeBorder[contentType] || 'border-t-gray-400' : 'border-t-gray-400';

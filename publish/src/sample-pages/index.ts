@@ -1,4 +1,16 @@
 import type { GridStackWidget } from 'gridstack';
+import {
+  createPublishingPageSource,
+  createPublishingPageState,
+  wirePublishingLayout,
+} from './contracts';
+
+export {
+  createPublishingPageSource,
+  createPublishingPageState,
+  PUBLISHING_DATASOURCE_IDS,
+  wirePublishingLayout,
+} from './contracts';
 
 /** Matches the StackPage PageProps interface for seed page templates */
 export interface SeedPageData {
@@ -1609,6 +1621,17 @@ export const TRAVEL_MAGAZINE: SeedPageData = {
   ],
 };
 
+const prepareProductionPage = (page: SeedPageData): SeedPageData => {
+  const layout = wirePublishingLayout(page.layout);
+  return {
+    ...page,
+    status: 'draft',
+    pageState: createPublishingPageState(page.pageState),
+    layout,
+    source: createPublishingPageSource(layout),
+  };
+};
+
 export const PUBLISH_SEED_PAGES: SeedPageData[] = [
   NEWS_HOME,
   MANGA_BROWSER,
@@ -1616,8 +1639,16 @@ export const PUBLISH_SEED_PAGES: SeedPageData[] = [
   BOOK_STORE,
   EVENTS_PAGE,
   JAPANESE_MAGAZINE,
+].map(prepareProductionPage);
+
+export const PUBLISH_SHOWCASE_PAGES: SeedPageData[] = [
   NEWSPAPER_HOME,
   WORLD_CUP_SPECIAL,
   AI_TECH_REVIEW,
   TRAVEL_MAGAZINE,
+];
+
+export const PUBLISH_ALL_SAMPLE_PAGES: SeedPageData[] = [
+  ...PUBLISH_SEED_PAGES,
+  ...PUBLISH_SHOWCASE_PAGES,
 ];

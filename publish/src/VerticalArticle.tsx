@@ -5,6 +5,7 @@ import type { ContentType, WritingMode } from './types';
 import type { StackPageRuntimeApi } from './types';
 
 export interface VerticalArticleProps {
+  id?: string;
   title: string;
   content: string;
   /** Plain text excerpt/summary (shown in horizontal mode) */
@@ -63,6 +64,7 @@ function estimateReadingTime(text: string, wpm = 400): string {
  * for 'publication' and 'comic' types.
  */
 const VerticalArticle: React.FC<VerticalArticleProps> = ({
+  id,
   title,
   content,
   image,
@@ -109,8 +111,8 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
 
   const readingTime = estimateReadingTime(content + ' ' + title);
   const handleSelect = () => {
-    __stackpage?.emit('publish:content:selected', {
-      id: '', title, contentType: contentType || 'publication',
+    __stackpage?.emit('select', {
+      id: id || title, title, contentType: contentType || 'publication',
       source: 'vertical-article',
     });
     onClick?.();

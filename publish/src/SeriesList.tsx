@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import type { SeriesItem } from './types';
+import type { SeriesItem, StackPageRuntimeApi } from './types';
 
 export interface SeriesListProps {
   /** Array of series items to display */
@@ -18,6 +18,7 @@ export interface SeriesListProps {
   maxItems?: number;
   /** Title for the section */
   title?: string;
+  __stackpage?: StackPageRuntimeApi;
 }
 
 /**
@@ -43,6 +44,7 @@ const SeriesList: React.FC<SeriesListProps> = ({
   columns = 4,
   maxItems = 0,
   title = 'Series',
+  __stackpage,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeGenre, setActiveGenre] = useState<string | null>(null);
@@ -112,6 +114,16 @@ const SeriesList: React.FC<SeriesListProps> = ({
     completed: { label: '完結', class: 'bg-blue-500' },
     hiatus: { label: '休載中', class: 'bg-amber-500' },
     cancelled: { label: '打ち切り', class: 'bg-red-500' },
+  };
+
+  const handleSelectSeries = (item: SeriesItem) => {
+    __stackpage?.emit('select', {
+      id: item.id,
+      title: item.title,
+      contentType: 'comic',
+      source: 'series-list',
+    });
+    onSelectSeries?.(item.id);
   };
 
   const genreFilterChips = ['All', ...allGenres];
@@ -235,10 +247,15 @@ const SeriesList: React.FC<SeriesListProps> = ({
               <div
                 key={item.id}
                 className="group cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
-                onClick={() => onSelectSeries?.(item.id)}
+                onClick={() => handleSelectSeries(item)}
                 role="button"
                 tabIndex={0}
-                onKeyDown={(e) => { if (e.key === 'Enter') onSelectSeries?.(item.id); }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    handleSelectSeries(item);
+                  }
+                }}
               >
                 {/* Cover image */}
                 <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
