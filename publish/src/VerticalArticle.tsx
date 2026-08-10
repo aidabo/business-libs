@@ -3,6 +3,7 @@ import VerticalTextContainer from './VerticalTextContainer';
 import { getDefaultWritingMode } from './themes';
 import type { ContentType, WritingMode } from './types';
 import type { StackPageRuntimeApi } from './types';
+import { toStringArray } from './utils';
 
 export interface VerticalArticleProps {
   id?: string;
@@ -87,6 +88,7 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
 }) => {
   const wm = writingMode ?? getDefaultWritingMode(contentType);
   const isVertical = wm === 'vertical-rl' || wm === 'vertical-lr';
+  const normalizedTags = toStringArray(tags);
   const articleRef = useRef<HTMLDivElement>(null);
   const [readProgress, setReadProgress] = useState(0);
 
@@ -223,11 +225,11 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
       </div>
 
       {/* ── Tags ── */}
-      {tags && tags.length > 0 && (
+      {normalizedTags.length > 0 && (
         <div className={`flex flex-wrap gap-2 ${
           isVertical ? 'mt-4' : 'mt-8'
         }`}>
-          {tags.map((tag) => (
+          {normalizedTags.map((tag) => (
             <span
               key={tag}
               className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"

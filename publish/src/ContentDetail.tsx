@@ -3,6 +3,7 @@ import VerticalTextContainer from './VerticalTextContainer';
 import { getDefaultWritingMode } from './themes';
 import { useT } from './contexts/PublishContext';
 import type { ContentType, WritingMode } from './types';
+import { toStringArray } from './utils';
 
 export interface ContentDetailProps {
   title: string;
@@ -54,6 +55,7 @@ const ContentDetail: React.FC<ContentDetailProps> = ({
 }) => {
   const t = useT();
   const wm = writingMode ?? getDefaultWritingMode(_contentType);
+  const normalizedTags = toStringArray(tags);
 
   return (
     <article className="mx-auto max-w-3xl">
@@ -102,9 +104,9 @@ const ContentDetail: React.FC<ContentDetailProps> = ({
           </a>
         </div>
       )}
-      {tags && tags.length > 0 && (
+      {normalizedTags.length > 0 && (
         <div className="mt-8 flex flex-wrap gap-2">
-          {tags.map((tag) => (
+          {normalizedTags.map((tag) => (
             <span key={tag} className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600">
               #{tag}
             </span>

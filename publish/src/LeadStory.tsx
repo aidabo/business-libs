@@ -1,5 +1,6 @@
 import React from 'react';
 import type { StackPageRuntimeApi } from './types';
+import { toStringArray } from './utils';
 
 export interface LeadStoryProps {
   /** Main headline (大見出し) */
@@ -83,6 +84,7 @@ const LeadStory: React.FC<LeadStoryProps> = ({
     __stackpage?.emit('select', { id: title, title, contentType: 'news', source: 'lead-story' });
     onSelect?.();
   };
+  const normalizedTags = toStringArray(tags);
 
   const colClass = columnCount === 1
     ? 'columns-1'
@@ -213,9 +215,9 @@ const LeadStory: React.FC<LeadStoryProps> = ({
       )}
 
       {/* ── Tags ── */}
-      {tags && tags.length > 0 && (
+      {normalizedTags.length > 0 && (
         <div className="flex flex-wrap gap-2">
-          {tags.map((tag) => (
+          {normalizedTags.map((tag) => (
             <span
               key={tag}
               className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
