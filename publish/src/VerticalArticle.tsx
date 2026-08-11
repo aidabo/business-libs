@@ -8,7 +8,9 @@ import { toStringArray } from './utils';
 export interface VerticalArticleProps {
   id?: string;
   title: string;
-  content: string;
+  content?: string;
+  /** Alias used by generic Post bindings. */
+  text?: string;
   /** Plain text excerpt/summary (shown in horizontal mode) */
   excerpt?: string;
   image?: string;
@@ -16,6 +18,8 @@ export interface VerticalArticleProps {
   category?: string;
   /** Author name(s), comma-separated */
   author?: string;
+  authorAvatar?: string;
+  authorAvatarAlt?: string;
   publishedAt?: string;
   tags?: string[];
   writingMode?: WritingMode;
@@ -23,6 +27,16 @@ export interface VerticalArticleProps {
   columnCount?: number;
   /** Line width in characters (行幅) */
   lineWidth?: number;
+  /** Font family preset exposed as a Page Builder dropdown. */
+  fontFamily?: 'serif' | 'sans' | 'mincho' | 'gothic' | 'system';
+  fontSize?: string;
+  lineHeight?: string | number;
+  paragraphMargin?: string;
+  blockMargin?: string;
+  columnGap?: string;
+  columnHeight?: string;
+  textOrientation?: 'mixed' | 'upright' | 'sideways';
+  keepBlocksTogether?: boolean;
   /** Previous article navigation */
   prevArticle?: { id: string; title: string; url?: string };
   /** Next article navigation */
@@ -48,6 +62,14 @@ function estimateReadingTime(text: string, wpm = 400): string {
   return `${min} min read`;
 }
 
+const FONT_FAMILIES: Record<NonNullable<VerticalArticleProps['fontFamily']>, string> = {
+  serif: 'ui-serif, Georgia, Cambria, "Times New Roman", serif',
+  sans: 'ui-sans-serif, system-ui, sans-serif',
+  mincho: '"Noto Serif JP", "Hiragino Mincho ProN", Yu Mincho, serif',
+  gothic: '"Noto Sans JP", "Hiragino Kaku Gothic ProN", Yu Gothic, sans-serif',
+  system: 'inherit',
+};
+
 /**
  * VerticalArticle — a full article reading page optimized for Japanese
  * vertical writing (縦書き/tategaki). Features:
@@ -68,15 +90,27 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
   id,
   title,
   content,
+  text,
   image,
   contentType = 'publication',
   category,
   author,
+  authorAvatar,
+  authorAvatarAlt,
   publishedAt,
   tags,
   writingMode,
   columnCount = 2,
   lineWidth = 40,
+  fontFamily = 'serif',
+  fontSize = '1rem',
+  lineHeight = 1.8,
+  paragraphMargin = '1em',
+  blockMargin = '1.5rem',
+  columnGap = '2.5rem',
+  columnHeight = '70vh',
+  textOrientation = 'mixed',
+  keepBlocksTogether = true,
   prevArticle,
   nextArticle,
   seriesName,
@@ -86,6 +120,7 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
   __stackpage,
   onClick,
 }) => {
+  const bodyText = content ?? text ?? '';
   const wm = writingMode ?? getDefaultWritingMode(contentType);
   const isVertical = wm === 'vertical-rl' || wm === 'vertical-lr';
   const normalizedTags = toStringArray(tags);
@@ -111,7 +146,7 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
     return () => el.removeEventListener('scroll', handleScroll);
   }, [isVertical]);
 
-  const readingTime = estimateReadingTime(content + ' ' + title);
+  const readingTime = estimateReadingTime(bodyText + ' ' + title);
   const handleSelect = () => {
     __stackpage?.emit('select', {
       id: id || title, title, contentType: contentType || 'publication',
@@ -121,7 +156,15 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
   };
 
   return (
-    <article className="mx-auto max-w-5xl" onClick={handleSelect}>
+    <article
+      className="mx-auto max-w-5xl"
+      onClick={handleSelect}
+      style={{
+        fontFamily: FONT_FAMILIES[fontFamily],
+        fontSize,
+        ['--vertical-block-margin' as string]: blockMargin,
+      } as React.CSSProperties}
+    >
       {/* ── Reading Progress Bar ── */}
       {isVertical && (
         <div className="fixed left-0 top-0 z-50 h-1 w-full bg-gray-200">
@@ -160,6 +203,14 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
       <div className={`flex flex-wrap items-center gap-3 text-sm text-gray-500 ${
         isVertical ? 'mb-4' : 'mb-6'
       }`}>
+        {authorAvatar && (
+          <img
+            src={authorAvatar}
+            alt={authorAvatarAlt || author || 'Author'}
+            loading="lazy"
+            className="h-9 w-9 rounded-full object-cover"
+          />
+        )}
         {author && <span className="font-medium">{author}</span>}
         {publishedAt && (
           <>
@@ -211,15 +262,22 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
         <VerticalTextContainer
           writingMode={wm}
           columnCount={isVertical ? columnCount : 1}
+          columnGap={columnGap}
+          columnHeight={columnHeight}
           lineWidth={isVertical ? lineWidth : undefined}
+          lineHeight={lineHeight}
+          paragraphMargin={paragraphMargin}
+          textOrientation={textOrientation}
+          keepBlocksTogether={keepBlocksTogether}
         >
           <div
-            className={`prose max-w-none text-gray-700 ${
+            className={`vertical-article-body prose max-w-none text-gray-700 ${
               isVertical
                 ? 'prose-sm prose-headings:text-lg prose-headings:font-bold'
                 : 'prose-lg'
             }`}
-            dangerouslySetInnerHTML={{ __html: content }}
+            style={{ marginBlock: blockMargin }}
+            dangerouslySetInnerHTML={{ __html: bodyText }}
           />
         </VerticalTextContainer>
       </div>

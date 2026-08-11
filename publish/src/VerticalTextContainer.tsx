@@ -12,6 +12,14 @@ export interface VerticalTextContainerProps {
   lineWidth?: number;
   /** Letter spacing for 行間 (line spacing/leading) in vertical mode */
   letterSpacing?: string;
+  /** CSS line-height; `1.8` is a comfortable Japanese reading default. */
+  lineHeight?: string | number;
+  /** Margin between block elements such as paragraphs and headings. */
+  paragraphMargin?: string;
+  /** Keep headings, figures, and quotes together when columns break. */
+  keepBlocksTogether?: boolean;
+  /** Japanese punctuation handling: mixed keeps Latin readable, upright is strict. */
+  textOrientation?: 'mixed' | 'upright' | 'sideways';
   className?: string;
   style?: React.CSSProperties;
 }
@@ -34,6 +42,10 @@ const VerticalTextContainer: React.FC<VerticalTextContainerProps> = ({
   columnHeight = '80vh',
   lineWidth,
   letterSpacing = '0.125em',
+  lineHeight = 1.8,
+  paragraphMargin = '1em',
+  keepBlocksTogether = true,
+  textOrientation = 'mixed',
   className = '',
   style,
 }) => {
@@ -69,19 +81,45 @@ const VerticalTextContainer: React.FC<VerticalTextContainerProps> = ({
   if (letterSpacing) {
     columnStyles.letterSpacing = letterSpacing;
   }
+  columnStyles.lineHeight = lineHeight;
+  columnStyles.textOrientation = textOrientation;
+  (columnStyles as React.CSSProperties & Record<string, string | number>)[
+    '--vertical-paragraph-margin'
+  ] = paragraphMargin;
+  (columnStyles as React.CSSProperties & Record<string, string | number>)[
+    '--vertical-break-inside'
+  ] = keepBlocksTogether ? 'avoid' : 'auto';
 
   return (
-    <div
-      ref={rootRef}
-      className={`vertical-text vertical-columns ${className}`}
-      style={{
-        columnGap,
-        ...columnStyles,
-        ...style,
-      }}
-    >
-      {children}
-    </div>
+    <>
+      <style>{`
+        .vertical-text.vertical-columns .vertical-article-body > * {
+          margin-block: var(--vertical-paragraph-margin);
+          break-inside: var(--vertical-break-inside);
+        }
+        .vertical-text.vertical-columns .vertical-article-body h1,
+        .vertical-text.vertical-columns .vertical-article-body h2,
+        .vertical-text.vertical-columns .vertical-article-body h3,
+        .vertical-text.vertical-columns .vertical-article-body figure,
+        .vertical-text.vertical-columns .vertical-article-body blockquote,
+        .vertical-text.vertical-columns .vertical-article-body img {
+          break-before: auto;
+          break-after: avoid;
+        }
+      `}</style>
+      <div
+        ref={rootRef}
+        className={`vertical-text vertical-columns ${className}`}
+        data-writing-mode={writingMode}
+        style={{
+          columnGap,
+          ...columnStyles,
+          ...style,
+        }}
+      >
+        {children}
+      </div>
+    </>
   );
 };
 

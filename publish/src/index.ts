@@ -1879,10 +1879,21 @@ export const PublishDefaultProps = {
     contentType: "publication",
     category: "Literature",
     author: "田中 花子 (Hanako Tanaka)",
+    authorAvatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face",
     publishedAt: "June 11, 2026",
     tags: ["literature", "japanese", "vertical-writing", "tategaki"],
     columnCount: 2,
     lineWidth: 40,
+    fontFamily: "mincho",
+    fontSize: "1rem",
+    lineHeight: 1.8,
+    paragraphMargin: "1em",
+    blockMargin: "1.5rem",
+    columnGap: "2.5rem",
+    columnHeight: "70vh",
+    textOrientation: "mixed",
+    keepBlocksTogether: true,
     seriesName: "Literary Horizons",
     chapterNumber: 3,
     totalChapters: 12,
@@ -1905,6 +1916,12 @@ export const PublishDefaultProps = {
         },
         category: { type: "string", title: "Category" },
         author: { type: "string", title: "Author" },
+        authorAvatar: {
+          type: "string",
+          title: "Author Avatar",
+          format: "uri",
+          "x-media-type": "image",
+        },
         publishedAt: { type: "string", title: "Date" },
         columnCount: {
           type: "number",
@@ -1917,6 +1934,47 @@ export const PublishDefaultProps = {
           title: "Line Width (行幅)",
           minimum: 20,
           maximum: 60,
+        },
+        fontFamily: {
+          type: "string",
+          title: "Font Family",
+          enum: ["mincho", "gothic", "serif", "sans", "system"],
+        },
+        fontSize: {
+          type: "string",
+          title: "Font Size",
+          enum: ["0.9rem", "1rem", "1.1rem", "1.25rem"],
+        },
+        lineHeight: {
+          type: "number",
+          title: "Line Height",
+          minimum: 1.2,
+          maximum: 2.5,
+          multipleOf: 0.1,
+        },
+        paragraphMargin: {
+          type: "string",
+          title: "Paragraph Margin",
+          enum: ["0.5em", "1em", "1.5em", "2em"],
+        },
+        blockMargin: {
+          type: "string",
+          title: "Block Margin",
+          enum: ["1rem", "1.5rem", "2rem", "3rem"],
+        },
+        columnGap: {
+          type: "string",
+          title: "Column Gap",
+          enum: ["1.5rem", "2rem", "2.5rem", "3rem"],
+        },
+        textOrientation: {
+          type: "string",
+          title: "Text Orientation",
+          enum: ["mixed", "upright", "sideways"],
+        },
+        keepBlocksTogether: {
+          type: "boolean",
+          title: "Keep Blocks Together",
         },
       },
     },
@@ -2435,8 +2493,9 @@ export {
   PUBLISH_ALL_SAMPLE_PAGES,
   PUBLISH_SEED_PAGES,
   PUBLISH_SHOWCASE_PAGES,
+  PUBLISHING_PAGE_RECIPES,
 } from "./sample-pages";
-export type { SeedPageData } from "./sample-pages";
+export type { PublishingPageRecipe, SeedPageData } from "./sample-pages";
 
 // ── Themes and variant components ──
 export { default as NewsArticleCard } from "./NewsArticleCard";
