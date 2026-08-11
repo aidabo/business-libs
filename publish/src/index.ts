@@ -40,7 +40,6 @@ import VenueCard from "./VenueCard";
 import ScheduleList from "./ScheduleList";
 import EventFilterBar from "./EventFilterBar";
 import VerticalArticle from "./VerticalArticle";
-import VerticalArticleCard from "./VerticalArticleCard";
 import WritingModeToggle from "./WritingModeToggle";
 import RelatedArticles from "./RelatedArticles";
 import NewspaperHeader from "./NewspaperHeader";
@@ -89,7 +88,7 @@ export const PublishComponents = {
   VenueCard,
   ScheduleList,
   EventFilterBar,
-  VerticalArticleCard,
+  VerticalArticleCard: VerticalArticle,
   // Saved layouts may still reference the former name.
   VerticalArticle,
   WritingModeToggle,
