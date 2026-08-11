@@ -40,6 +40,7 @@ import VenueCard from "./VenueCard";
 import ScheduleList from "./ScheduleList";
 import EventFilterBar from "./EventFilterBar";
 import VerticalArticle from "./VerticalArticle";
+import VerticalArticleCard from "./VerticalArticleCard";
 import WritingModeToggle from "./WritingModeToggle";
 import RelatedArticles from "./RelatedArticles";
 import NewspaperHeader from "./NewspaperHeader";
@@ -88,6 +89,8 @@ export const PublishComponents = {
   VenueCard,
   ScheduleList,
   EventFilterBar,
+  VerticalArticleCard,
+  // Saved layouts may still reference the former name.
   VerticalArticle,
   WritingModeToggle,
   RelatedArticles,
@@ -1869,7 +1872,7 @@ export const PublishDefaultProps = {
       },
     ],
   },
-  VerticalArticle: {
+  VerticalArticleCard: {
     _componentDesc: "component.verticalArticle.desc",
     title: "近代文学の展望 — Perspectives on Modern Literature",
     content:
@@ -1899,7 +1902,7 @@ export const PublishDefaultProps = {
     totalChapters: 12,
     __schema: {
       type: "object",
-      title: "VerticalArticle",
+      title: "VerticalArticleCard",
       properties: {
         title: { type: "string", title: "Title" },
         content: { type: "string", title: "Content", "x-widget": "textarea" },
@@ -2486,6 +2489,10 @@ export const PublishDefaultProps = {
   },
 };
 
+// Compatibility defaults for saved layouts created before the rename.
+(PublishDefaultProps as Record<string, any>).VerticalArticle =
+  PublishDefaultProps.VerticalArticleCard;
+
 export { PublishProvider };
 
 // ── Sample page templates ──
@@ -2556,6 +2563,8 @@ export { default as DeepZoomViewer } from "./DeepZoomViewer";
 export type { DeepZoomViewerProps } from "./DeepZoomViewer";
 export { default as VerticalArticle } from "./VerticalArticle";
 export type { VerticalArticleProps } from "./VerticalArticle";
+export { default as VerticalArticleCard } from "./VerticalArticleCard";
+export type { VerticalArticleCardProps } from "./VerticalArticleCard";
 export { default as WritingModeToggle } from "./WritingModeToggle";
 export type { WritingModeToggleProps } from "./WritingModeToggle";
 export { default as RelatedArticles } from "./RelatedArticles";

@@ -9,8 +9,10 @@ export {
   createPublishingPageSource,
   createPublishingPageState,
   PUBLISHING_DATASOURCE_IDS,
+  PUBLISHING_PAGE_RECIPES,
   wirePublishingLayout,
 } from './contracts';
+export type { PublishingPageRecipe } from './contracts';
 
 /** Matches the StackPage PageProps interface for seed page templates */
 export interface SeedPageData {
@@ -763,7 +765,7 @@ export const JAPANESE_MAGAZINE: SeedPageData = {
     {
       x: 0, y: 0, w: 12, h: 18,
       content: JSON.stringify({
-        name: 'VerticalArticle',
+        name: 'VerticalArticleCard',
         props: {
           title: '文学の秋 — 日本近代文学の軌跡',
           content: '<p>日本の近代文学は、明治維新以降の西洋文化の流入とともに大きな変革を遂げてきました。夏目漱石や森鴎外といった文豪たちは、伝統的な日本文学の手法に西洋の写実主義を融合させ、独自の文学世界を築き上げました。<ruby>草枕<rt>くさまくら</rt></ruby>に代表されるように、彼らの作品には日本の美意識と西洋の思想が絶妙に調和しています。</p><p>大正時代に入ると、芥川龍之介や谷崎潤一郎といった作家が登場し、より多様なテーマと文体が生まれました。特に谷崎の<ruby>陰翳礼讃<rt>いんえいらいさん</rt></ruby>は、日本文化における陰影の美しさを独自の視点で描き出し、今なお多くの読者を魅了しています。</p><p>昭和時代には、川端康成や三島由紀夫など、国際的に評価される作家が続々と登場。川端は「<ruby>雪国<rt>ゆきぐに</rt></ruby>」でノーベル文学賞を受賞し、日本文学の境界を世界に広げました。</p><p>現代においても、村上春樹をはじめとする作家たちが、日本語の豊かな表現力を活かしながら、グローバルなテーマに挑戦し続けています。縦書きで読む日本語の文章には、独特のリズムと美しさがあり、それが日本文学の大きな魅力の一つです。</p>',
