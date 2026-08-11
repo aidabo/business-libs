@@ -21,6 +21,21 @@ export interface VerticalArticleProps {
   authorAvatar?: string;
   authorAvatarAlt?: string;
   publishedAt?: string;
+  showTitle?: boolean;
+  showDate?: boolean;
+  showAuthor?: boolean;
+  showTags?: boolean;
+  authorProfileUrl?: string;
+  count?: {
+    bookmarks?: number;
+    favors?: number;
+    forwards?: number;
+    clicks?: number;
+  };
+  showCounts?: boolean;
+  commentCount?: number;
+  showComments?: boolean;
+  commentsUrl?: string;
   tags?: string[];
   writingMode?: WritingMode;
   /** Column count for vertical text 段組み */
@@ -98,6 +113,16 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
   authorAvatar,
   authorAvatarAlt,
   publishedAt,
+  showTitle = true,
+  showDate = true,
+  showAuthor = true,
+  showTags = true,
+  authorProfileUrl,
+  count,
+  showCounts = true,
+  commentCount = 0,
+  showComments = true,
+  commentsUrl,
   tags,
   writingMode,
   columnCount = 2,
@@ -191,7 +216,7 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
       </div>
 
       {/* ── Title Area ── */}
-      <h1
+      {showTitle && <h1
         className={`mb-4 font-bold leading-tight text-gray-900 ${
           isVertical ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'
         }`}
@@ -205,13 +230,13 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
         } : undefined}
       >
         {title}
-      </h1>
+      </h1>}
 
       {/* ── Author & Date Meta ── */}
       <div className={`flex flex-wrap items-center gap-3 text-sm text-gray-500 ${
         isVertical ? 'mb-4' : 'mb-6'
       }`}>
-        {authorAvatar && (
+        {showAuthor && authorAvatar && (
           <img
             src={authorAvatar}
             alt={authorAvatarAlt || author || 'Author'}
@@ -219,14 +244,28 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
             className="h-9 w-9 rounded-full object-cover"
           />
         )}
-        {author && <span className="font-medium">{author}</span>}
-        {publishedAt && (
+        {showAuthor && (authorProfileUrl ? (
+          <a href={authorProfileUrl} className="font-medium text-blue-700 hover:underline">
+            {author || 'Author'}
+          </a>
+        ) : author && <span className="font-medium">{author}</span>)}
+        {showDate && publishedAt && (
           <>
             <span className="text-gray-300">·</span>
             <span>{publishedAt}</span>
           </>
         )}
       </div>
+
+      {showCounts && count && (
+        <section className="mb-4 flex flex-wrap gap-2 text-xs text-gray-500" aria-label="Post counts">
+          {Object.entries(count).map(([label, value]) => (
+            <span key={label} className="rounded-full bg-gray-100 px-3 py-1">
+              {label}: {Number(value) || 0}
+            </span>
+          ))}
+        </section>
+      )}
 
       {/* ── Extra Meta Block ── */}
       {extraMeta && extraMeta.length > 0 && (
@@ -291,7 +330,7 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
       </div>
 
       {/* ── Tags ── */}
-      {normalizedTags.length > 0 && (
+      {showTags && normalizedTags.length > 0 && (
         <div className={`flex flex-wrap gap-2 ${
           isVertical ? 'mt-4' : 'mt-8'
         }`}>
@@ -304,6 +343,18 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
             </span>
           ))}
         </div>
+      )}
+
+      {showComments && (
+        <section className="mt-6 border-t border-gray-200 pt-4 text-sm text-gray-600" aria-label="Comments">
+          {commentsUrl ? (
+            <a href={commentsUrl} className="text-blue-700 hover:underline">
+              Comments ({commentCount})
+            </a>
+          ) : (
+            <span>Comments ({commentCount})</span>
+          )}
+        </section>
       )}
 
       {/* ── Series Progress ── */}
