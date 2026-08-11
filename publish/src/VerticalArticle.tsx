@@ -191,13 +191,21 @@ const VerticalArticle: React.FC<VerticalArticleProps> = ({
       </div>
 
       {/* ── Title Area ── */}
-      <VerticalTextContainer writingMode={wm} lineWidth={lineWidth}>
-        <h1 className={`mb-4 font-bold leading-tight text-gray-900 ${
-          isVertical ? 'text-2xl md:text-3xl [writing-mode:vertical-rl]' : 'text-3xl md:text-4xl'
-        }`}>
-          {title}
-        </h1>
-      </VerticalTextContainer>
+      <h1
+        className={`mb-4 font-bold leading-tight text-gray-900 ${
+          isVertical ? 'text-2xl md:text-3xl' : 'text-3xl md:text-4xl'
+        }`}
+        style={isVertical ? {
+          writingMode: wm,
+          textOrientation,
+          lineHeight,
+          letterSpacing: '0.08em',
+          maxHeight: '12em',
+          display: 'inline-block',
+        } : undefined}
+      >
+        {title}
+      </h1>
 
       {/* ── Author & Date Meta ── */}
       <div className={`flex flex-wrap items-center gap-3 text-sm text-gray-500 ${
