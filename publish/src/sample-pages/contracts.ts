@@ -23,7 +23,7 @@ export const PUBLISHING_PAGE_RECIPES: PublishingPageRecipe[] = [
   { id: 'publish-home', label: 'Publishing Home', description: 'News and publishing home with search, sections, feed, and detail navigation.', vertical: 'news', requiredComponents: ['HeroBanner', 'SectionNav', 'ContentGrid', 'ContentFeed', 'ContentDetail'], optionalComponents: ['BreakingNews', 'FeaturedContent', 'RelatedArticles'] },
   { id: 'publish-newspaper', label: 'Newspaper', description: 'Editorial newspaper front page with lead story, briefs, and sections.', vertical: 'news', requiredComponents: ['NewspaperHeader', 'LeadStory', 'PrimaryArticleCard', 'SecondaryArticleCard', 'BriefItem', 'SectionHeader'], optionalComponents: ['EditorialCard', 'PullQuote'] },
   { id: 'publish-government', label: 'Government Portal', description: 'Public information portal for documents, services, schedules, and alerts.', vertical: 'government', requiredComponents: ['AnnouncementBanner', 'GovernmentServiceNav', 'DocumentList', 'DocumentCard'], optionalComponents: ['ApplicationGuide', 'CouncilSchedule', 'EmergencyAlert'] },
-  { id: 'publish-publication', label: 'Publication Catalog', description: 'Books and publication catalog with author, series, review, and reader detail.', vertical: 'publication', requiredComponents: ['HeroBanner', 'PublicationGrid', 'PublicationCard', 'ContentDetail'], optionalComponents: ['AuthorProfile', 'SeriesCard', 'ReviewCard', 'RankingBoard', 'VerticalArticleCard', 'WritingModeToggle'] },
+  { id: 'publish-publication', label: 'Publication Catalog', description: 'Books and publication catalog with author, series, review, and reader detail.', vertical: 'publication', requiredComponents: ['HeroBanner', 'PublicationGrid', 'PublicationCard', 'ContentDetail'], optionalComponents: ['AuthorProfile', 'SeriesCard', 'ReviewCard', 'RankingBoard', 'WritingModeToggle'] },
   { id: 'publish-comic', label: 'Manga / Series', description: 'Series browser and reader flow for manga and comic content.', vertical: 'comic', requiredComponents: ['SeriesList', 'SeriesHeader', 'ChapterList', 'ComicReader'], optionalComponents: ['RankingBoard', 'RelatedArticles'] },
   { id: 'publish-events', label: 'Events Calendar', description: 'Event discovery page with date/category filters, calendar, and schedule.', vertical: 'entertainment', requiredComponents: ['EventFilterBar', 'EventCalendar', 'EventCard', 'ScheduleList'], optionalComponents: ['VenueCard', 'FeaturedContent'] },
 ];
@@ -70,7 +70,6 @@ const SELECTING_COMPONENTS = new Set([
   'ChapterList',
   'SeriesList',
   'RelatedArticles',
-  'VerticalArticleCard',
 ]);
 
 const interactionsFor = (componentName: string) => {

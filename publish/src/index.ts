@@ -39,7 +39,6 @@ import TicketCard from "./TicketCard";
 import VenueCard from "./VenueCard";
 import ScheduleList from "./ScheduleList";
 import EventFilterBar from "./EventFilterBar";
-import VerticalArticle from "./VerticalArticle";
 import WritingModeToggle from "./WritingModeToggle";
 import RelatedArticles from "./RelatedArticles";
 import NewspaperHeader from "./NewspaperHeader";
@@ -88,9 +87,6 @@ export const PublishComponents = {
   VenueCard,
   ScheduleList,
   EventFilterBar,
-  VerticalArticleCard: VerticalArticle,
-  // Saved layouts may still reference the former name.
-  VerticalArticle,
   WritingModeToggle,
   RelatedArticles,
   NewspaperHeader,
@@ -1871,142 +1867,6 @@ export const PublishDefaultProps = {
       },
     ],
   },
-  VerticalArticleCard: {
-    _componentDesc: "component.verticalArticle.desc",
-    title: "近代文学の展望 — Perspectives on Modern Literature",
-    content:
-      "<p>In the ever-evolving landscape of Japanese literature, the interplay between traditional narrative forms and contemporary themes has created a rich tapestry of expression that continues to captivate readers worldwide.</p><p>Modern authors increasingly draw upon classical techniques such as <ruby>枕詞<rt>makurakotoba</rt></ruby> and <ruby>掛詞<rt>kakekotoba</rt></ruby>, weaving ancient poetic devices into stories that address pressing contemporary issues. This fusion of old and new represents not merely a stylistic choice but a profound meditation on cultural continuity in an age of rapid change.</p>",
-    image:
-      "https://images.unsplash.com/photo-1455390582262-044cdead277a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80",
-    contentType: "publication",
-    category: "Literature",
-    author: "田中 花子 (Hanako Tanaka)",
-    authorAvatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=96&h=96&fit=crop&crop=face",
-    publishedAt: "June 11, 2026",
-    showTitle: true,
-    showDate: true,
-    showAuthor: true,
-    showTags: true,
-    showCounts: true,
-    showComments: true,
-    count: { bookmarks: 0, favors: 0, forwards: 0, clicks: 0 },
-    commentCount: 0,
-    tags: ["literature", "japanese", "vertical-writing", "tategaki"],
-    columnCount: 2,
-    lineWidth: 40,
-    fontFamily: "mincho",
-    fontSize: "1rem",
-    lineHeight: 1.8,
-    paragraphMargin: "1em",
-    blockMargin: "1.5rem",
-    columnGap: "2.5rem",
-    columnHeight: "70vh",
-    textOrientation: "mixed",
-    keepBlocksTogether: true,
-    seriesName: "Literary Horizons",
-    chapterNumber: 3,
-    totalChapters: 12,
-    __schema: {
-      type: "object",
-      title: "VerticalArticleCard",
-      properties: {
-        title: { type: "string", title: "Title" },
-        content: { type: "string", title: "Content", "x-widget": "textarea" },
-        image: {
-          type: "string",
-          title: "Image URL",
-          format: "uri",
-          "x-media-type": "image",
-        },
-        contentType: {
-          type: "string",
-          title: "Type",
-          enum: ["news", "government", "publication", "comic", "entertainment"],
-        },
-        category: { type: "string", title: "Category" },
-        author: { type: "string", title: "Author" },
-        authorAvatar: {
-          type: "string",
-          title: "Author Avatar",
-          format: "uri",
-          "x-media-type": "image",
-        },
-        publishedAt: { type: "string", title: "Date" },
-        showTitle: { type: "boolean", title: "Show Title" },
-        showDate: { type: "boolean", title: "Show Date" },
-        showAuthor: { type: "boolean", title: "Show Author" },
-        showTags: { type: "boolean", title: "Show Tags" },
-        authorProfileUrl: { type: "string", title: "Author Profile URL", format: "uri" },
-        showCounts: { type: "boolean", title: "Show Social Counts" },
-        commentCount: { type: "number", title: "Comment Count", minimum: 0 },
-        showComments: { type: "boolean", title: "Show Comments" },
-        columnCount: {
-          type: "number",
-          title: "Columns (段組み)",
-          minimum: 1,
-          maximum: 4,
-        },
-        lineWidth: {
-          type: "number",
-          title: "Line Width (行幅)",
-          minimum: 20,
-          maximum: 60,
-        },
-        fontFamily: {
-          type: "string",
-          title: "Font Family",
-          enum: ["mincho", "gothic", "serif", "sans", "system"],
-        },
-        fontSize: {
-          type: "string",
-          title: "Font Size",
-          enum: ["0.9rem", "1rem", "1.1rem", "1.25rem"],
-        },
-        lineHeight: {
-          type: "number",
-          title: "Line Height",
-          minimum: 1.2,
-          maximum: 2.5,
-          multipleOf: 0.1,
-        },
-        paragraphMargin: {
-          type: "string",
-          title: "Paragraph Margin",
-          enum: ["0.5em", "1em", "1.5em", "2em"],
-        },
-        blockMargin: {
-          type: "string",
-          title: "Block Margin",
-          enum: ["1rem", "1.5rem", "2rem", "3rem"],
-        },
-        columnGap: {
-          type: "string",
-          title: "Column Gap",
-          enum: ["1.5rem", "2rem", "2.5rem", "3rem"],
-        },
-        textOrientation: {
-          type: "string",
-          title: "Text Orientation",
-          enum: ["mixed", "upright", "sideways"],
-        },
-        keepBlocksTogether: {
-          type: "boolean",
-          title: "Keep Blocks Together",
-        },
-      },
-    },
-    __interactions: [
-      {
-        id: "vertical-article-select",
-        event: "select",
-        action: "emit-event",
-        targetPath: "publish:content:selected",
-        valueFrom: "$.id",
-        enabled: true,
-      },
-    ],
-  },
   WritingModeToggle: {
     _componentDesc: "component.writingModeToggle.desc",
     current: "horizontal-tb",
@@ -2504,10 +2364,6 @@ export const PublishDefaultProps = {
   },
 };
 
-// Compatibility defaults for saved layouts created before the rename.
-(PublishDefaultProps as Record<string, any>).VerticalArticle =
-  PublishDefaultProps.VerticalArticleCard;
-
 export { PublishProvider };
 
 // ── Sample page templates ──
@@ -2576,10 +2432,6 @@ export { default as VerticalTextContainer } from "./VerticalTextContainer";
 export type { VerticalTextContainerProps } from "./VerticalTextContainer";
 export { default as DeepZoomViewer } from "./DeepZoomViewer";
 export type { DeepZoomViewerProps } from "./DeepZoomViewer";
-export { default as VerticalArticle } from "./VerticalArticle";
-export type { VerticalArticleProps } from "./VerticalArticle";
-export { default as VerticalArticleCard } from "./VerticalArticleCard";
-export type { VerticalArticleCardProps } from "./VerticalArticleCard";
 export { default as WritingModeToggle } from "./WritingModeToggle";
 export type { WritingModeToggleProps } from "./WritingModeToggle";
 export { default as RelatedArticles } from "./RelatedArticles";
