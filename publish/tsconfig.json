@@ -31,6 +31,9 @@
   "include": [
     "src"
   ],
+  "exclude": [
+    "src/sample-pages"
+  ],
   "references": [
     {
       "path": "./tsconfig.node.json"

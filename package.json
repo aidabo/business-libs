@@ -1,0 +1,13 @@
+{
+  "name": "11-business-root",
+  "private": true,
+  "workspaces": [
+    "estate",
+    "portal",
+    "publish"
+  ],
+  "scripts": {
+    "build": "yarn workspaces run build",
+    "install:all": "yarn install"
+  }
+}
