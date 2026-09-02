@@ -780,10 +780,94 @@ export const EstateDefaultProps = {
   },
   ContactSection: {
     _componentDesc: 'component.contactSection.desc',
-    companyName: "Estate Realty Group",
-    address: "123 Business Blvd, Suite 100, City, ST 12345",
-    phone: "+1 (800) 123-4567",
-    email: "contact@estate-realty.com",
+    heading: "",
+    description: "",
+    mapPosition: "left",
+    mapUrl: "",
+    latitude: 35.7205,
+    longitude: 139.7523,
+    mapAddress: "",
+    mapZoom: 16,
+    mapHeight: "420px",
+    showMapLink: true,
+    mapLinkLabel: "",
+    infoItems: [
+      { label: "所在地", text: "東京都文京区白山1-19-6\nシンク白山ビル1F" },
+      {
+        label: "電車でお越しの場合",
+        text: "都営三田線 白山駅 徒歩5分\n都営大江戸線 春日駅 徒歩10分\n東京メトロ南北線 本駒込駅 徒歩11分",
+      },
+      { label: "営業時間", text: "平日 9:00〜18:00 / 日祝定休" },
+    ],
+    showPhone: true,
+    phone: "03-5615-9268",
+    phoneNote: "ご来社の場合はお電話でお問い合わせください",
+    __schema: {
+      type: "object",
+      title: "ContactSection",
+      properties: {
+        heading: { type: "string", title: "見出し（任意）" },
+        description: {
+          type: "string",
+          title: "説明（任意）",
+          "x-widget": "textarea",
+        },
+        mapPosition: {
+          type: "string",
+          title: "地図の位置",
+          enum: ["left", "right"],
+        },
+        mapUrl: {
+          type: "string",
+          title: "Google Maps URL",
+          format: "uri",
+          description:
+            "最優先。共有/場所/埋め込みURLを貼り付け。URL内の座標は自動検出、埋め込みURLはそのまま表示。空なら緯度・経度、次に住所を使用。",
+        },
+        latitude: {
+          type: "number",
+          title: "緯度 (Latitude)",
+          description:
+            "URL未設定時に使用。クリアすると0になり、緯度・経度が両方0のときは無視して住所を使用。",
+        },
+        longitude: { type: "number", title: "経度 (Longitude)" },
+        mapAddress: {
+          type: "string",
+          title: "地図用の住所",
+          description: "URLも緯度・経度も無いときに地図を表示する住所。",
+        },
+        mapZoom: { type: "number", title: "ズーム", minimum: 1, maximum: 21, step: 1 },
+        mapHeight: {
+          type: "string",
+          title: "地図の高さ（CSS）",
+          description: "例: 420px または 28rem。",
+        },
+        showMapLink: { type: "boolean", title: "「マップで開く」リンクを表示", default: true },
+        mapLinkLabel: {
+          type: "string",
+          title: "リンクのラベル",
+          description: "空欄なら既定の「Google Mapで開く」を使用。",
+        },
+        infoItems: {
+          type: "array",
+          title: "情報項目（所在地・交通情報・営業時間など）",
+          description: "各項目は見出しと本文。本文は改行で複数行に分かれます。",
+          "x-array-binding": true,
+          items: {
+            type: "object",
+            properties: {
+              label: { type: "string", title: "見出し" },
+              text: { type: "string", title: "本文（改行で複数行）", "x-widget": "textarea" },
+            },
+          },
+        },
+        showPhone: { type: "boolean", title: "電話ボックスを表示", default: true },
+        phone: { type: "string", title: "電話番号" },
+        phoneNote: { type: "string", title: "電話ボックスの補足文" },
+        backgroundColor: { type: "string", title: "背景色", format: "color" },
+        fontSize: { type: "string", title: "フォントサイズ（CSS）" },
+      },
+    },
   },
   SearchBar: {
     _componentDesc: 'component.searchBar.desc',
