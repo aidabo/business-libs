@@ -22,6 +22,12 @@ export interface AgentCardProps {
   agentUserId?: string;
   /** Link to the privacy-policy page shown in the consent line. */
   privacyPolicyUrl?: string;
+  /** Label for the card's contact button. Empty = the default "Contact Agent". */
+  contactLabel?: string;
+  /** Fixed CSS height for the photo area, e.g. "300px". Empty = responsive default. */
+  imageHeight?: string;
+  /** CSS max-height cap for the photo area, e.g. "360px". */
+  imageMaxHeight?: string;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -66,6 +72,9 @@ const AgentCard: React.FC<AgentCardProps> = ({
   endpoint = "/api/estate/agent-contact",
   agentUserId = "",
   privacyPolicyUrl = "",
+  contactLabel = "",
+  imageHeight = "",
+  imageMaxHeight = "",
   backgroundColor,
   fontSize,
   className = "",
@@ -81,6 +90,19 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const [serverError, setServerError] = useState<string>("");
 
   const mergedStyle: React.CSSProperties = { backgroundColor, fontSize, ...style };
+
+  // Optional height / max-height override for the photo area. A fixed height also
+  // relaxes the default min-height so a smaller value is honored.
+  const imageWrapStyle: React.CSSProperties = {};
+  if (imageHeight && imageHeight.trim()) {
+    imageWrapStyle.height = imageHeight.trim();
+    imageWrapStyle.minHeight = imageHeight.trim();
+  }
+  if (imageMaxHeight && imageMaxHeight.trim()) {
+    imageWrapStyle.maxHeight = imageMaxHeight.trim();
+  }
+  const contactButtonLabel =
+    contactLabel && contactLabel.trim() ? contactLabel : t("Contact Agent");
 
   const setField = <K extends keyof ContactFields>(key: K, value: ContactFields[K]) => {
     setFields((prev) => ({ ...prev, [key]: value }));
@@ -160,7 +182,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
       className={`bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden flex flex-col md:flex-row w-full h-full ${className}`}
       style={mergedStyle}
     >
-      <div className="relative h-[40%] min-h-[250px] md:h-full md:w-2/5 shrink-0">
+      <div
+        className="relative h-[40%] min-h-[250px] md:h-full md:w-2/5 shrink-0"
+        style={imageWrapStyle}
+      >
         <img src={image} alt={name} className="w-full h-full object-cover absolute inset-0" />
       </div>
       <div className="p-8 md:w-3/5 flex flex-col justify-center flex-grow">
@@ -184,7 +209,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
           onClick={() => setOpen(true)}
           className="mt-8 w-full bg-gray-900 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
         >
-          {t("Contact Agent")}
+          {contactButtonLabel}
         </button>
       </div>
 

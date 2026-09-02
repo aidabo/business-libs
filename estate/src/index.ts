@@ -671,6 +671,9 @@ export const EstateDefaultProps = {
     endpoint: "/api/estate/agent-contact",
     agentUserId: "",
     privacyPolicyUrl: "",
+    contactLabel: "",
+    imageHeight: "",
+    imageMaxHeight: "",
     __schema: {
       type: "object",
       title: "AgentCard",
@@ -702,6 +705,21 @@ export const EstateDefaultProps = {
           type: "string",
           format: "uri",
           title: "個人情報取り扱いページURL",
+        },
+        contactLabel: {
+          type: "string",
+          title: "問い合わせボタンのラベル",
+          description: "空欄なら既定の「エージェントに連絡」を使用。",
+        },
+        imageHeight: {
+          type: "string",
+          title: "写真の高さ（CSS）",
+          description: "例: 300px。空欄ならレイアウトに追従（レスポンシブ）。",
+        },
+        imageMaxHeight: {
+          type: "string",
+          title: "写真の最大高さ（CSS）",
+          description: "例: 360px。高さの上限を指定。",
         },
       },
     },
