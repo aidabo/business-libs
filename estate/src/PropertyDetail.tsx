@@ -421,14 +421,82 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // Japan fields take priority
   const resolvedAddressJP =
     effectiveItem?.addressJP ?? effectiveItem?.address_jp ?? effectiveItem?.address ?? addressJP ?? address ?? "";
-  const resolvedPriceJPY =
-    effectiveItem?.priceJPY ?? effectiveItem?.price_jpy ?? priceJPY ?? effectiveItem?.price ?? price ?? "";
+  // Price: the record's own columns win over the props, which carry the
+  // widget-config preview values (the rule the resolvers above follow too).
+  // price_sale is the current asking price; price_valuation is the original
+  // appraised price, kept only for the 元価格 → 現行価格 display below.
+  // The sale price is read into its own binding so that display never pits a real
+  // valuation against the preview amount.
+  const recordSalePrice: unknown =
+    effectiveItem?.price_sale ??
+    effectiveItem?.priceSale ??
+    effectiveItem?.salePrice ??
+    effectiveItem?.priceJPY ??
+    effectiveItem?.price_jpy ??
+    effectiveItem?.price;
+  const resolvedPriceJPY = recordSalePrice ?? priceJPY ?? price ?? "";
+  const resolvedPriceValuation =
+    effectiveItem?.price_valuation ??
+    effectiveItem?.priceValuation ??
+    effectiveItem?.originalPrice ??
+    effectiveItem?.original_price ??
+    "";
   const resolvedPriceUSD = effectiveItem?.priceUSD ?? effectiveItem?.price_usd ?? priceUSD;
   const resolvedPriceCNY = effectiveItem?.priceCNY ?? effectiveItem?.price_cny ?? priceCNY;
   const resolvedTagJP =
     effectiveItem?.tagJP ?? effectiveItem?.tag_jp ?? tagJP ?? effectiveItem?.tag ?? tag ?? "";
   const resolvedPropertyType =
     effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
+
+  // Parse a JPY amount to yen. Accepts the 万/億 notation the widget defaults and
+  // hand-authored props use ("5,800万円" → 58000000) as well as the raw numeric
+  // column values, so both sides of the comparison share one unit.
+  const priceToNum = (v: unknown) => {
+    const s = String(v ?? "").trim();
+    if (!s) return 0;
+    const n = Number(s.replace(/[^0-9.]/g, ""));
+    if (!Number.isFinite(n)) return 0;
+    if (/億/.test(s)) return n * 100000000;
+    if (/万/.test(s)) return n * 10000;
+    return n;
+  };
+  // Format a JPY amount: keep already-formatted strings (¥ / 円 / 万), else
+  // prepend ¥ and add thousands separators. Mirrors PropertyCard's formatJpy so
+  // the detail page and the cards render the same amount identically.
+  const formatJpy = (v?: string | number): string => {
+    if (v === undefined || v === null || v === "") return "";
+    const s = String(v).trim();
+    if (/[¥￥円万]/.test(s)) return s;
+    const num = Number(s.replace(/[,\s]/g, ""));
+    if (!Number.isFinite(num) || num === 0) return "";
+    return `¥${num.toLocaleString("ja-JP")}`;
+  };
+  const rawSalePrice =
+    resolvedPriceJPY === undefined || resolvedPriceJPY === null ? "" : String(resolvedPriceJPY).trim();
+  const rawValuationPrice =
+    resolvedPriceValuation === undefined || resolvedPriceValuation === null
+      ? ""
+      : String(resolvedPriceValuation).trim();
+  // Falls back to the raw text when it is not a number ("応相談" etc.), so an
+  // unparseable price still shows instead of silently disappearing.
+  const displayPriceJPY =
+    rawSalePrice && rawSalePrice !== "0" ? formatJpy(rawSalePrice) || rawSalePrice : "";
+  const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
+  const salePriceNum = priceToNum(recordSalePrice);
+  const valuationPriceNum = priceToNum(resolvedPriceValuation);
+  // 元価格 → 現行価格: strike the appraised/original price through above the current
+  // price, but only while it is actually higher — that is the whole point, the
+  // display is what makes a price reduction visible. With no valuation price there
+  // is nothing to compare, so the sale price is shown on its own; the valuation is
+  // never rendered as a standalone price.
+  const hasPriceReduction =
+    !isRentProperty && valuationPriceNum > 0 && salePriceNum > 0 && valuationPriceNum > salePriceNum;
+  // Formatted from the raw value, not the parsed number, so a 万/億 amount keeps
+  // its original notation instead of degrading to "¥6,200".
+  const displayOriginalPriceJPY = hasPriceReduction
+    ? formatJpy(rawValuationPrice) || rawValuationPrice
+    : "";
+
   const legacySqft = effectiveItem?.sqft ?? sqft;
   const legacySqm = legacySqft == null || legacySqft === ""
     ? ""
@@ -521,6 +589,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     building_name: resolvedBuildingName,
     address: resolvedAddressJP,
     price_jpy: resolvedPriceJPY,
+    // Normalized for the child cards: PropertyPriceCard (= PropertyCard) carries
+    // the 元価格 → 現行価格 display itself and reads these from the record.
+    price_valuation: resolvedPriceValuation,
     price_usd: resolvedPriceUSD,
     price_cny: resolvedPriceCNY,
     tag_jp: resolvedTagJP,
@@ -591,9 +662,14 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
                 {t(resolvedTagJP)}
               </span>
             )}
-            {resolvedPriceJPY && (
+            {displayPriceJPY && (
               <span className="rounded-full bg-white/25 px-4 py-1.5 text-sm font-bold">
-                {resolvedPriceJPY}
+                {displayOriginalPriceJPY && (
+                  <span className="mr-2 text-xs font-medium line-through opacity-80">
+                    {displayOriginalPriceJPY}
+                  </span>
+                )}
+                {displayPriceJPY}
               </span>
             )}
           </div>
@@ -614,10 +690,15 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
               {t(resolvedTagJP)}
             </span>
           )}
-          {resolvedPriceJPY && (
+          {displayPriceJPY && (
             <div className="absolute bottom-4 right-4 rounded-xl bg-rose-600/90 px-4 py-2 text-right text-white shadow-lg backdrop-blur-sm">
               <div className="text-[10px] font-semibold uppercase tracking-widest text-rose-100">{t("Price")}</div>
-              <div className="text-xl font-bold leading-tight">{resolvedPriceJPY}</div>
+              {displayOriginalPriceJPY && (
+                <div className="text-xs font-semibold text-rose-100 line-through">
+                  {displayOriginalPriceJPY}
+                </div>
+              )}
+              <div className="text-xl font-bold leading-tight">{displayPriceJPY}</div>
             </div>
           )}
         </div>
