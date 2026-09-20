@@ -308,6 +308,16 @@ function row(key: string, label: string, value: unknown, href?: string): FieldRo
 }
 
 export function getEstateFieldGroups(property: EstatePropertyDisplayModel): EstateFieldGroups {
+  // `price` is the last-resort alias: an authored item — the widgets' default
+  // `properties` array (index.ts) and a `price` prop — carries the amount under
+  // that plain name with no DB column behind it (the DB has price_sale /
+  // price_valuation, never `price`). It has to keep surfacing as the sale price,
+  // or such a record would show no price at all. Route it by type the way
+  // PropertyTable does, so a rental's amount is never labelled 売買価格.
+  const isRent = /rent|賃貸/i.test(property.propertyType || "");
+  const salePriceValue = isRent ? property.salePrice : property.salePrice || property.price;
+  const monthlyRentValue = isRent ? property.monthlyRent || property.price : property.monthlyRent;
+
   return {
     basic: [
       ...row("id", "物件ID", property.id),
@@ -330,9 +340,10 @@ export function getEstateFieldGroups(property: EstatePropertyDisplayModel): Esta
       // No 「価格」 row. priceJPY / price_jpy / price and price_sale resolve to the
       // same amount for a real record, so the row only repeated 売買価格 — while on
       // a record without price_sale it surfaced the widget preview default instead.
-      // The card shows the sale price once, under 売買価格.
-      ...row("salePrice", "売買価格", property.salePrice),
-      ...row("monthlyRent", "月額賃料", property.monthlyRent),
+      // The card shows the sale price once: 売買価格, or 月額賃料 when the record is
+      // a rental and the amount came from the plain `price` alias (see isRent above).
+      ...row("salePrice", "売買価格", salePriceValue),
+      ...row("monthlyRent", "月額賃料", monthlyRentValue),
       ...row("deposit", "敷金", property.deposit),
       ...row("keyMoney", "礼金", property.keyMoney),
       ...row("managementFee", "管理費", property.managementFee),
