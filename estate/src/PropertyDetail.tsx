@@ -434,7 +434,11 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.priceJPY ??
     effectiveItem?.price_jpy ??
     effectiveItem?.price;
-  const resolvedPriceJPY = recordSalePrice ?? priceJPY ?? price ?? "";
+  // The props are the widget-config preview values and stand in for the empty
+  // preview only. With a record in hand its own columns decide: a rent property
+  // has no sale price at all, and falling back there would print the sample
+  // amount on a rental page instead of leaving the price out.
+  const resolvedPriceJPY = recordSalePrice ?? (effectiveItem ? "" : priceJPY ?? price ?? "");
   const resolvedPriceValuation =
     effectiveItem?.price_valuation ??
     effectiveItem?.priceValuation ??
@@ -589,8 +593,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     building_name: resolvedBuildingName,
     address: resolvedAddressJP,
     price_jpy: resolvedPriceJPY,
-    // Normalized for the child cards: PropertyPriceCard (= PropertyCard) carries
-    // the 元価格 → 現行価格 display itself and reads these from the record.
+    // The record's own appraisal price, normalized for the child cards so a card
+    // that renders the 元価格 → 現行価格 display (the PropertyCard / PropertyTable
+    // rule) reads it from the record rather than from the widget preview props.
+    // PropertyPriceCard lists the sale price only; it shows no valuation row.
     price_valuation: resolvedPriceValuation,
     price_usd: resolvedPriceUSD,
     price_cny: resolvedPriceCNY,

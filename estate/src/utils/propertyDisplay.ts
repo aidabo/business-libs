@@ -327,7 +327,10 @@ export function getEstateFieldGroups(property: EstatePropertyDisplayModel): Esta
       ...row("streetViewUrl", "Street View", property.streetViewUrl, property.streetViewUrl),
     ],
     price: [
-      ...row("price", "価格", property.price),
+      // No 「価格」 row. priceJPY / price_jpy / price and price_sale resolve to the
+      // same amount for a real record, so the row only repeated 売買価格 — while on
+      // a record without price_sale it surfaced the widget preview default instead.
+      // The card shows the sale price once, under 売買価格.
       ...row("salePrice", "売買価格", property.salePrice),
       ...row("monthlyRent", "月額賃料", property.monthlyRent),
       ...row("deposit", "敷金", property.deposit),
