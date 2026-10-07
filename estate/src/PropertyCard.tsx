@@ -459,9 +459,9 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   };
 
   // ── Tag color ──────────────────────────────────────────────────
-  const tagColor = tag === "賃貸" || tag?.toLowerCase().includes("rent")
+  const tagColor = tag?.toLowerCase().includes("rent")
     ? "bg-emerald-600"
-    : tag === "売買" || tag?.toLowerCase().includes("sale")
+    : tag?.toLowerCase().includes("sale")
     ? "bg-blue-600"
     : "bg-violet-600";
 
@@ -716,9 +716,9 @@ const PROPERTY_DATA_PROPS = new Set<string>([
 ]);
 
 const TAG_BY_PROPERTY_TYPE: Record<string, string> = {
-  rent: "賃貸",
-  sale: "売買",
-  investment: "投資",
+  rent: "estate.property.option.type.rent",
+  sale: "estate.property.option.type.sale",
+  investment: "estate.property.option.type.investment",
 };
 
 // Self-resolving wrapper. A PropertyCard placed directly on a page resolves its own
