@@ -2,6 +2,13 @@ import React from "react";
 import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
 
+function safeHref(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  const lower = url.toLowerCase().trimStart();
+  if (lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("/")) return url;
+  return undefined;
+}
+
 export interface RenovationCase {
   id: string;
   title: string;
@@ -130,7 +137,7 @@ const RenovationCaseCard: React.FC<RenovationCaseCardProps> = ({
   return (
     <div className={`w-full ${className}`} style={mergedStyle}>
       {url ? (
-        <a href={url} target="_blank" rel="noreferrer" className="block">
+        <a href={safeHref(url)} target="_blank" rel="noreferrer" className="block">
           {inner}
         </a>
       ) : (

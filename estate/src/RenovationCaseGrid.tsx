@@ -3,6 +3,13 @@ import { useT } from "./hooks/useTranslation";
 import type { StackPageRuntimeApi } from "./types";
 import type { RenovationCase } from "./RenovationCaseCard";
 
+function safeHref(url: string | undefined): string | undefined {
+  if (!url) return undefined;
+  const lower = url.toLowerCase().trimStart();
+  if (lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("/")) return url;
+  return undefined;
+}
+
 export interface RenovationCaseGridProps {
   title?: string;
   description?: string;
@@ -113,7 +120,7 @@ const RenovationCaseGrid: React.FC<RenovationCaseGridProps> = ({
         {showAllLink && (
           <div className="mt-10 text-center">
             <a
-              href={showAllLink}
+              href={safeHref(showAllLink)}
               className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-6 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
             >
               {t(showAllLabel || "施工事例をすべて見る")}
@@ -193,7 +200,7 @@ function CaseCard({ item, t }: { item: RenovationCase; t: (key: string) => strin
   );
 
   return item.url ? (
-    <a href={item.url} target="_blank" rel="noreferrer" className="block h-full">
+    <a href={safeHref(item.url)} target="_blank" rel="noreferrer" className="block h-full">
       {inner}
     </a>
   ) : (
