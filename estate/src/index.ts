@@ -34,6 +34,9 @@ import PropertyNeighborhoodCard from "./PropertyNeighborhoodCard";
 import PropertyHazardCard from "./PropertyHazardCard";
 import PropertyMatchingPanel from "./PropertyMatchingPanel";
 import InvestmentSimulator from "./InvestmentSimulator";
+import BeforeAfterGallery from "./BeforeAfterGallery";
+import RenovationCaseCard from "./RenovationCaseCard";
+import RenovationCaseGrid from "./RenovationCaseGrid";
 import { EstateProvider } from "./contexts/EstateContext";
 
 // Map for ComponentsProvider
@@ -75,6 +78,9 @@ export const EstateComponents = {
   PropertyHazardCard,
   PropertyMatchingPanel,
   InvestmentSimulator,
+  BeforeAfterGallery,
+  RenovationCaseCard,
+  RenovationCaseGrid,
 };
 
 /**
@@ -395,6 +401,97 @@ const newsFeedSchema = {
       description: "Notification items shown in the feed. Bind this array to a datasource to load dynamic news.",
       items: newsFeedItemSchema,
       "x-array-binding": true,
+    },
+    maxItems: numberProp("Maximum items", { minimum: 1, maximum: 50 }),
+    showAllLink: textProp("Show all link"),
+    showAllLabel: textProp("Show all label"),
+    emptyText: textProp("Empty state text"),
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const beforeAfterRoomItemSchema = {
+  type: "object",
+  properties: {
+    label: textProp("Room label"),
+    beforeImage: mediaUriProp("Before image", "image"),
+    afterImage: mediaUriProp("After image", "image"),
+  },
+};
+
+const beforeAfterGallerySchema = {
+  type: "object",
+  title: "BeforeAfterGallery",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    projectTitle: textProp("Project title"),
+    projectDescription: textareaProp("Project description"),
+    location: textProp("Location"),
+    completionDate: textProp("Completion date"),
+    rooms: {
+      title: "Rooms",
+      type: "array",
+      description: "Before/after photo pairs per room.",
+      items: beforeAfterRoomItemSchema,
+      "x-array-binding": true,
+    },
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const renovationCaseItemSchema = {
+  type: "object",
+  properties: {
+    id: textProp("ID"),
+    title: textProp("Title"),
+    location: textProp("Location"),
+    date: textProp("Date (YYYY-MM)"),
+    mainImage: mediaUriProp("Main image", "image"),
+    description: textareaProp("Description"),
+    workItems: listTextProp("Work items"),
+    url: uriProp("Case URL"),
+  },
+};
+
+const renovationCaseCardSchema = {
+  type: "object",
+  title: "RenovationCaseCard",
+  properties: {
+    title: textProp("Title"),
+    location: textProp("Location"),
+    date: textProp("Date (YYYY-MM)"),
+    mainImage: mediaUriProp("Main image", "image"),
+    description: textareaProp("Description"),
+    workItems: listTextProp("Work items"),
+    url: uriProp("Case URL"),
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const renovationCaseGridSchema = {
+  type: "object",
+  title: "RenovationCaseGrid",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    cases: {
+      title: "Cases",
+      type: "array",
+      description: "Renovation case items. Bind to Ghost posts for dynamic content.",
+      items: renovationCaseItemSchema,
+      "x-array-binding": true,
+    },
+    columns: {
+      title: "Columns",
+      type: "number",
+      enum: [2, 3],
     },
     maxItems: numberProp("Maximum items", { minimum: 1, maximum: 50 }),
     showAllLink: textProp("Show all link"),
@@ -1580,6 +1677,72 @@ export const EstateDefaultProps = {
         action: "set-shared-state",
         targetPath: "estate.selectedPropertyId",
         valueFrom: "$.id",
+      },
+    ],
+  },
+  BeforeAfterGallery: {
+    _componentDesc: "Before/After gallery with room tabs",
+    __schema: beforeAfterGallerySchema,
+    title: "施工前後ギャラリー",
+    description: "各部屋の施工前・施工後の写真をご覧いただけます。",
+    projectTitle: "横浜市 2LDK マンション フルリノベーション",
+    projectDescription: "老朽化したマンションを現代的なデザインに全面リノベーション。間取りの最適化と設備の刷新を同時施工しました。",
+    location: "神奈川県横浜市",
+    completionDate: "2024年9月",
+    rooms: [
+      { label: "外観", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=外観+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=外観+After" },
+      { label: "リビング", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=リビング+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=リビング+After" },
+      { label: "キッチン", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=キッチン+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=キッチン+After" },
+      { label: "トイレ", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=トイレ+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=トイレ+After" },
+      { label: "洗面所", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=洗面所+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=洗面所+After" },
+      { label: "洋室", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=洋室+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=洋室+After" },
+    ],
+  },
+  RenovationCaseCard: {
+    _componentDesc: "Renovation case card (single)",
+    __schema: renovationCaseCardSchema,
+    title: "横浜市 2LDK マンション フルリノベーション",
+    location: "神奈川県横浜市",
+    date: "2024-09",
+    mainImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=施工後",
+    description: "2LDK中古マンションの室内全体をリノベーション。老朽化した設備・内装を一新し、快適な居住空間に仕上げました。",
+    workItems: ["内装クロス張替え（全室）", "フローリング張替え", "キッチン交換", "ユニットバス交換", "トイレ交換"],
+  },
+  RenovationCaseGrid: {
+    _componentDesc: "Renovation case grid (multiple cases)",
+    __schema: renovationCaseGridSchema,
+    title: "施工事例",
+    description: "実際の施工事例をご紹介します。リフォーム・リノベーションのご参考にどうぞ。",
+    columns: 3,
+    maxItems: 9,
+    showAllLabel: "施工事例をすべて見る",
+    cases: [
+      {
+        id: "case-1",
+        title: "横浜市 2LDK マンション フルリノベーション",
+        location: "神奈川県横浜市",
+        date: "2024-09",
+        mainImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=施工後",
+        description: "2LDK中古マンションの室内全体をリノベーション。老朽化した設備・内装を一新し、快適な居住空間に仕上げました。",
+        workItems: ["内装クロス張替え（全室）", "フローリング張替え", "キッチン交換", "ユニットバス交換", "トイレ交換"],
+      },
+      {
+        id: "case-2",
+        title: "世田谷区 3LDK 戸建て リフォーム",
+        location: "東京都世田谷区",
+        date: "2024-06",
+        mainImage: "https://placehold.co/800x500/d1fae5/065f46?text=施工後",
+        description: "築30年の戸建て住宅を現代的なデザインにリフォーム。水回り全面刷新と断熱改修を実施しました。",
+        workItems: ["水回り全面交換", "断熱リフォーム", "外壁塗装", "フローリング張替え"],
+      },
+      {
+        id: "case-3",
+        title: "品川区 1LDK マンション リノベーション",
+        location: "東京都品川区",
+        date: "2024-03",
+        mainImage: "https://placehold.co/800x500/fef3c7/92400e?text=施工後",
+        description: "コンパクトな1LDKを開放的なワンルーム風レイアウトにリノベーション。間取り変更と設備刷新を同時施工。",
+        workItems: ["間取り変更", "キッチン交換", "クロス張替え", "照明更新"],
       },
     ],
   },
