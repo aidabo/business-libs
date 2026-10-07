@@ -37,6 +37,11 @@ import InvestmentSimulator from "./InvestmentSimulator";
 import BeforeAfterGallery from "./BeforeAfterGallery";
 import RenovationCaseCard from "./RenovationCaseCard";
 import RenovationCaseGrid from "./RenovationCaseGrid";
+import RenovationProcessSteps from "./RenovationProcessSteps";
+import CustomerTestimonials from "./CustomerTestimonials";
+import RenovationServiceMenu from "./RenovationServiceMenu";
+import RenovationFAQ from "./RenovationFAQ";
+import RenovationWarrantyBadges from "./RenovationWarrantyBadges";
 import { EstateProvider } from "./contexts/EstateContext";
 
 // Map for ComponentsProvider
@@ -81,6 +86,11 @@ export const EstateComponents = {
   BeforeAfterGallery,
   RenovationCaseCard,
   RenovationCaseGrid,
+  RenovationProcessSteps,
+  CustomerTestimonials,
+  RenovationServiceMenu,
+  RenovationFAQ,
+  RenovationWarrantyBadges,
 };
 
 /**
@@ -497,6 +507,172 @@ const renovationCaseGridSchema = {
     showAllLink: textProp("Show all link"),
     showAllLabel: textProp("Show all label"),
     emptyText: textProp("Empty state text"),
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const processStepItemSchema = {
+  type: "object",
+  properties: {
+    stepNumber: numberProp("Step number"),
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    icon: textProp("Icon (emoji)"),
+  },
+};
+
+const renovationProcessStepsSchema = {
+  type: "object",
+  title: "RenovationProcessSteps",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    steps: {
+      title: "Steps",
+      type: "array",
+      description: "Renovation process steps shown in order.",
+      items: processStepItemSchema,
+      "x-array-binding": true,
+    },
+    layout: enumProp("Layout", ["horizontal", "vertical"]),
+    accentColor: textProp("Accent Color", { format: "color" }),
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const testimonialItemSchema = {
+  type: "object",
+  properties: {
+    id: textProp("ID"),
+    name: textProp("Name"),
+    location: textProp("Location"),
+    propertyType: textProp("Property type"),
+    rating: numberProp("Rating (1-5)", { minimum: 1, maximum: 5 }),
+    comment: textareaProp("Comment"),
+    date: textProp("Date (YYYY-MM)"),
+    avatar: mediaUriProp("Avatar", "image"),
+  },
+};
+
+const customerTestimonialsSchema = {
+  type: "object",
+  title: "CustomerTestimonials",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    testimonials: {
+      title: "Testimonials",
+      type: "array",
+      description: "Customer testimonial items. Bind to a datasource for dynamic content.",
+      items: testimonialItemSchema,
+      "x-array-binding": true,
+    },
+    columns: {
+      title: "Columns",
+      type: "number",
+      enum: [1, 2, 3],
+    },
+    showAllLink: textProp("Show all link"),
+    showAllLabel: textProp("Show all label"),
+    emptyText: textProp("Empty state text"),
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const serviceItemSchema = {
+  type: "object",
+  properties: {
+    id: textProp("ID"),
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    image: mediaUriProp("Image", "image"),
+    icon: textProp("Icon (emoji)"),
+    url: uriProp("Link URL"),
+  },
+};
+
+const renovationServiceMenuSchema = {
+  type: "object",
+  title: "RenovationServiceMenu",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    services: {
+      title: "Services",
+      type: "array",
+      description: "Renovation service menu items.",
+      items: serviceItemSchema,
+      "x-array-binding": true,
+    },
+    columns: {
+      title: "Columns",
+      type: "number",
+      enum: [2, 3, 4],
+    },
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const faqItemSchema = {
+  type: "object",
+  properties: {
+    question: textProp("Question"),
+    answer: textareaProp("Answer"),
+  },
+};
+
+const renovationFAQSchema = {
+  type: "object",
+  title: "RenovationFAQ",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    items: {
+      title: "FAQ items",
+      type: "array",
+      description: "Frequently asked questions and answers.",
+      items: faqItemSchema,
+      "x-array-binding": true,
+    },
+    backgroundColor: textProp("Background Color", { format: "color" }),
+    fontSize: textProp("Font Size"),
+  },
+  required: [],
+};
+
+const warrantyBadgeItemSchema = {
+  type: "object",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    icon: textProp("Icon (emoji)"),
+    years: numberProp("Warranty years"),
+    highlight: booleanProp("Highlight"),
+  },
+};
+
+const renovationWarrantyBadgesSchema = {
+  type: "object",
+  title: "RenovationWarrantyBadges",
+  properties: {
+    title: textProp("Title"),
+    description: textareaProp("Description"),
+    badges: {
+      title: "Badges",
+      type: "array",
+      description: "Warranty and support badges.",
+      items: warrantyBadgeItemSchema,
+      "x-array-binding": true,
+    },
+    accentColor: textProp("Accent Color", { format: "color" }),
     backgroundColor: textProp("Background Color", { format: "color" }),
     fontSize: textProp("Font Size"),
   },
@@ -1744,6 +1920,102 @@ export const EstateDefaultProps = {
         description: "コンパクトな1LDKを開放的なワンルーム風レイアウトにリノベーション。間取り変更と設備刷新を同時施工。",
         workItems: ["間取り変更", "キッチン交換", "クロス張替え", "照明更新"],
       },
+    ],
+  },
+  RenovationProcessSteps: {
+    _componentDesc: "Renovation process steps (consultation to handover)",
+    __schema: renovationProcessStepsSchema,
+    title: "リフォームの流れ",
+    description: "ご相談から完成・引渡しまで、安心してお任せいただけるステップでご案内します。",
+    layout: "horizontal",
+    accentColor: "#2563eb",
+    steps: [
+      { stepNumber: 1, title: "無料相談", description: "まずはお気軽にご相談ください。ご要望・ご予算をヒアリングします。", icon: "💬" },
+      { stepNumber: 2, title: "現地調査", description: "専門スタッフが現地を調査し、最適なプランをご提案します。", icon: "🔍" },
+      { stepNumber: 3, title: "お見積り", description: "詳細な工事内容と費用をご提示します。納得いただくまでご相談可能です。", icon: "📋" },
+      { stepNumber: 4, title: "ご契約", description: "工事内容・費用・工期を確認のうえ、ご契約いただきます。", icon: "✍️" },
+      { stepNumber: 5, title: "施工", description: "経験豊富な職人が丁寧に施工いたします。進捗はその都度ご報告します。", icon: "🔨" },
+      { stepNumber: 6, title: "完成・引渡し", description: "仕上がりを確認いただき、保証書をお渡しします。", icon: "🏠" },
+    ],
+  },
+  CustomerTestimonials: {
+    _componentDesc: "Customer testimonials with star ratings",
+    __schema: customerTestimonialsSchema,
+    title: "お客様の声",
+    description: "実際にリフォーム・リノベーションをご利用いただいたお客様からの感想をご紹介します。",
+    columns: 3,
+    testimonials: [
+      {
+        id: "t-1",
+        name: "T.K様",
+        location: "神奈川県横浜市",
+        propertyType: "2LDK マンション リノベーション",
+        rating: 5,
+        comment:
+          "老朽化が気になっていたキッチンとお風呂を一新してもらいました。担当の方がとても丁寧で、工事中も安心して任せられました。仕上がりも想像以上で大満足です。",
+        date: "2024-09",
+      },
+      {
+        id: "t-2",
+        name: "S.M様",
+        location: "東京都世田谷区",
+        propertyType: "3LDK 戸建て 内装リフォーム",
+        rating: 5,
+        comment:
+          "築30年の戸建てをリフォームしました。予算内に収めてもらえただけでなく、提案力も高く、思い描いていた以上の空間になりました。",
+        date: "2024-06",
+      },
+      {
+        id: "t-3",
+        name: "A.N様",
+        location: "東京都品川区",
+        propertyType: "1LDK マンション 水回りリフォーム",
+        rating: 5,
+        comment:
+          "トイレ・洗面台・浴室の3点を同時にリフォーム。短期間でまとめて施工してもらえてとても助かりました。アフターフォローも丁寧です。",
+        date: "2024-03",
+      },
+    ],
+  },
+  RenovationServiceMenu: {
+    _componentDesc: "Renovation service menu grid",
+    __schema: renovationServiceMenuSchema,
+    title: "リフォームメニュー",
+    description: "お住まいのお悩みに合わせて、幅広いリフォーム・リノベーションに対応しています。",
+    columns: 3,
+    services: [
+      { id: "kitchen", title: "キッチン", description: "システムキッチンの交換・増設。収納力と使い勝手を向上させます。", icon: "🍳", image: "https://placehold.co/400x300/fef3c7/92400e?text=キッチン" },
+      { id: "bath", title: "お風呂・浴室", description: "ユニットバスの交換・追い焚き機能・浴室乾燥機の取付。", icon: "🛁", image: "https://placehold.co/400x300/eff6ff/1d4ed8?text=浴室" },
+      { id: "toilet", title: "トイレ", description: "温水洗浄便座・壁紙・床の一新。清潔で快適な空間に。", icon: "🚿", image: "https://placehold.co/400x300/f0fdf4/166534?text=トイレ" },
+      { id: "interior", title: "内装・クロス", description: "壁紙・フローリング・天井の張替えで室内をリフレッシュ。", icon: "🏠", image: "https://placehold.co/400x300/fdf4ff/7e22ce?text=内装" },
+      { id: "exterior", title: "外壁・屋根", description: "外壁塗装・屋根葺替え・防水工事で建物を長持ちさせます。", icon: "🏗️", image: "https://placehold.co/400x300/fff7ed/9a3412?text=外壁" },
+      { id: "full-reno", title: "フルリノベーション", description: "間取り変更から設備全般まで、住まいを丸ごとリノベーション。", icon: "✨", image: "https://placehold.co/400x300/ecfdf5/065f46?text=フルリノベ" },
+    ],
+  },
+  RenovationFAQ: {
+    _componentDesc: "Renovation FAQ accordion",
+    __schema: renovationFAQSchema,
+    title: "よくあるご質問",
+    description: "リフォーム・リノベーションに関して、お客様からよくいただくご質問をまとめました。",
+    items: [
+      { question: "工事期間はどのくらいかかりますか？", answer: "工事の規模によって異なりますが、水回り単品交換は1〜3日、内装リフォームは1〜2週間、フルリノベーションは1〜2ヶ月が目安です。詳細はお見積り時にご説明いたします。" },
+      { question: "入居したままリフォームできますか？", answer: "工事の内容によっては、居住しながら施工が可能な場合があります。仮住まいが必要な場合は事前にご相談ください。騒音・ほこり対策を徹底して施工いたします。" },
+      { question: "無料で見積もりをしてもらえますか？", answer: "はい、現地調査・お見積りは無料で承っております。お気軽にお問い合わせください。" },
+      { question: "工事後の保証はありますか？", answer: "施工完了後、一定期間の施工保証をご提供しています。万が一不具合が発生した場合は、速やかに対応いたします。" },
+      { question: "古い建物でもリフォームできますか？", answer: "築年数に関わらず対応可能です。建物の状態によっては補強工事が必要になる場合もありますが、まずはお気軽にご相談ください。" },
+    ],
+  },
+  RenovationWarrantyBadges: {
+    _componentDesc: "Renovation warranty and support badges",
+    __schema: renovationWarrantyBadgesSchema,
+    title: "安心の保証・サポート",
+    description: "施工後も末長くお付き合いいただけるよう、充実した保証とサポート体制をご用意しています。",
+    accentColor: "#2563eb",
+    badges: [
+      { title: "施工保証", description: "工事完了後も安心の施工保証。不具合は迅速に対応いたします。", icon: "🛡️", years: 2, highlight: true },
+      { title: "無料アフター点検", description: "施工完了から6ヶ月後に無料で点検を実施します。", icon: "🔍", highlight: false },
+      { title: "有資格者施工", description: "国家資格を持つ職人・専門スタッフが責任を持って施工します。", icon: "📜", highlight: false },
+      { title: "地元密着サービス", description: "地域に根ざした丁寧な対応でアフターフォローも安心です。", icon: "🏡", highlight: false },
     ],
   },
 };
