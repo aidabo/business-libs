@@ -3,6 +3,12 @@ import { ESTATE_STATE_KEYS, getPageState } from "./types";
 import type { StackPageRuntimeApi } from "./types";
 import { FieldRow, getEstateFieldGroups, resolveEstateProperty } from "./utils/propertyDisplay";
 import { extractLatLngFromMapUrl } from "./utils/urlBuilders";
+import { useT } from "./hooks/useTranslation";
+
+const TRANSLATABLE_VALUES = new Set(["estate.value.yes", "estate.value.no"]);
+function translateValue(value: string, t: (key: string) => string): string {
+  return TRANSLATABLE_VALUES.has(value) ? t(value) : value;
+}
 
 export type PropertyInfoCardDensity = "compact" | "normal" | "comfortable";
 export type PropertyUrlDisplay = "label" | "chip" | "button";
@@ -279,26 +285,27 @@ function isUrlValue(value: string): boolean {
   return /^https?:\/\//i.test(value.trim());
 }
 
-function LinkValue({ row, mode }: { row: FieldRow; mode: PropertyUrlDisplay }) {
-  if (!row.href) return <>{row.value}</>;
-  const text = isUrlValue(row.value) ? "開く" : row.value;
+function LinkValue({ row, mode, t }: { row: FieldRow; mode: PropertyUrlDisplay; t: (key: string) => string }) {
+  const isUrl = isUrlValue(row.value);
+  const display = translateValue(row.value, t);
+  if (!row.href) return <>{display}</>;
   if (mode === "button") {
     return (
       <a href={row.href} target="_blank" rel="noreferrer" className="inline-flex max-w-full break-words rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-blue-700">
-        {text === "開く" ? `${row.label}を開く` : text}
+        {isUrl ? row.label : display}
       </a>
     );
   }
   if (mode === "chip") {
     return (
       <a href={row.href} target="_blank" rel="noreferrer" className="inline-flex max-w-full break-words rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700 transition hover:bg-blue-100">
-        {text === "開く" ? row.label : text}
+        {isUrl ? row.label : display}
       </a>
     );
   }
   return (
     <a href={row.href} target="_blank" rel="noreferrer" className="text-blue-700 underline underline-offset-2 hover:text-blue-900">
-      {text}
+      {isUrl ? t("Open") : display}
     </a>
   );
 }
@@ -336,6 +343,7 @@ export function PropertyInfoCardShell({
   linkDisplay?: PropertyUrlDisplay;
   mobileTwoColumn?: boolean;
 }) {
+  const t = useT();
   const palette = {
     blue: "border-blue-200 bg-blue-50 text-blue-700",
     emerald: "border-emerald-200 bg-emerald-50 text-emerald-700",
@@ -367,7 +375,7 @@ export function PropertyInfoCardShell({
           <div className="flex flex-wrap gap-2">
             {rows.map((row) => (
               <span key={row.key} className={`max-w-full break-words rounded-full bg-slate-100 font-medium text-slate-700 ${spacing.chipPadding}`}>
-                {row.href ? <LinkValue row={row} mode={linkDisplay} /> : row.value}
+                {row.href ? <LinkValue row={row} mode={linkDisplay} t={t} /> : translateValue(row.value, t)}
               </span>
             ))}
           </div>
@@ -381,7 +389,7 @@ export function PropertyInfoCardShell({
               >
                 <dt className={`min-w-0 break-words text-xs font-semibold uppercase tracking-[0.12em] text-gray-400 ${mobileTwoColumn ? "text-left" : ""}`}>{row.label}</dt>
                 <dd className={`min-w-0 break-words text-sm font-medium leading-6 text-gray-900 ${mobileTwoColumn ? "text-right" : ""}`}>
-                  <LinkValue row={row} mode={linkDisplay} />
+                  <LinkValue row={row} mode={linkDisplay} t={t} />
                 </dd>
               </div>
             ))}

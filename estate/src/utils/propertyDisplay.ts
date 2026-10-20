@@ -88,7 +88,7 @@ function firstValue(source: Record<string, any>, keys: string[]): any {
 function stringify(value: unknown): string {
   if (!isPresent(value)) return "";
   if (typeof value === "number") return String(value);
-  if (typeof value === "boolean") return value ? "あり" : "なし";
+  if (typeof value === "boolean") return value ? "estate.value.yes" : "estate.value.no";
   if (Array.isArray(value)) return value.map(stringify).filter(Boolean).join(" / ");
   if (typeof value === "object") {
     try {

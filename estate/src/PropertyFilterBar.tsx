@@ -245,9 +245,9 @@ function CheckboxGroupField({
  */
 const INTENT_META: Record<string, { labelKey: string; badgeKey: string }> = {
   all: { labelKey: "All", badgeKey: "All properties" },
-  sale: { labelKey: "For Sale", badgeKey: "sale" },
-  rent: { labelKey: "For Rent", badgeKey: "rent" },
-  investment: { labelKey: "Investment", badgeKey: "investment" },
+  sale: { labelKey: "estate.property.option.type.sale", badgeKey: "sale" },
+  rent: { labelKey: "estate.property.option.type.rent", badgeKey: "rent" },
+  investment: { labelKey: "estate.property.option.type.investment", badgeKey: "investment" },
 };
 
 export default function PropertyFilterBar({

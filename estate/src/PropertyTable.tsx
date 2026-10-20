@@ -102,16 +102,16 @@ const toNum = (v: unknown) => {
 };
 
 const TAG_BY_TYPE: Record<string, { label: string; color: string }> = {
-  sale: { label: "売買", color: "bg-blue-600" },
-  rent: { label: "賃貸", color: "bg-emerald-600" },
-  investment: { label: "投資", color: "bg-violet-600" },
+  sale: { label: "estate.property.option.type.sale", color: "bg-blue-600" },
+  rent: { label: "estate.property.option.type.rent", color: "bg-emerald-600" },
+  investment: { label: "estate.property.option.type.investment", color: "bg-violet-600" },
 };
 
 function normalizePropertyType(value: unknown): "sale" | "rent" | "investment" | "" {
   const type = String(value ?? "").trim().toLowerCase();
   if (type.includes("rent") || type.includes("賃貸")) return "rent";
   if (type.includes("invest") || type.includes("投資")) return "investment";
-  if (type.includes("sale") || type.includes("売買") || type.includes("売却")) return "sale";
+  if (type.includes("sale") || type.includes("売買") || type.includes("売却") || type.includes("実需")) return "sale";
   return "";
 }
 
