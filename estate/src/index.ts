@@ -1857,7 +1857,7 @@ export const EstateDefaultProps = {
     ],
   },
   BeforeAfterGallery: {
-    _componentDesc: "Before/After gallery with room tabs",
+    _componentDesc: "component.beforeAfterGallery.desc",
     __schema: beforeAfterGallerySchema,
     title: "施工前後ギャラリー",
     description: "各部屋の施工前・施工後の写真をご覧いただけます。",
@@ -1875,7 +1875,7 @@ export const EstateDefaultProps = {
     ],
   },
   RenovationCaseCard: {
-    _componentDesc: "Renovation case card (single)",
+    _componentDesc: "component.renovationCaseCard.desc",
     __schema: renovationCaseCardSchema,
     title: "横浜市 2LDK マンション フルリノベーション",
     location: "神奈川県横浜市",
@@ -1885,7 +1885,7 @@ export const EstateDefaultProps = {
     workItems: ["内装クロス張替え（全室）", "フローリング張替え", "キッチン交換", "ユニットバス交換", "トイレ交換"],
   },
   RenovationCaseGrid: {
-    _componentDesc: "Renovation case grid (multiple cases)",
+    _componentDesc: "component.renovationCaseGrid.desc",
     __schema: renovationCaseGridSchema,
     title: "施工事例",
     description: "実際の施工事例をご紹介します。リフォーム・リノベーションのご参考にどうぞ。",
@@ -1923,7 +1923,7 @@ export const EstateDefaultProps = {
     ],
   },
   RenovationProcessSteps: {
-    _componentDesc: "Renovation process steps (consultation to handover)",
+    _componentDesc: "component.renovationProcessSteps.desc",
     __schema: renovationProcessStepsSchema,
     title: "リフォームの流れ",
     description: "ご相談から完成・引渡しまで、安心してお任せいただけるステップでご案内します。",
@@ -1939,7 +1939,7 @@ export const EstateDefaultProps = {
     ],
   },
   CustomerTestimonials: {
-    _componentDesc: "Customer testimonials with star ratings",
+    _componentDesc: "component.customerTestimonials.desc",
     __schema: customerTestimonialsSchema,
     title: "お客様の声",
     description: "実際にリフォーム・リノベーションをご利用いただいたお客様からの感想をご紹介します。",
@@ -1978,7 +1978,7 @@ export const EstateDefaultProps = {
     ],
   },
   RenovationServiceMenu: {
-    _componentDesc: "Renovation service menu grid",
+    _componentDesc: "component.renovationServiceMenu.desc",
     __schema: renovationServiceMenuSchema,
     title: "リフォームメニュー",
     description: "お住まいのお悩みに合わせて、幅広いリフォーム・リノベーションに対応しています。",
@@ -1993,7 +1993,7 @@ export const EstateDefaultProps = {
     ],
   },
   RenovationFAQ: {
-    _componentDesc: "Renovation FAQ accordion",
+    _componentDesc: "component.renovationFaq.desc",
     __schema: renovationFAQSchema,
     title: "よくあるご質問",
     description: "リフォーム・リノベーションに関して、お客様からよくいただくご質問をまとめました。",
@@ -2006,7 +2006,7 @@ export const EstateDefaultProps = {
     ],
   },
   RenovationWarrantyBadges: {
-    _componentDesc: "Renovation warranty and support badges",
+    _componentDesc: "component.renovationWarrantyBadges.desc",
     __schema: renovationWarrantyBadgesSchema,
     title: "安心の保証・サポート",
     description: "施工後も末長くお付き合いいただけるよう、充実した保証とサポート体制をご用意しています。",
