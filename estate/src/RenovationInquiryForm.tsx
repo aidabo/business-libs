@@ -53,6 +53,7 @@ const RenovationInquiryForm: React.FC<RenovationInquiryFormProps> = ({
     setStatus("loading");
     const details = [
       t("Renovation scope") + ": " + (form.scope ? t(scopeLabelKeys[form.scope] || form.scope) : ""),
+      form.address ? t("Property Address") + ": " + form.address : "",
       form.budget ? t("Budget") + ": " + form.budget : "",
       form.timing ? t("Desired timing") + ": " + form.timing : "",
       form.message ? t("Message") + ": " + form.message : "",
