@@ -3,6 +3,7 @@ import PropertyCard from "./PropertyCard";
 import PropertyGrid from "./PropertyGrid";
 import AgentCard from "./AgentCard";
 import InquiryForm from "./InquiryForm";
+import RenovationInquiryForm from "./RenovationInquiryForm";
 import InquiryDispatcher from "./InquiryDispatcher";
 import CompanyFeatures from "./CompanyFeatures";
 import ContactSection from "./ContactSection";
@@ -51,6 +52,7 @@ export const EstateComponents = {
   PropertyGrid,
   AgentCard,
   InquiryForm,
+  RenovationInquiryForm,
   InquiryDispatcher,
   CompanyFeatures,
   ContactSection,
@@ -1035,6 +1037,27 @@ export const EstateDefaultProps = {
         valueFrom: "$",
       },
     ],
+  },
+  RenovationInquiryForm: {
+    _componentDesc: "component.renovationInquiryForm.desc",
+    title: "無料リフォーム相談",
+    description: "リフォーム・リノベーションのご希望をお聞かせください。現地調査・お見積りは無料です。",
+    submitLabel: "無料相談を申し込む",
+    endpoint: "/api/estate/inquiries",
+    __schema: {
+      type: "object",
+      title: "RenovationInquiryForm",
+      properties: {
+        title: { type: "string", title: "タイトル" },
+        description: { type: "string", title: "説明" },
+        submitLabel: { type: "string", title: "送信ボタン" },
+        endpoint: {
+          type: "string",
+          title: "送信APIエンドポイント",
+          enum: ["/api/estate/inquiries", "/api/estate/send-mail"],
+        },
+      },
+    },
   },
   InquiryDispatcher: {
     _componentDesc:
