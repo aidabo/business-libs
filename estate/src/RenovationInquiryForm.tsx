@@ -43,6 +43,7 @@ const RenovationInquiryForm: React.FC<RenovationInquiryFormProps> = ({
     message: "",
   });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [referenceCode, setReferenceCode] = useState("");
 
   const update = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm((prev) => ({ ...prev, [event.target.name]: event.target.value }));
@@ -51,6 +52,7 @@ const RenovationInquiryForm: React.FC<RenovationInquiryFormProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setStatus("loading");
+    setReferenceCode("");
     const details = [
       t("Renovation scope") + ": " + (form.scope ? t(scopeLabelKeys[form.scope] || form.scope) : ""),
       form.address ? t("Property Address") + ": " + form.address : "",
@@ -74,6 +76,9 @@ const RenovationInquiryForm: React.FC<RenovationInquiryFormProps> = ({
         }),
       });
       if (!response.ok) throw new Error("HTTP " + response.status);
+      const json = await response.json().catch(() => ({} as any));
+      const inquiry = json?.estateinquiries?.[0] || {};
+      setReferenceCode(String(inquiry.reference_code || json?.reference_code || "").trim());
       setForm({ name: "", email: "", phone: "", address: "", scope: "full-renovation", budget: "", timing: "", message: "" });
       setStatus("success");
     } catch (error) {
@@ -131,7 +136,17 @@ const RenovationInquiryForm: React.FC<RenovationInquiryFormProps> = ({
             <button type="submit" disabled={status === "loading"} className="rounded-lg bg-blue-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-blue-700 disabled:opacity-60">
               {status === "loading" ? t("Sending...") : t(submitLabel)}
             </button>
-            {status === "success" && <p className="mt-3 text-sm font-medium text-emerald-700">{t("Your consultation request has been sent.")}</p>}
+            {status === "success" && (
+              <div className="mt-3 space-y-1 text-sm font-medium text-emerald-700">
+                <p>{t("Your consultation request has been sent.")}</p>
+                {referenceCode ? (
+                  <p>
+                    {t("Inquiry reference number")}:{" "}
+                    <span className="tracking-wide">{referenceCode}</span>
+                  </p>
+                ) : null}
+              </div>
+            )}
             {status === "error" && <p className="mt-3 text-sm font-medium text-red-700">{t("Failed to send your request. Please try again.")}</p>}
           </div>
         </form>
