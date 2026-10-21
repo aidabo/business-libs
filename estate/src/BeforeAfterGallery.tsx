@@ -16,6 +16,8 @@ export interface BeforeAfterGalleryProps {
   location?: string;
   completionDate?: string;
   rooms?: BeforeAfterRoom[];
+  /** "tabs" keeps the current one-room-at-a-time view; "expanded" shows every room. */
+  displayMode?: "tabs" | "expanded";
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -64,6 +66,7 @@ const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({
   location,
   completionDate,
   rooms,
+  displayMode = "tabs",
   backgroundColor,
   fontSize,
   className = "",
@@ -75,7 +78,38 @@ const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({
 
   const mergedStyle: React.CSSProperties = { backgroundColor, fontSize, ...style };
   const room = displayRooms[activeRoom];
-  if (!room) return null;
+  if (!room && displayRooms.length === 0) return null;
+
+  const renderRoomPair = (currentRoom: BeforeAfterRoom) => (
+    <div className="grid gap-3 sm:grid-cols-2">
+      <div className="overflow-hidden rounded-xl border border-slate-200">
+        <div className="flex items-center justify-between bg-slate-700 px-4 py-2">
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-300">
+            {t("Before")}
+          </span>
+          <span className="text-xs text-slate-400">{currentRoom.label}</span>
+        </div>
+        <img
+          src={currentRoom.beforeImage}
+          alt={currentRoom.label + " " + t("Before")}
+          className="aspect-video w-full object-cover"
+        />
+      </div>
+      <div className="overflow-hidden rounded-xl border border-blue-200">
+        <div className="flex items-center justify-between bg-blue-600 px-4 py-2">
+          <span className="text-xs font-bold uppercase tracking-widest text-blue-100">
+            {t("After")}
+          </span>
+          <span className="text-xs text-blue-200">{currentRoom.label}</span>
+        </div>
+        <img
+          src={currentRoom.afterImage}
+          alt={currentRoom.label + " " + t("After")}
+          className="aspect-video w-full object-cover"
+        />
+      </div>
+    </div>
+  );
 
   return (
     <section className={`w-full ${className}`} style={mergedStyle}>
@@ -115,52 +149,41 @@ const BeforeAfterGallery: React.FC<BeforeAfterGalleryProps> = ({
           </div>
         )}
 
-        {/* Room tabs */}
-        <div className="mb-4 flex flex-wrap gap-2">
-          {displayRooms.map((r, i) => (
-            <button
-              key={i}
-              onClick={() => setActiveRoom(i)}
-              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                i === activeRoom
-                  ? "bg-blue-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Before / After side-by-side */}
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="overflow-hidden rounded-xl border border-slate-200">
-            <div className="flex items-center justify-between bg-slate-700 px-4 py-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-slate-300">
-                {t("Before")}
-              </span>
-              <span className="text-xs text-slate-400">{room.label}</span>
+        {displayMode === "tabs" ? (
+          <>
+            <div className="mb-4 flex flex-wrap gap-2">
+              {displayRooms.map((r, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setActiveRoom(i)}
+                  className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                    i === activeRoom
+                      ? "bg-blue-600 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {r.label}
+                </button>
+              ))}
             </div>
-            <img
-              src={room.beforeImage}
-              alt={`${room.label} ${t("Before")}`}
-              className="aspect-video w-full object-cover"
-            />
+            {room ? renderRoomPair(room) : null}
+          </>
+        ) : (
+          <div className="space-y-8">
+            {displayRooms.map((currentRoom, i) => (
+              <section key={i} aria-labelledby={"before-after-room-" + i}>
+                <h3
+                  id={"before-after-room-" + i}
+                  className="mb-3 text-lg font-bold text-slate-800"
+                >
+                  {currentRoom.label}
+                </h3>
+                {renderRoomPair(currentRoom)}
+              </section>
+            ))}
           </div>
-          <div className="overflow-hidden rounded-xl border border-blue-200">
-            <div className="flex items-center justify-between bg-blue-600 px-4 py-2">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-100">
-                {t("After")}
-              </span>
-              <span className="text-xs text-blue-200">{room.label}</span>
-            </div>
-            <img
-              src={room.afterImage}
-              alt={`${room.label} ${t("After")}`}
-              className="aspect-video w-full object-cover"
-            />
-          </div>
-        </div>
+        )}
 
         {/* Project description */}
         {projectDescription && (

@@ -441,6 +441,7 @@ const beforeAfterGallerySchema = {
     projectDescription: textareaProp("Project description"),
     location: textProp("Location"),
     completionDate: textProp("Completion date"),
+    displayMode: enumProp("Display mode", ["tabs", "expanded"]),
     rooms: {
       title: "Rooms",
       type: "array",
@@ -1865,6 +1866,7 @@ export const EstateDefaultProps = {
     projectDescription: "老朽化したマンションを現代的なデザインに全面リノベーション。間取りの最適化と設備の刷新を同時施工しました。",
     location: "神奈川県横浜市",
     completionDate: "2024年9月",
+    displayMode: "tabs",
     rooms: [
       { label: "外観", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=外観+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=外観+After" },
       { label: "リビング", beforeImage: "https://placehold.co/800x500/d1d5db/6b7280?text=リビング+Before", afterImage: "https://placehold.co/800x500/bfdbfe/1d4ed8?text=リビング+After" },
