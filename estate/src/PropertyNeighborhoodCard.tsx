@@ -85,7 +85,7 @@ function NearbyGroup({ label, value, address }: { label: string; value: unknown;
   const items = splitItems(value);
   if (items.length === 0) return null;
   return (
-    <CollapsibleGroup title={label} count={items.length}>
+    <CollapsibleGroup title={t(label)} count={items.length}>
       <div className="flex min-w-0 flex-wrap gap-2">
         {items.map((item) => (
           <a
@@ -107,12 +107,12 @@ function NearbyGroup({ label, value, address }: { label: string; value: unknown;
 function PlaceResults({ data }: { data: any }) {
   const t = useT();
   const groups = [
-    { key: "school", title: "学校候補" },
-    { key: "park", title: "公園" },
-    { key: "supermarket", title: "スーパー" },
-    { key: "parking", title: "駐車場" },
-    { key: "shopping_street", title: "商店街候補" },
-    { key: "transport", title: "交通アクセス候補" },
+    { key: "school", title: "Schools" },
+    { key: "park", title: "Parks" },
+    { key: "supermarket", title: "Supermarkets" },
+    { key: "parking", title: "Parking" },
+    { key: "shopping_street", title: "Shopping streets" },
+    { key: "transport", title: "Transport access" },
   ];
   const hasAny = groups.some((group) => {
     if (group.key === "transport") {
@@ -214,10 +214,10 @@ export default function PropertyNeighborhoodCard(props: PropertyInfoCardProps) {
         <PlaceResults data={googlePlacesData} />
         {!googlePlacesData ? (
           <>
-            <NearbyGroup label="スーパー・商業施設" value={model.nearbyStores} address={model.address} />
-            <NearbyGroup label="病院・医療機関" value={model.nearbyHospitals} address={model.address} />
-            <NearbyGroup label="学校・教育施設" value={model.nearbySchools} address={model.address} />
-            <NearbyGroup label="公園・緑地" value={model.nearbyParks} address={model.address} />
+            <NearbyGroup label="Nearby stores and commercial facilities" value={model.nearbyStores} address={model.address} />
+            <NearbyGroup label="Medical facilities" value={model.nearbyHospitals} address={model.address} />
+            <NearbyGroup label="Schools and educational facilities" value={model.nearbySchools} address={model.address} />
+            <NearbyGroup label="Parks and green spaces" value={model.nearbyParks} address={model.address} />
           </>
         ) : null}
         {model.googleMapUrl ? (

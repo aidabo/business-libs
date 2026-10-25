@@ -715,8 +715,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         items={[detailProperty]}
         selectedPropertyId={String(detailProperty.id || selectedId || "")}
         excludeImage={resolvedImage}
-        title="間取り・写真"
-        description="間取り図・室内写真などの補足画像をスライドで確認できます。"
+        title={t("Floor plan and photos")}
+        description={t("Review floor plans and room photos in the gallery.")}
       />
 
       {/* Row 1: Price + Details + Address — 1→2→3 cols */}

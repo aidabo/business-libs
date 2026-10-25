@@ -387,7 +387,7 @@ export function PropertyInfoCardShell({
                 className={`grid min-w-0 gap-1 border-b border-gray-100 last:border-b-0 ${mobileTwoColumn ? "grid-cols-[96px_minmax(0,1fr)] items-center" : "md:grid-cols-[120px_minmax(0,1fr)]"}`}
                 style={{ paddingTop: rowPadding, paddingBottom: rowPadding }}
               >
-                <dt className={`min-w-0 break-words text-xs font-semibold uppercase tracking-[0.12em] text-gray-400 ${mobileTwoColumn ? "text-left" : ""}`}>{row.label}</dt>
+                <dt className={`min-w-0 break-words text-xs font-semibold uppercase tracking-[0.12em] text-gray-400 ${mobileTwoColumn ? "text-left" : ""}`}>{t(row.label)}</dt>
                 <dd className={`min-w-0 break-words text-sm font-medium leading-6 text-gray-900 ${mobileTwoColumn ? "text-right" : ""}`}>
                   <LinkValue row={row} mode={linkDisplay} t={t} />
                 </dd>
