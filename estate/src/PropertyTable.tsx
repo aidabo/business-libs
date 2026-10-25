@@ -216,14 +216,14 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
   const station = (m.nearestStation || m.transportInfo || "").split(/\r?\n/)[0].trim();
 
   const infoItems: Array<{ label: string; value: string }> = [
-    { label: "間取り", value: m.floorPlan || "" },
-    { label: "専有面積", value: m.floorArea || "" },
-    { label: "所在階", value: m.floorNumber ? `${m.floorNumber}階` : "" },
-    { label: "総階数", value: m.totalFloors ? `${m.totalFloors}階建` : "" },
-    { label: "築年月", value: m.yearBuilt || "" },
-    { label: "構造", value: m.structure || "" },
-    { label: "土地面積", value: m.landArea || "" },
-    { label: "建物面積", value: m.buildingArea || "" },
+    { label: "Floor plan", value: m.floorPlan || "" },
+    { label: "Floor area", value: m.floorArea || "" },
+    { label: "Floor", value: m.floorNumber ? `${m.floorNumber}階` : "" },
+    { label: "Total floors", value: m.totalFloors ? `${m.totalFloors}階建` : "" },
+    { label: "Year built", value: m.yearBuilt || "" },
+    { label: "Structure", value: m.structure || "" },
+    { label: "Land area", value: m.landArea || "" },
+    { label: "Building area", value: m.buildingArea || "" },
   ].filter((item) => item.value);
 
   return (
