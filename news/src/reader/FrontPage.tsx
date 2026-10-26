@@ -5,6 +5,7 @@ import { FONT_SANS, FONT_SERIF, JB } from "../core";
 import { stamp } from "./ArticleCell";
 import ListenButton from "./ListenButton";
 import { faceOf, safeMediaUrl, selectFrontPage, thumbOf } from "../core";
+import { useArticleLinker } from "../shared/NewsLink";
 
 // 第一面（spec §4 の②）。主役 1・準主役 2・短信 3。
 // 画像が無い記事は、枠ごと出さない（§4.2）。
@@ -65,8 +66,9 @@ function Meta({ post, size = 12 }: { post: Post; size?: number }) {
 
 /** 記事へのリンク。既存の記事ページ（/article/[id]/）へ送る。この面の中でだけ使う。 */
 function ArticleLink({ post, children }: { post: Post; children: React.ReactNode }) {
+  const link = useArticleLinker()(post);
   return (
-    <a href={`/article/${post.id}/`} className="jb-card" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
+    <a href={link.href} onClick={link.onClick} className="jb-card" style={{ display: "block", textDecoration: "none", color: "inherit" }}>
       {children}
     </a>
   );

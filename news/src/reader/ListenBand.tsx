@@ -9,6 +9,7 @@ import { stamp } from "./ArticleCell";
 import MoreLink from "./MoreLink";
 import { useNewsAudioCtx } from "../shared/NewsAudioContext";
 import { faceOf, newestFirst } from "../core";
+import { useArticleLinker } from "../shared/NewsLink";
 
 // 「読み上げ」の帯（面ナビの #listen）。読み上げの出来ている記事だけを並べる。
 //
@@ -43,6 +44,7 @@ export default function ListenBand({
 }) {
   const { voiceOf, now, playing, stop } = useNewsAudioCtx();
   const { AudioCard } = useNews().adapter;
+  const linkOf = useArticleLinker();
   const sectionRef = useRef<HTMLElement | null>(null);
   const voiced = newestFirst(posts.filter((post) => voiceOf(post) !== null));
   const items = limit === null ? voiced : voiced.slice(0, limit);
@@ -101,7 +103,7 @@ export default function ListenBand({
               <p className="jb-listen-meta">
                 {face ? `${face.label}面` : "総合"}　{stamp(post)}
               </p>
-              <a className="jb-listen-title jb-clamp-3" href={`/article/${post.id}/`}>
+              <a className="jb-listen-title jb-clamp-3" href={linkOf(post).href} onClick={linkOf(post).onClick}>
                 {post.title}
               </a>
               <div className="jb-listen-player" data-post-id={post.id}>

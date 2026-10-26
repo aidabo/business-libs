@@ -2,6 +2,8 @@ import type { NewsPost } from "../core";
 
 /** StackPage が部品に渡すランタイム（必要な分だけ。stackpage には依らない）。 */
 export interface StackPageRuntimeApi {
+  emit?: (eventName: string, payload?: unknown) => void;
+  subscribe?: (eventName: string, handler: (payload: unknown) => void) => () => void;
   setPageState?: (path: string, value: unknown) => void;
   getPageState?: <T = unknown>(path: string, defaultValue?: T) => T | undefined;
   setState?: (path: string, value: unknown) => void;

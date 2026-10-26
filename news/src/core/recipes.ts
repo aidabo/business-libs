@@ -1,4 +1,4 @@
-import { NEWS_DATASOURCE_IDS, NEWS_STATE_KEYS } from "./contract";
+import { NEWS_DATASOURCE_IDS, NEWS_EVENTS, NEWS_STATE_KEYS, NEWS_TOOLBAR_INTERACTIONS } from "./contract";
 
 // News Studio のページの型（レシピ）。`createNewsReaderPage()` は /home/news と同じ並びの
 // ページ（layout・source・pageState）を組んで返す — ホストの seed や AI ページビルダーが
@@ -37,6 +37,14 @@ export const NEWS_PAGE_RECIPES: NewsPageRecipe[] = [
       "NewsAskPanel",
       "NewsAudioBar",
     ],
+  },
+  {
+    id: "news-article",
+    label: "ニュースの記事",
+    description: "題字・記事本文（common の PostView が ?postId= を読む）・奥付。読者面の記事リンクの行き先（/article 相当）。",
+    vertical: "news",
+    requiredComponents: ["NewsMasthead", "PostView", "NewsFooter"],
+    optionalComponents: [],
   },
   {
     id: "news-broadcast",
@@ -88,7 +96,19 @@ export const createNewsPageState = () => ({
   [NEWS_STATE_KEYS.faces]: "",
   [NEWS_STATE_KEYS.keyword]: "",
   [NEWS_STATE_KEYS.order]: "",
+  [NEWS_STATE_KEYS.selectedPostId]: "",
 });
+
+export type NewsReaderPageOptions = {
+  /** 記事を開く Page Builder のページ（createNewsArticlePage で作ったもの）。空なら /article/{id}/。 */
+  articlePageId?: string;
+};
+
+/** 記事リンクの props（記事ページがあればそこへ、無ければ /article）。 */
+const linkProps = (options: NewsReaderPageOptions) =>
+  options.articlePageId
+    ? { cardClickDestination: "page", cardClickPageId: options.articlePageId, cardClickPageQueryKey: "postId" }
+    : { cardClickDestination: "article" };
 
 const bind = (sourceId: string) => ({ sourceId, path: "$.items", targetType: "array", selector: { type: "all" } });
 
@@ -120,20 +140,21 @@ const widget = (
 const S = NEWS_PAGE_SOURCE_IDS;
 
 /** /home/news と同じ並びの読者面。 */
-export function createNewsReaderPage() {
+export function createNewsReaderPage(options: NewsReaderPageOptions = {}) {
+  const link = linkProps(options);
   const layout = [
     widget("news-masthead", "NewsMasthead", 0, 8, { audio: S.audio }),
     widget("news-guest", "NewsGuestPromo", 8, 12, { posts: S.posts, presenters: S.presenters, editions: S.editions, audio: S.audio }),
-    widget("news-front", "NewsFrontPage", 20, 18, { posts: S.posts, audio: S.audio }),
-    widget("news-flash", "NewsFlashBand", 38, 6, { posts: S.posts }),
+    widget("news-front", "NewsFrontPage", 20, 18, { posts: S.posts, audio: S.audio }, link),
+    widget("news-flash", "NewsFlashBand", 38, 6, { posts: S.posts }, link),
     widget("news-broadcast", "NewsBroadcastBand", 44, 10, { posts: S.posts, audio: S.audio }),
-    widget("news-toolbar", "NewsFaceToolbar", 54, 5, { faces: S.faces }),
-    widget("news-results", "NewsArticleGrid", 59, 12, { posts: S.postsFiltered }),
-    widget("news-board", "NewsFaceBoard", 71, 24, { posts: S.posts, faces: S.faces }),
-    widget("news-listen", "NewsListenBand", 95, 10, { posts: S.posts, audio: S.audio }),
+    widget("news-toolbar", "NewsFaceToolbar", 54, 5, { faces: S.faces }, { __interactions: NEWS_TOOLBAR_INTERACTIONS }),
+    widget("news-results", "NewsArticleGrid", 59, 12, { posts: S.postsFiltered }, link),
+    widget("news-board", "NewsFaceBoard", 71, 24, { posts: S.posts, faces: S.faces }, link),
+    widget("news-listen", "NewsListenBand", 95, 10, { posts: S.posts, audio: S.audio }, link),
     widget("news-paper", "NewsPaperPreview", 105, 12, { posts: S.posts, editions: S.editions }),
     widget("news-subscribe", "NewsSubscriptionBand", 117, 6),
-    widget("news-ask", "NewsAskPanel", 123, 10, { presenters: S.presenters }),
+    widget("news-ask", "NewsAskPanel", 123, 10, { presenters: S.presenters }, link),
     widget("news-footer", "NewsFooter", 133, 8, { faces: S.faces }),
     widget("news-audiobar", "NewsAudioBar", 141, 1, { audio: S.audio }),
   ];
@@ -146,6 +167,23 @@ export function createNewsBroadcastPage() {
     widget("news-masthead", "NewsMasthead", 0, 8, { audio: S.audio }, { navBase: "/home/news" }),
     widget("news-broadcast-list", "NewsBroadcastList", 8, 30, { posts: S.posts, audio: S.audio }),
     widget("news-footer", "NewsFooter", 38, 8, { faces: S.faces }),
+  ];
+  return { layout: { children: layout }, source: createNewsPageSource(), pageState: createNewsPageState() };
+}
+
+/**
+ * 記事を読むページ（/article 相当）。本文は common の PostView — URL の ?postId= を読み、
+ * 同じページでは news:post:selected / news.selectedPostId でも切り替わる。
+ */
+export function createNewsArticlePage() {
+  const layout = [
+    widget("news-masthead", "NewsMasthead", 0, 8, { audio: S.audio }, { showNav: false }),
+    widget("news-article-body", "PostView", 8, 40, {}, {
+      postId: "",
+      postIdStateKey: NEWS_STATE_KEYS.selectedPostId,
+      selectEvent: NEWS_EVENTS.postSelected,
+    }),
+    widget("news-footer", "NewsFooter", 48, 8, { faces: S.faces }),
   ];
   return { layout: { children: layout }, source: createNewsPageSource(), pageState: createNewsPageState() };
 }
