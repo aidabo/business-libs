@@ -14,3 +14,6 @@ export * from "./newsBroadcast";
 export * from "./newsPresenters";
 export * from "./newsReadIndex";
 export * from "./newsAudio";
+export * from "./askBot";
+export * from "./paperEdition";
+export * from "./recipes";
