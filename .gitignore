@@ -92,6 +92,7 @@ public/static/
 # System files
 Thumbs.db
 estate/dist/
+news/dist/
 portal/dist/
 publish/dist/
 .techs.md

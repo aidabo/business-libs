@@ -3,6 +3,7 @@
   "private": true,
   "workspaces": [
     "estate",
+    "news",
     "portal",
     "publish"
   ],
