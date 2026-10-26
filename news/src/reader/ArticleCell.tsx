@@ -3,6 +3,7 @@
 import type { NewsPost as Post } from "../core";
 import ListenButton from "./ListenButton";
 import { faceOf, isUpdated, thumbOf } from "../core";
+import { useArticleLinker } from "../shared/NewsLink";
 
 // 一覧に並ぶ記事 1 本。面立ての行と、絞り込んだときの結果一覧で同じものを使う。
 //
@@ -30,12 +31,13 @@ export default function ArticleCell({
   const updated = isUpdated(post);
   const still = thumbOf(post);
 
+  const link = useArticleLinker()(post);
   return (
     // 読み上げのボタンは <a> の **外** に置く（入れ子の操作要素を作らない）。
     // 読み上げの無い記事では ListenButton が何も返さないので、この包みは
     // 素の 1 段になるだけで見た目は変わらない。
     <div className="jb-cell-wrap">
-      <a href={`/article/${post.id}/`} className="jb-card jb-cell">
+      <a href={link.href} onClick={link.onClick} className="jb-card jb-cell">
         {/*
           ここは静止画のままにする。映像を持つ記事でも、一覧の中で動かすのは
           第一面の主役だけ（FrontPage の Thumb の motion）。面立てや絞り込みの

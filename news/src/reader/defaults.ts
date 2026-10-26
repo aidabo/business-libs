@@ -1,4 +1,4 @@
-import { BAND_LIMIT, type Face, type NewsPost } from "../core";
+import { BAND_LIMIT, NEWS_EVENTS, NEWS_STATE_KEYS, NEWS_TOOLBAR_INTERACTIONS, type Face, type NewsPost } from "../core";
 import { IMPRINT, SUBSCRIPTION } from "./content";
 
 // Page Builder の既定値（_componentDesc・__schema・見本データ）。
@@ -89,6 +89,41 @@ const PRESENTERS = arrayProp("話者（放送の話者 — 一覧）");
 
 const schema = (title: string, properties: Record<string, unknown>) => ({ type: "object", title, properties });
 
+// 記事を押したときの行き先とイベント（common の PostGridCard と同じ名前）。
+const LINK_DEFAULTS = {
+  cardClickDestination: "article",
+  cardClickPageId: "",
+  cardClickPageQueryKey: "postId",
+  selectEvent: NEWS_EVENTS.postSelected,
+  selectedPostStateKey: NEWS_STATE_KEYS.selectedPostId,
+};
+const LINK_SCHEMA = {
+  cardClickDestination: {
+    type: "string",
+    title: "記事を押したときの行き先",
+    enum: ["article", "page", "selection"],
+    description: "article = 記事ページ / page = 下のページ（PostView で読む） / selection = 移らずイベントだけ",
+  },
+  cardClickPageId: text("行き先のページ ID（page のとき）"),
+  cardClickPageQueryKey: text("ページへ渡す記事 ID のキー（既定 postId）"),
+  selectEvent: { type: "string", title: "選択イベント", description: "{ postId, id, title, url } を出す" },
+  selectedPostStateKey: text("選んだ記事 ID を書く page state"),
+};
+
+// 絞り込みの読み手（結果一覧・面立て）。ツールバーと同じ値にすること。
+const BOARD_DEFAULTS = {
+  facesStateKey: NEWS_STATE_KEYS.faces,
+  keywordStateKey: NEWS_STATE_KEYS.keyword,
+  filterEvent: NEWS_EVENTS.filterChanged,
+  searchEvent: NEWS_EVENTS.searchChanged,
+};
+const BOARD_SCHEMA = {
+  facesStateKey: text("面の page state"),
+  keywordStateKey: text("検索語の page state"),
+  filterEvent: text("面の絞り込みイベント"),
+  searchEvent: text("検索イベント"),
+};
+
 const desc = (name: string) => `component.${name}.desc`;
 
 export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
@@ -113,12 +148,14 @@ export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
     _componentDesc: desc("NewsFrontPage"),
     posts: SAMPLE_POSTS,
     audio: [],
-    __schema: schema("NewsFrontPage", { posts: POSTS, audio: AUDIO }),
+    ...LINK_DEFAULTS,
+    __schema: schema("NewsFrontPage", { posts: POSTS, audio: AUDIO, ...LINK_SCHEMA }),
   },
   NewsFlashBand: {
     _componentDesc: desc("NewsFlashBand"),
     posts: SAMPLE_POSTS,
-    __schema: schema("NewsFlashBand", { posts: POSTS }),
+    ...LINK_DEFAULTS,
+    __schema: schema("NewsFlashBand", { posts: POSTS, ...LINK_SCHEMA }),
   },
   NewsBroadcastBand: {
     _componentDesc: desc("NewsBroadcastBand"),
@@ -143,7 +180,24 @@ export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
   NewsFaceToolbar: {
     _componentDesc: desc("NewsFaceToolbar"),
     faces: SAMPLE_FACES,
-    __schema: schema("NewsFaceToolbar", { faces: FACES }),
+    facesStateKey: NEWS_STATE_KEYS.faces,
+    keywordStateKey: NEWS_STATE_KEYS.keyword,
+    orderStateKey: NEWS_STATE_KEYS.order,
+    filterEvent: NEWS_EVENTS.filterChanged,
+    searchEvent: NEWS_EVENTS.searchChanged,
+    sortEvent: NEWS_EVENTS.sortChanged,
+    // 部品はコードでも state に書く（古い保存ページでも検索が効くように）。規則は配線を
+    // ⚡ Page Events に見せ、別の state へも流せるようにするためのもの。
+    __interactions: NEWS_TOOLBAR_INTERACTIONS,
+    __schema: schema("NewsFaceToolbar", {
+      faces: FACES,
+      facesStateKey: text("面を書く page state（カンマ区切り）"),
+      keywordStateKey: text("検索語を書く page state"),
+      orderStateKey: text("並びを書く page state"),
+      filterEvent: { type: "string", title: "面の絞り込みイベント", description: "{ faces, face, active }" },
+      searchEvent: { type: "string", title: "検索イベント", description: "{ keyword }" },
+      sortEvent: { type: "string", title: "並びイベント", description: "{ order }" },
+    }),
   },
   NewsArticleGrid: {
     _componentDesc: desc("NewsArticleGrid"),
@@ -151,9 +205,13 @@ export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
     audio: [],
     showWhen: "filtered",
     emptyText: "この条件に合う記事はありません。",
+    ...BOARD_DEFAULTS,
+    ...LINK_DEFAULTS,
     __schema: schema("NewsArticleGrid", {
       posts: POSTS,
       audio: AUDIO,
+      ...BOARD_SCHEMA,
+      ...LINK_SCHEMA,
       showWhen: { type: "string", title: "出すとき", enum: ["filtered", "always"] },
       emptyText: text("0 件のときの文"),
     }),
@@ -164,10 +222,14 @@ export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
     faces: SAMPLE_FACES,
     audio: [],
     hideWhenFiltered: true,
+    ...BOARD_DEFAULTS,
+    ...LINK_DEFAULTS,
     __schema: schema("NewsFaceBoard", {
       posts: POSTS,
       faces: FACES,
       audio: AUDIO,
+      ...BOARD_SCHEMA,
+      ...LINK_SCHEMA,
       hideWhenFiltered: { type: "boolean", title: "絞り込み中は隠す" },
     }),
   },
@@ -177,7 +239,9 @@ export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
     audio: [],
     limit: BAND_LIMIT,
     moreHref: "/home/news/listen",
+    ...LINK_DEFAULTS,
     __schema: schema("NewsListenBand", {
+      ...LINK_SCHEMA,
       posts: POSTS,
       audio: AUDIO,
       limit: int("出す本数"),
@@ -207,7 +271,8 @@ export const NewsDefaultProps: Record<string, Record<string, unknown>> = {
     _componentDesc: desc("NewsAskPanel"),
     presenters: [],
     askGuest: IMPRINT.askGuest,
-    __schema: schema("NewsAskPanel", { presenters: PRESENTERS, askGuest: longText("会員でない人への案内") }),
+    ...LINK_DEFAULTS,
+    __schema: schema("NewsAskPanel", { presenters: PRESENTERS, askGuest: longText("会員でない人への案内"), ...LINK_SCHEMA }),
   },
   NewsGuestPromo: {
     _componentDesc: desc("NewsGuestPromo"),

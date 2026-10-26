@@ -1,9 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   BAND_LIMIT,
   DEFAULT_ORDER,
   FONT_SANS,
   JB,
+  NEWS_EVENTS,
   NEWS_STATE_KEYS,
   activeTags,
   flashIds,
@@ -36,6 +37,7 @@ import PaperPreview from "./PaperPreview";
 import SubscriptionBand from "./SubscriptionBand";
 import { IMPRINT, SUBSCRIPTION } from "./content";
 import { asArray, getPageState, setPageState, type StackPageRuntimeApi } from "./stackpage";
+import { DEFAULT_NEWS_LINK, NewsLinkProvider, type NewsArticleDestination } from "../shared/NewsLink";
 
 // News Studio の読者面の部品（/home/news を Page Builder で組むための単位）。
 //
@@ -51,16 +53,39 @@ import { asArray, getPageState, setPageState, type StackPageRuntimeApi } from ".
 // 面の絞り込み・検索・並びは page state（NEWS_STATE_KEYS）に置く。NewsFaceToolbar が書き、
 // 絞り込み結果はデータソース `host-news-posts-public` が {{state.news.*}} で受けて返す。
 
-type WithStackPage = { __stackpage?: StackPageRuntimeApi };
+type WithStackPage = { __stackpage?: StackPageRuntimeApi; isEditing?: boolean };
+
+/**
+ * 記事を押したときの行き先とイベント（common の PostGridCard と同じ名前の props）。
+ * 押すと selectedPostStateKey に postId を書き、selectEvent を { postId, id, title, url } で出してから移る。
+ */
+type WithLink = WithStackPage & {
+  /** "article" = /article/{id}/、"page" = Page Builder のページ（?postId=）、"selection" = 移らない */
+  cardClickDestination?: NewsArticleDestination;
+  cardClickPageId?: string;
+  cardClickPageQueryKey?: string;
+  selectEvent?: string;
+  selectedPostStateKey?: string;
+};
 type WithAudio = {
   /** 読み上げ・放送の一覧（`host-news-audio-public`）。受けた部品がページの再生 store に登録する。 */
   audio?: NewsAudioEntry[];
 };
 
 /** 部品の外枠。紙面のスタイルを head に 1 度だけ入れ、版面の幅（jb-wrap）で包む。 */
-function NewsFrame({ children, wrap = true }: { children: ReactNode; wrap?: boolean }) {
+function NewsFrame({ children, wrap = true, link }: { children: ReactNode; wrap?: boolean; link?: WithLink }) {
   usePaperStyles();
+  const options = {
+    destination: link?.cardClickDestination ?? DEFAULT_NEWS_LINK.destination,
+    pageId: link?.cardClickPageId ?? "",
+    pageQueryKey: link?.cardClickPageQueryKey || DEFAULT_NEWS_LINK.pageQueryKey,
+    selectEvent: link?.selectEvent || DEFAULT_NEWS_LINK.selectEvent,
+    selectedPostStateKey: link?.selectedPostStateKey ?? DEFAULT_NEWS_LINK.selectedPostStateKey,
+    stackpage: link?.__stackpage,
+    isEditing: link?.isEditing,
+  };
   return (
+    <NewsLinkProvider value={options}>
     <div className="jb-news" style={{ background: JB.paper }}>
       {wrap ? (
         // 中身が出ない日（記事が無い・案内の対象でない）は、空の枠を残さない（PaperStyles の
@@ -72,6 +97,7 @@ function NewsFrame({ children, wrap = true }: { children: ReactNode; wrap?: bool
         children
       )}
     </div>
+    </NewsLinkProvider>
   );
 }
 
@@ -84,10 +110,31 @@ const usedOnTop = (posts: NewsPost[]) => {
   return { front, flash };
 };
 
-/** page state の絞り込み（面・語）。 */
-const useBoardState = (stackpage: StackPageRuntimeApi | undefined) => {
-  const faces = getPageState<unknown>(stackpage, NEWS_STATE_KEYS.faces, "");
-  const keyword = getPageState<unknown>(stackpage, NEWS_STATE_KEYS.keyword, "");
+type BoardKeys = {
+  facesStateKey?: string;
+  keywordStateKey?: string;
+  filterEvent?: string;
+  searchEvent?: string;
+};
+
+/**
+ * page state の絞り込み（面・語）。描画のたびに読むうえ、絞り込みのイベントでも読み直す
+ * （state の変化が届かない並びでも、イベントで確実に入れ替わる — PostGridCard と同じ）。
+ */
+const useBoardState = (stackpage: StackPageRuntimeApi | undefined, keys: BoardKeys = {}) => {
+  const facesKey = keys.facesStateKey || NEWS_STATE_KEYS.faces;
+  const keywordKey = keys.keywordStateKey || NEWS_STATE_KEYS.keyword;
+  const [, bump] = useState(0);
+  useEffect(() => {
+    if (!stackpage?.subscribe) return;
+    const offs = [
+      stackpage.subscribe(keys.filterEvent || NEWS_EVENTS.filterChanged, () => bump((n) => n + 1)),
+      stackpage.subscribe(keys.searchEvent || NEWS_EVENTS.searchChanged, () => bump((n) => n + 1)),
+    ];
+    return () => offs.forEach((off) => off?.());
+  }, [stackpage, keys.filterEvent, keys.searchEvent]);
+  const faces = getPageState<unknown>(stackpage, facesKey, "");
+  const keyword = getPageState<unknown>(stackpage, keywordKey, "");
   return { faces, keyword, filtered: isBoardFiltered(faces, keyword) };
 };
 
@@ -127,22 +174,22 @@ export function NewsMasthead({
 
 // ── 第一面・速報 ────────────────────────────────────────────────────────
 
-export function NewsFrontPage({ posts, audio }: WithAudio & { posts?: NewsPost[] }) {
+export function NewsFrontPage({ posts, audio, ...link }: WithAudio & WithLink & { posts?: NewsPost[] }) {
   useRegisterAudio(audio);
   const list = usePosts(posts);
   if (list.length === 0) return null;
   return (
-    <NewsFrame>
+    <NewsFrame link={link}>
       <FrontPage posts={list} />
     </NewsFrame>
   );
 }
 
-export function NewsFlashBand({ posts }: { posts?: NewsPost[] }) {
+export function NewsFlashBand({ posts, ...link }: WithLink & { posts?: NewsPost[] }) {
   const list = usePosts(posts);
   if (list.length === 0) return null;
   return (
-    <NewsFrame>
+    <NewsFrame link={link}>
       <FlashBand posts={list} excludeIds={usedOnTop(list).front} />
     </NewsFrame>
   );
@@ -194,30 +241,58 @@ export function NewsBroadcastList({
 // ── 面の絞り込み・検索（フィルタメニュー） ─────────────────────────────────
 
 /**
- * 面のタブ・検索語・並び。選んだ値は page state（news.faces / news.keyword / news.order）に
- * 書くだけ — 記事は `host-news-posts-public` がその値で絞って返す。
+ * 面のタブ・検索語・並び（フィルタメニュー）。common の PostSearchBar / TagFilterBar と同じ型:
+ * 値は**コードで page state に直接書き**（データソース `{{state.news.*}}` の引き直しはこれで起きる）、
+ * あわせて契約イベントを出す。既定の __interactions にも同じ書き込みの規則を載せてあるので、
+ * 配線は Page Builder の ⚡ Page Events / Event タブで見える・変えられる。
+ *
+ * - 面:   facesStateKey（既定 news.filter.faces、カンマ区切り）／ filterEvent { faces, face, active }
+ * - 語:   keywordStateKey（既定 news.search.keyword）／ searchEvent { keyword }（打つのが止まって 300ms 後）
+ * - 並び: orderStateKey（既定 news.sort.order）／ sortEvent { order }
  */
-export function NewsFaceToolbar({ faces, __stackpage }: WithStackPage & { faces?: Face[] }) {
+export function NewsFaceToolbar({
+  faces,
+  facesStateKey = NEWS_STATE_KEYS.faces,
+  keywordStateKey = NEWS_STATE_KEYS.keyword,
+  orderStateKey = NEWS_STATE_KEYS.order,
+  filterEvent = NEWS_EVENTS.filterChanged,
+  searchEvent = NEWS_EVENTS.searchChanged,
+  sortEvent = NEWS_EVENTS.sortChanged,
+  __stackpage,
+}: WithStackPage & {
+  faces?: Face[];
+  facesStateKey?: string;
+  keywordStateKey?: string;
+  orderStateKey?: string;
+  filterEvent?: string;
+  searchEvent?: string;
+  sortEvent?: string;
+}) {
   const faceList = asArray<Face>(faces);
-  const [selected, setSelected] = useState<string[]>(() =>
-    activeTags(getPageState(__stackpage, NEWS_STATE_KEYS.faces, "")),
-  );
-  const [keyword, setKeyword] = useState<string>(() =>
-    String(getPageState(__stackpage, NEWS_STATE_KEYS.keyword, "") ?? ""),
-  );
+  const [selected, setSelected] = useState<string[]>(() => activeTags(getPageState(__stackpage, facesStateKey, "")));
+  const [keyword, setKeyword] = useState<string>(() => String(getPageState(__stackpage, keywordStateKey, "") ?? ""));
   const [order, setOrder] = useState<string>(
-    () => String(getPageState(__stackpage, NEWS_STATE_KEYS.order, "") ?? "") || DEFAULT_ORDER,
+    () => String(getPageState(__stackpage, orderStateKey, "") ?? "") || DEFAULT_ORDER,
   );
+  const committedKeyword = useRef(keyword.trim());
 
   // 打つたびにデータソースを引き直さない（語は 300ms 止まってから書く）。
   useEffect(() => {
-    const timer = setTimeout(() => setPageState(__stackpage, NEWS_STATE_KEYS.keyword, keyword.trim()), 300);
+    const next = keyword.trim();
+    if (next === committedKeyword.current) return;
+    const timer = setTimeout(() => {
+      committedKeyword.current = next;
+      setPageState(__stackpage, keywordStateKey, next);
+      __stackpage?.emit?.(searchEvent, { keyword: next });
+    }, 300);
     return () => clearTimeout(timer);
-  }, [__stackpage, keyword]);
+  }, [__stackpage, keyword, keywordStateKey, searchEvent]);
 
-  const writeFaces = (next: string[]) => {
+  const writeFaces = (next: string[], face: string) => {
     setSelected(next);
-    setPageState(__stackpage, NEWS_STATE_KEYS.faces, next.join(","));
+    const value = next.join(",");
+    setPageState(__stackpage, facesStateKey, value);
+    __stackpage?.emit?.(filterEvent, { faces: value, face, active: next.includes(face) });
   };
 
   return (
@@ -229,15 +304,16 @@ export function NewsFaceToolbar({ faces, __stackpage }: WithStackPage & { faces?
           keyword={keyword}
           order={order}
           onToggleTag={(label) =>
-            writeFaces(selected.includes(label) ? selected.filter((face) => face !== label) : [...selected, label])
+            writeFaces(selected.includes(label) ? selected.filter((face) => face !== label) : [...selected, label], label)
           }
           onKeyword={setKeyword}
           onOrder={(next) => {
             setOrder(next);
-            setPageState(__stackpage, NEWS_STATE_KEYS.order, next);
+            setPageState(__stackpage, orderStateKey, next);
+            __stackpage?.emit?.(sortEvent, { order: next });
           }}
           onReset={() => {
-            writeFaces([]);
+            writeFaces([], "");
             setKeyword("");
           }}
         />
@@ -255,9 +331,14 @@ export function NewsArticleGrid({
   audio,
   showWhen = "filtered",
   emptyText = "この条件に合う記事はありません。",
-  __stackpage,
+  facesStateKey,
+  keywordStateKey,
+  filterEvent,
+  searchEvent,
+  ...link
 }: WithAudio &
-  WithStackPage & {
+  WithLink &
+  BoardKeys & {
     posts?: NewsPost[];
     /** "filtered" = 絞り込み中だけ出す / "always" = 常に出す。 */
     showWhen?: "filtered" | "always";
@@ -265,10 +346,10 @@ export function NewsArticleGrid({
   }) {
   useRegisterAudio(audio);
   const list = usePosts(posts);
-  const { filtered } = useBoardState(__stackpage);
+  const { filtered } = useBoardState(link.__stackpage, { facesStateKey, keywordStateKey, filterEvent, searchEvent });
   if (showWhen === "filtered" && !filtered) return null;
   return (
-    <NewsFrame>
+    <NewsFrame link={link}>
       {list.length === 0 ? (
         <p style={{ fontFamily: FONT_SANS, fontSize: 15, color: JB.muted, margin: 0 }}>{emptyText}</p>
       ) : (
@@ -294,16 +375,20 @@ export function NewsFaceBoard({
   faces,
   audio,
   hideWhenFiltered = true,
-  __stackpage,
-}: WithAudio & WithStackPage & { posts?: NewsPost[]; faces?: Face[]; hideWhenFiltered?: boolean }) {
+  facesStateKey,
+  keywordStateKey,
+  filterEvent,
+  searchEvent,
+  ...link
+}: WithAudio & WithLink & BoardKeys & { posts?: NewsPost[]; faces?: Face[]; hideWhenFiltered?: boolean }) {
   useRegisterAudio(audio);
   const list = usePosts(posts);
-  const { filtered } = useBoardState(__stackpage);
+  const { filtered } = useBoardState(link.__stackpage, { facesStateKey, keywordStateKey, filterEvent, searchEvent });
   if (hideWhenFiltered && filtered) return null;
   if (list.length === 0) return null;
   const used = usedOnTop(list);
   return (
-    <NewsFrame>
+    <NewsFrame link={link}>
       <FaceBoard posts={list} faces={asArray<Face>(faces)} excludeIds={[...used.front, ...used.flash]} />
     </NewsFrame>
   );
@@ -316,12 +401,13 @@ export function NewsListenBand({
   audio,
   limit = BAND_LIMIT,
   moreHref = "/home/news/listen",
-}: WithAudio & { posts?: NewsPost[]; limit?: number | null; moreHref?: string }) {
+  ...link
+}: WithAudio & WithLink & { posts?: NewsPost[]; limit?: number | null; moreHref?: string }) {
   useRegisterAudio(audio);
   const list = usePosts(posts);
   if (list.length === 0) return null;
   return (
-    <NewsFrame>
+    <NewsFrame link={link}>
       <ListenBand posts={list} limit={limit} moreHref={moreHref || null} />
     </NewsFrame>
   );
@@ -363,12 +449,13 @@ export function NewsSubscriptionBand({
 export function NewsAskPanel({
   presenters,
   askGuest = IMPRINT.askGuest,
-}: {
+  ...link
+}: WithLink & {
   presenters?: NewsPresenter[];
   askGuest?: string;
 }) {
   return (
-    <NewsFrame>
+    <NewsFrame link={link}>
       <AskPanel presenters={asArray<NewsPresenter>(presenters)} askGuest={askGuest} />
     </NewsFrame>
   );

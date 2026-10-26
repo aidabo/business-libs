@@ -3,6 +3,7 @@
 import type { NewsPost as Post } from "../core";
 import { FONT_SANS, FONT_SERIF, JB } from "../core";
 import { selectFlash } from "../core";
+import { useArticleLinker } from "../shared/NewsLink";
 
 // 速報（spec §4 の③）。当日の記事を published_at の降順で 5 本。
 // 公開後に手が入った記事には「更新」を付ける（isUpdated）。
@@ -15,6 +16,7 @@ export default function FlashBand({
   excludeIds: string[];
 }) {
   const flash = selectFlash(posts, excludeIds, 5);
+  const linkOf = useArticleLinker();
   if (flash.length === 0) return null;
 
   return (
@@ -33,7 +35,8 @@ export default function FlashBand({
           return (
             <li key={post.id} style={{ background: JB.white, margin: 0 }}>
               <a
-                href={`/article/${post.id}/`}
+                href={linkOf(post).href}
+                onClick={linkOf(post).onClick}
                 className="jb-card"
                 style={{ display: "block", padding: "14px 16px", textDecoration: "none", color: "inherit", minHeight: 44 }}
               >

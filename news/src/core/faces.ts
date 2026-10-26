@@ -87,3 +87,27 @@ export function faceLabelOfTag(tag: { name?: unknown } | null | undefined): stri
   const label = body.slice(0, -FACE_TAG_SUFFIX.length).trim();
   return label.length > 0 ? label : null;
 }
+
+/**
+ * 内部タグの一覧から面を組み立てる。面の内部タグでないものは落とす。
+ *
+ * Ghost は日本語を翻字して slug を振るので（`#東京都` → `hash-dong-jing-du`）、
+ * 面かどうかは name で見る。
+ */
+export function facesFromTags(tags: unknown): Face[] {
+  const list = Array.isArray(tags) ? tags : [];
+  const faces: Face[] = [];
+
+  for (const tag of list) {
+    const label = faceLabelOfTag(tag as { name?: unknown });
+    if (label === null) continue;
+    if (faces.some((face) => face.label === label)) continue;
+    faces.push({
+      slug: String((tag as { slug?: unknown })?.slug ?? ""),
+      label,
+      order: faceOrderOf(label),
+    });
+  }
+
+  return faces.sort((a, b) => a.order - b.order || a.label.localeCompare(b.label, "ja"));
+}

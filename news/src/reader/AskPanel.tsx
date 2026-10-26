@@ -7,6 +7,7 @@ import { BOT_NAME, MAX_QUESTION_CHARS, MAX_TURNS, STARTER_QUESTIONS, type AskTur
 import { IMPRINT } from "./content";
 import { useNews, useViewerKind, type NewsMemberMode } from "../adapter/NewsContext";
 import type { NewsPresenter } from "../core";
+import { useArticleLinker } from "../shared/NewsLink";
 
 type Source = { post_id: string; title: string };
 
@@ -27,6 +28,7 @@ export default function AskPanel({
 }) {
   const viewer = useViewerKind();
   const { MemberDialog, urls } = useNews().adapter;
+  const linkOf = useArticleLinker();
   // 口はホストが渡す（管理 cookie が /ghost に張られるホストでは /ghost の下の口）。
   const askUrl = urls?.ask ?? null;
   const { paperName } = usePaperSettings();
@@ -131,7 +133,7 @@ export default function AskPanel({
                       {message.sources.map((source, n) => (
                         <li key={source.post_id}>
                           <span className="jb-ask-num">[{n + 1}]</span>
-                          <a href={`/article/${source.post_id}/`} className="jb-link">
+                          <a href={linkOf({ id: source.post_id, title: source.title }).href} onClick={linkOf({ id: source.post_id, title: source.title }).onClick} className="jb-link">
                             {source.title}
                           </a>
                         </li>
