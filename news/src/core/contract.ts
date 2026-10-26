@@ -36,6 +36,10 @@ export const NEWS_EVENTS = {
   sortChanged: "news:sort:changed",
   /** { postId, id, title, url } */
   postSelected: "news:post:selected",
+  /** 編集局のタブを替えた: { tab } */
+  deskTabChanged: "news:desk:tab:changed",
+  /** 編集局のタブを替えてほしい（メニューなどから）: { tab } */
+  deskTabSelect: "news:desk:tab:select",
 } as const;
 
 /** Page Builder catalog group. */

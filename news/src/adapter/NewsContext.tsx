@@ -33,6 +33,16 @@ export interface NewsHostAdapter {
   }>;
   /** 著作権表記。 */
   Copyright?: ComponentType<Record<string, unknown>>;
+  /** スタッフのログイン状態（編集局）。ready = セッションが確定して、ログインしている。 */
+  useStaffSession?: () => {
+    ready: boolean;
+    userId: string;
+    roles: Array<{ name?: string } | string> | undefined;
+  };
+  /** 記事の編集画面の URL（無ければ「編集」を出さない）。 */
+  editPostHref?: (postId: string) => string;
+  /** AI アシスタントのパネルを開く（例: "news"）。 */
+  openAssistant?: (agent: string) => void;
   /** ホストの口。 */
   urls?: {
     /** 記事に聞く（POST { messages }）。無ければ「記事に聞く」は会話欄を出さない。 */
@@ -70,4 +80,19 @@ export function useViewerKind(): NewsViewerKind {
   const { adapter } = useNews();
   const useHostViewer = adapter.useViewerKind ?? useUnknownViewer;
   return useHostViewer();
+}
+
+const useNoStaff = () => ({ ready: false, userId: "", roles: undefined });
+
+/** 編集局のスタッフ。ホストが教えなければ「ログインしていない」（編集局は出さない）。 */
+export function useStaffSession() {
+  const { adapter } = useNews();
+  const useHostStaff = adapter.useStaffSession ?? useNoStaff;
+  return useHostStaff();
+}
+
+/** 記事の編集画面の URL を作る関数（ホストが教えなければ空 = 「編集」を出さない）。 */
+export function useEditPostHref(): (postId: string) => string {
+  const { adapter } = useNews();
+  return (postId) => (postId && adapter.editPostHref ? adapter.editPostHref(postId) : "");
 }

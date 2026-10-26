@@ -47,6 +47,22 @@ export const NEWS_PAGE_RECIPES: NewsPageRecipe[] = [
     optionalComponents: [],
   },
   {
+    id: "news-desk",
+    label: "編集局（デスク）",
+    description: "電子紙面・記事・素材・読み上げ・放送・媒体と紙面のタブと今日の紙面の数字（/dashboard/news 相当、スタッフのみ）。",
+    vertical: "news",
+    requiredComponents: ["NewsDesk"],
+    optionalComponents: [
+      "NewsDeskSummary",
+      "NewsDeskPaper",
+      "NewsDeskArticles",
+      "NewsDeskAssets",
+      "NewsDeskReadAloud",
+      "NewsDeskBroadcast",
+      "NewsDeskMediums",
+    ],
+  },
+  {
     id: "news-broadcast",
     label: "バーチャル放送の一覧",
     description: "題字と放送の一覧（/home/news/broadcast 相当）。",
@@ -186,4 +202,19 @@ export function createNewsArticlePage() {
     widget("news-footer", "NewsFooter", 48, 8, { faces: S.faces }),
   ];
   return { layout: { children: layout }, source: createNewsPageSource(), pageState: createNewsPageState() };
+}
+
+/**
+ * 編集局（/dashboard/news 相当）。机 1 つ（NewsDesk）— タブ・数字・書き込みは机が持つ。
+ * readerHref は読者面のページ（「読者面を見る」の行き先）。
+ */
+export function createNewsDeskPage(options: { readerHref?: string } = {}) {
+  const layout = [
+    widget("news-desk", "NewsDesk", 0, 60, {}, {
+      readerHref: options.readerHref || "/home/news",
+      initialTab: "paper",
+      syncUrl: true,
+    }),
+  ];
+  return { layout: { children: layout }, source: { lists: [], dataSources: [] }, pageState: {} };
 }

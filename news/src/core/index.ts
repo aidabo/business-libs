@@ -17,3 +17,6 @@ export * from "./newsAudio";
 export * from "./askBot";
 export * from "./paperEdition";
 export * from "./recipes";
+export * from "./dziPages";
+export * from "./deskLinks";
+export * from "./mediaInfo";
