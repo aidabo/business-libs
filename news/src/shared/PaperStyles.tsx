@@ -174,6 +174,13 @@ export const PAPER_CSS = `
 .jb-hide-sm { display: none; }
 @media (min-width: 560px) { .jb-hide-sm { display: block; } }
 
+/* デモの断り（題字の下の朱の囲み）。携帯では折り返すと 4〜5 行を取るので、
+   1 行の横スクロール帯にする（2026-10-27 ユーザー指示）。広い画面は従来どおり折り返す。 */
+@media (max-width: 699px) {
+  .jb-demo-note { white-space: nowrap; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+  .jb-demo-note::-webkit-scrollbar { display: none; }
+}
+
 /* ============ 紙面モック（親幅に比例して拡大縮小） ============ */
 .jb-paper-box { container-type: inline-size; width: 100%; }
 .jb-paper-fluid { font-size: 9px; }
