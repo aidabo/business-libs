@@ -38,7 +38,7 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
   const number = typeof value === "number" ? value : Number(raw.replace(/[^0-9.-]/g, ""));
-  if (!Number.isFinite(number) || number <= 0) return "";
+  if (!Number.isFinite(number) || number <= 0) return /\d/.test(raw) ? "" : raw;
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
 export const formatEstateArea = (value: unknown) => {
@@ -86,7 +86,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     locale: currentLocale,
     title: value(buildingName, "proper"),
     propertyType: type && TYPE_LABELS[currentLocale][type] ? value(formatEstateTypeLabel(type, currentLocale), "term", "dictionary", type) : value(type, "free", "fallback-ja"),
-    price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: value(formatEstatePrice(priceProperty, currentLocale), "number") },
+    price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: value(formatEstatePrice(priceProperty, currentLocale), /^¥[0-9]/.test(formatEstatePrice(priceProperty, currentLocale)) ? "number" : "free") },
     area: value(formatEstateArea(area), "number"),
     floorPlan: value(floorPlan, "proper"),
     access: value(access, "proper"),
