@@ -1,7 +1,7 @@
 {
   "name": "@ghost-next/estate",
   "version": "0.1.0",
-  "main": "./dist/estate.umd.js",
+  "main": "./dist/estate.cjs.js",
   "module": "./dist/estate.es.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
@@ -12,7 +12,7 @@
   "exports": {
     ".": {
       "import": "./dist/estate.es.js",
-      "require": "./dist/estate.umd.js"
+      "require": "./dist/estate.cjs.js"
     },
     "./core": {
       "types": "./dist/core/index.d.ts",

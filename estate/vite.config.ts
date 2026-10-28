@@ -14,7 +14,7 @@ export default defineConfig({
       name: 'inject-use-client',
       generateBundle(_, bundle) {
         for (const chunk of Object.values(bundle)) {
-          if (chunk.type === 'chunk' && chunk.isEntry) {
+          if (chunk.type === 'chunk' && chunk.isEntry && chunk.name === 'estate') {
             chunk.code = '"use client";\n' + chunk.code;
           }
         }
@@ -29,6 +29,7 @@ export default defineConfig({
       },
       name: 'Estate',
       fileName: (format, name) => `${name}.${format}.js`,
+      formats: ['es', 'cjs'],
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'tailwindcss'],
