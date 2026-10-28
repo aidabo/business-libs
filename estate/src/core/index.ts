@@ -6,6 +6,7 @@ export type EstateLocalizedValue = {
   text: string;
   kind: "term" | "proper" | "free" | "number";
   resolved: "dictionary" | "provider" | "fallback-ja";
+  /** Original provider/dictionary text; not a property field key. */
   source?: string;
 };
 
@@ -74,15 +75,22 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
   const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
-  const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(億|万|千)/g)];
+  const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円|億|万|千)/g)];
   let number: number;
   if (unitMatches.length > 0) {
-    number = unitMatches.reduce((total, match) => {
+    const firstNonContiguousIndex = unitMatches.findIndex((match, index) => {
+      if (index === 0) return false;
+      const previous = unitMatches[index - 1];
+      const gap = numericText.slice((previous.index || 0) + previous[0].length, match.index || 0);
+      return !/^\s*$/.test(gap);
+    });
+    const contiguousMatches = unitMatches.slice(0, firstNonContiguousIndex === -1 ? unitMatches.length : firstNonContiguousIndex);
+    number = contiguousMatches.reduce((total, match) => {
       const amount = Number(match[1].replace(/,/g, ""));
-      const multiplier = match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
+      const multiplier = match[2] === "千万円" ? 10000000 : match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
       return total + (Number.isFinite(amount) ? amount * multiplier : 0);
     }, 0);
-    const lastMatch = unitMatches[unitMatches.length - 1];
+    const lastMatch = contiguousMatches[contiguousMatches.length - 1];
     const remainder = numericText.slice((lastMatch.index || 0) + lastMatch[0].length).match(/^(-?[\d,]+(?:\.\d+)?)(?:\s*円)?(?:\s*)$/);
     if (remainder?.[1]) number += Number(remainder[1].replace(/,/g, ""));
   } else {
@@ -133,8 +141,6 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
   const currentLocale = locale === "en" || locale === "zh" ? locale : "ja";
   const type = toText(firstValue(property, ["property_type", "propertyType"])).toLowerCase();
   const buildingName = firstValue(property, ["building_name", "buildingName", "title", "name"]);
-  const salePrice = firstValue(property, ["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
-  const rentPrice = firstValue(property, ["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"]);
   const area = firstValue(property, ["floor_area", "floorArea", "building_area", "buildingArea", "area_sqm", "areaSqm", "sqm", "area", "land_area", "landArea"]);
   const floorPlan = firstValue(property, ["floor_plan", "floorPlan", "rooms"]);
   const access = firstValue(property, ["transport_info", "transportInfo", "transport", "nearest_station", "nearestStation"]);
@@ -143,7 +149,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     ...lines(firstValue(property, ["fixtures_and_fittings", "fixturesAndFittings"])),
   ];
   const structure = firstValue(property, ["structure", "buildingStructure"]);
-  const priceProperty = { ...property, property_type: type, price_sale: salePrice, price_rent_monthly: rentPrice };
+  const priceProperty = { ...property, property_type: type };
   const places = parseJson(firstValue(property, ["google_places_data", "googlePlacesData"]));
   const mlit = parseJson(property.mlit_data);
   const schemaVersionRaw = places?.schema_version;
