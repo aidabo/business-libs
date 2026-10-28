@@ -12,6 +12,7 @@
   },
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/estate.js",
       "require": "./dist/estate.cjs"
     },

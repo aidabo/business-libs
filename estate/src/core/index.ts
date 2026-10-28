@@ -62,7 +62,7 @@ const parseJson = (input: unknown): any | null => { if (!input) return null; if 
 const lines = (input: unknown): string[] => Array.isArray(input) ? input.map(toText).filter(Boolean) : toText(input).split(/\r?\n|、|,|，/).map((item) => item.trim()).filter(Boolean);
 const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: EstateDictionaryTerm[]) => { const match = dictionary.find((term) => term.source === text); return match ? value(match[locale] || match.source, "term", "dictionary", match.source) : value(text, "free"); };
 const localizedPlaceValue = (item: any, field: "name" | "address", locale: EstateCoreLocale) => { const localized = item?.localized?.[locale]?.[field]; const source = item?.localized?.ja?.[field] || item?.[field]; return localized ? value(localized, "proper", "provider", source !== localized ? source : undefined) : value(source, "proper"); };
-const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && String(item).trim() !== "");
+const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && item !== 0 && String(item).trim() !== "" && String(item).trim() !== "0");
 
 export function buildEstatePropertyLocaleViewModel(property: Record<string, any>, locale: EstateCoreLocale = "ja", dictionary: EstateDictionaryTerm[] = [], dictionaryVersion?: string): EstatePropertyLocaleViewModel {
   const currentLocale = locale === "en" || locale === "zh" ? locale : "ja";
@@ -89,7 +89,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     locale: currentLocale,
     title: value(buildingName, "proper"),
     propertyType: type && TYPE_LABELS[currentLocale][type] ? value(formatEstateTypeLabel(type, currentLocale), "term", "dictionary", type) : value(type, "free", "fallback-ja"),
-    price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: value(formatEstatePrice(priceProperty, currentLocale), /^¥[0-9]/.test(formatEstatePrice(priceProperty, currentLocale)) ? "number" : "free") },
+    price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: (() => { const text = formatEstatePrice(priceProperty, currentLocale); return value(text, !text || /^¥[0-9]/.test(text) ? "number" : "free"); })() },
     area: value(formatEstateArea(area), "number"),
     floorPlan: value(floorPlan, "proper"),
     access: value(access, "proper"),
