@@ -23,9 +23,12 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: {
+        estate: resolve(__dirname, 'src/index.ts'),
+        core: resolve(__dirname, 'src/core/index.ts'),
+      },
       name: 'Estate',
-      fileName: (format) => `estate.${format}.js`,
+      fileName: (format, name) => `${name}.${format}.js`,
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'tailwindcss'],

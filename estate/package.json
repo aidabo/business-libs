@@ -4,10 +4,20 @@
   "main": "./dist/estate.umd.js",
   "module": "./dist/estate.es.js",
   "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "core": ["./dist/core/index.d.ts"]
+    }
+  },
   "exports": {
     ".": {
       "import": "./dist/estate.es.js",
       "require": "./dist/estate.umd.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core.es.js",
+      "require": "./dist/core.cjs.js"
     }
   },
   "files": [
