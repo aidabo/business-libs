@@ -6,6 +6,7 @@ export type EstateLocalizedValue = {
   text: string;
   kind: "term" | "proper" | "free" | "number";
   resolved: "dictionary" | "provider" | "fallback-ja";
+  /** Original provider/dictionary text; not a property field key. */
   source?: string;
 };
 
@@ -73,7 +74,29 @@ const toText = (value: unknown) => String(value ?? "").trim();
 export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
-  const number = typeof value === "number" ? value : Number(raw.replace(/[^0-9.-]/g, ""));
+  const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
+  const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円?|億|万|千)/g)];
+  let number: number;
+  if (unitMatches.length > 0) {
+    const firstNonContiguousIndex = unitMatches.findIndex((match, index) => {
+      if (index === 0) return false;
+      const previous = unitMatches[index - 1];
+      const gap = numericText.slice((previous.index || 0) + previous[0].length, match.index || 0);
+      return !/^\s*$/.test(gap);
+    });
+    const contiguousMatches = unitMatches.slice(0, firstNonContiguousIndex === -1 ? unitMatches.length : firstNonContiguousIndex);
+    number = contiguousMatches.reduce((total, match) => {
+      const amount = Number(match[1].replace(/,/g, ""));
+      const multiplier = match[2].startsWith("千万") ? 10000000 : match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
+      return total + (Number.isFinite(amount) ? amount * multiplier : 0);
+    }, 0);
+    const lastMatch = contiguousMatches[contiguousMatches.length - 1];
+    const remainder = numericText.slice((lastMatch.index || 0) + lastMatch[0].length).match(/^(-?[\d,]+(?:\.\d+)?)(?:\s*円)?(?:\s*)$/);
+    if (remainder?.[1]) number += Number(remainder[1].replace(/,/g, ""));
+  } else {
+    const numericPart = numericText.match(/-?[\d,]+(?:\.\d+)?/)?.[0] || "";
+    number = Number(numericPart.replace(/,/g, ""));
+  }
   if (!Number.isFinite(number) || number <= 0) return /\d/.test(raw) ? "" : raw;
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
@@ -87,30 +110,40 @@ export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) 
   return TYPE_LABELS[locale][key] || TYPE_LABELS[locale].sale;
 };
 export const formatEstatePrice = (property: Record<string, any>, locale: EstateCoreLocale) => {
-  const isRent = toText(property.property_type).toLowerCase() === "rent";
+  const isRent = toText(firstValue(property, ["property_type", "propertyType"])).toLowerCase() === "rent";
   const rentSuffix = locale === "en" ? "/mo" : "/月";
+  const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix)).find(Boolean) || "";
+  const salePrice = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
+  const rentPrice = firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
+  const rentFallback = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy"])
+    || firstFormatted(["price"], rentSuffix);
   return isRent
-    ? formatEstateMoney(property.price_rent_monthly, rentSuffix) || formatEstateMoney(property.price_sale)
-    : formatEstateMoney(property.price_sale) || formatEstateMoney(property.price_rent_monthly, rentSuffix);
+    ? rentPrice || rentFallback
+    : salePrice || firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
 };
 const value = (text: unknown, kind: EstateLocalizedValue["kind"], resolved: EstateLocalizedValue["resolved"] = "fallback-ja", source?: string): EstateLocalizedValue => ({ text: toText(text), kind, resolved, ...(source ? { source } : {}) });
 const parseJson = (input: unknown): any | null => { if (!input) return null; if (typeof input === "object") return input; try { return JSON.parse(String(input)); } catch { return null; } };
 const lines = (input: unknown): string[] => Array.isArray(input) ? input.map(toText).filter(Boolean) : toText(input).split(/\r?\n|、|,|，/).map((item) => item.trim()).filter(Boolean);
-const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: EstateDictionaryTerm[]) => { const match = dictionary.find((term) => term.source === text); return match ? value(match[locale] || match.source, "term", "dictionary", match.source) : value(text, "free"); };
+const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: EstateDictionaryTerm[]) => {
+  const match = dictionary.find((term) => term.source === text);
+  if (!match) return value(text, "free");
+  const localized = toText(match[locale]);
+  return localized ? value(localized, "term", "dictionary", match.source) : value(match.source, "free", "fallback-ja", match.source);
+};
 const localizedPlaceValue = (item: any, field: "name" | "address", locale: EstateCoreLocale) => { const localized = item?.localized?.[locale]?.[field]; const source = item?.localized?.ja?.[field] || item?.[field]; return localized ? value(localized, "proper", "provider", source !== localized ? source : undefined) : value(source, "proper"); };
 const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && item !== 0 && String(item).trim() !== "" && String(item).trim() !== "0");
 const hazardValues = (property: Record<string, any>, locale: EstateCoreLocale) => Object.entries(HAZARD_LABELS[locale]).flatMap(([key, label]) => {
-  const text = toText(property[key]);
-  return text ? [value(`${label}: ${text}`, "free", "fallback-ja", key)] : [];
+  const raw = property[key];
+  if (!raw) return [];
+  const text = toText(raw);
+  return text ? [value(`${label}: ${text}`, "free", "fallback-ja", text)] : [];
 });
 
 export function buildEstatePropertyLocaleViewModel(property: Record<string, any>, locale: EstateCoreLocale = "ja", dictionary: EstateDictionaryTerm[] = [], dictionaryVersion?: string): EstatePropertyLocaleViewModel {
   const currentLocale = locale === "en" || locale === "zh" ? locale : "ja";
   const type = toText(firstValue(property, ["property_type", "propertyType"])).toLowerCase();
   const buildingName = firstValue(property, ["building_name", "buildingName", "title", "name"]);
-  const salePrice = firstValue(property, ["price_sale", "priceJPY", "price_jpy"]);
-  const rentPrice = firstValue(property, ["price_rent_monthly", "priceRentMonthly", "current_rent"]);
-  const area = firstValue(property, ["floor_area", "building_area", "area_sqm", "areaSqm", "sqm", "land_area", "landArea"]);
+  const area = firstValue(property, ["floor_area", "floorArea", "building_area", "buildingArea", "area_sqm", "areaSqm", "sqm", "area", "land_area", "landArea"]);
   const floorPlan = firstValue(property, ["floor_plan", "floorPlan", "rooms"]);
   const access = firstValue(property, ["transport_info", "transportInfo", "transport", "nearest_station", "nearestStation"]);
   const features = [
@@ -118,8 +151,13 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     ...lines(firstValue(property, ["fixtures_and_fittings", "fixturesAndFittings"])),
   ];
   const structure = firstValue(property, ["structure", "buildingStructure"]);
-  const priceProperty = { ...property, property_type: type, price_sale: salePrice, price_rent_monthly: rentPrice };
+  const priceProperty = { ...property, property_type: type };
   const places = parseJson(firstValue(property, ["google_places_data", "googlePlacesData"]));
+  const mlit = parseJson(property.mlit_data);
+  const schemaVersionRaw = places?.schema_version;
+  const googlePlacesSchemaVersion = schemaVersionRaw === null || schemaVersionRaw === undefined || schemaVersionRaw === ""
+    ? undefined
+    : Number.isFinite(Number(schemaVersionRaw)) ? Number(schemaVersionRaw) : undefined;
   const placeItems = Object.values(places || {}).flatMap((group: any) => {
     if (Array.isArray(group?.items)) return group.items;
     if (group && typeof group === "object") return Object.values(group).flatMap((nested: any) => Array.isArray(nested?.items) ? nested.items : []);
@@ -144,9 +182,9 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     sources: {
       googlePlacesFetchedAt: toText(places?.fetched_at || places?.fetchedAt) || undefined,
       googlePlacesSourceLocale: places?.source_locale === "en" || places?.source_locale === "zh" ? places.source_locale : places?.source_locale === "ja" ? "ja" : undefined,
-      googlePlacesSchemaVersion: Number.isFinite(Number(places?.schema_version)) ? Number(places.schema_version) : undefined,
-      mlitFetchedAt: toText(parseJson(property.mlit_data)?.fetched_at || parseJson(property.mlit_data)?.fetchedAt) || undefined,
-      mlitSourceLocale: toText(parseJson(property.mlit_data)?.source_locale) || "ja",
+      googlePlacesSchemaVersion,
+      mlitFetchedAt: toText(mlit?.fetched_at || mlit?.fetchedAt) || undefined,
+      mlitSourceLocale: mlit ? toText(mlit.source_locale) || "ja" : undefined,
       dictionaryVersion: toText(dictionaryVersion) || undefined,
     },
   };
