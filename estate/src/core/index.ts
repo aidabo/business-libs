@@ -75,7 +75,7 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
   const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
-  const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円|億|万|千)/g)];
+  const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円?|億|万|千)/g)];
   let number: number;
   if (unitMatches.length > 0) {
     const firstNonContiguousIndex = unitMatches.findIndex((match, index) => {
@@ -87,7 +87,7 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
     const contiguousMatches = unitMatches.slice(0, firstNonContiguousIndex === -1 ? unitMatches.length : firstNonContiguousIndex);
     number = contiguousMatches.reduce((total, match) => {
       const amount = Number(match[1].replace(/,/g, ""));
-      const multiplier = match[2] === "千万円" ? 10000000 : match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
+      const multiplier = match[2].startsWith("千万") ? 10000000 : match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
       return total + (Number.isFinite(amount) ? amount * multiplier : 0);
     }, 0);
     const lastMatch = contiguousMatches[contiguousMatches.length - 1];
@@ -115,8 +115,10 @@ export const formatEstatePrice = (property: Record<string, any>, locale: EstateC
   const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix)).find(Boolean) || "";
   const salePrice = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
   const rentPrice = firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
+  const rentFallback = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy"])
+    || firstFormatted(["price"], rentSuffix);
   return isRent
-    ? rentPrice || firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"])
+    ? rentPrice || rentFallback
     : salePrice || firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
 };
 const value = (text: unknown, kind: EstateLocalizedValue["kind"], resolved: EstateLocalizedValue["resolved"] = "fallback-ja", source?: string): EstateLocalizedValue => ({ text: toText(text), kind, resolved, ...(source ? { source } : {}) });
