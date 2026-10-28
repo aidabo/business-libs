@@ -73,11 +73,22 @@ const toText = (value: unknown) => String(value ?? "").trim();
 export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
-  const priceMatch = raw.match(/^[¥￥]?\s*(?:(-?[\d,]+(?:\.\d+)?)\s*億)?\s*(?:(-?[\d,]+(?:\.\d+)?)\s*万)?\s*(?:(-?[\d,]+(?:\.\d+)?)\s*千)?\s*(?:(-?[\d,]+(?:\.\d+)?))?\s*円?/);
-  const amounts = priceMatch?.slice(1).map((part) => part ? Number(part.replace(/,/g, "")) : 0) || [];
-  const number = amounts.length > 0
-    ? amounts[0] * 100000000 + amounts[1] * 10000 + amounts[2] * 1000 + amounts[3]
-    : typeof value === "number" ? value : Number.NaN;
+  const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
+  const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(億|万|千)/g)];
+  let number: number;
+  if (unitMatches.length > 0) {
+    number = unitMatches.reduce((total, match) => {
+      const amount = Number(match[1].replace(/,/g, ""));
+      const multiplier = match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
+      return total + (Number.isFinite(amount) ? amount * multiplier : 0);
+    }, 0);
+    const lastMatch = unitMatches[unitMatches.length - 1];
+    const remainder = numericText.slice((lastMatch.index || 0) + lastMatch[0].length).match(/^(-?[\d,]+(?:\.\d+)?)(?:\s*円)?(?:\s*)$/);
+    if (remainder?.[1]) number += Number(remainder[1].replace(/,/g, ""));
+  } else {
+    const numericPart = numericText.match(/-?[\d,]+(?:\.\d+)?/)?.[0] || "";
+    number = Number(numericPart.replace(/,/g, ""));
+  }
   if (!Number.isFinite(number) || number <= 0) return /\d/.test(raw) ? "" : raw;
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
@@ -91,7 +102,7 @@ export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) 
   return TYPE_LABELS[locale][key] || TYPE_LABELS[locale].sale;
 };
 export const formatEstatePrice = (property: Record<string, any>, locale: EstateCoreLocale) => {
-  const isRent = toText(property.property_type ?? property.propertyType).toLowerCase() === "rent";
+  const isRent = toText(firstValue(property, ["property_type", "propertyType"])).toLowerCase() === "rent";
   const rentSuffix = locale === "en" ? "/mo" : "/月";
   const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix)).find(Boolean) || "";
   const salePrice = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
