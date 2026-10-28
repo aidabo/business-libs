@@ -23,8 +23,9 @@ export type EstatePropertyLocaleViewModel = {
   nearbyParks: EstateLocalizedValue[];
   features: EstateLocalizedValue[];
   structure: EstateLocalizedValue;
+  hazardItems: EstateLocalizedValue[];
   places: Array<{ placeId: string; name: EstateLocalizedValue; address: EstateLocalizedValue; mapsUrl: string; walkingMinutes?: number }>;
-  sources: { googlePlacesFetchedAt?: string; mlitFetchedAt?: string; dictionaryVersion?: string };
+  sources: { googlePlacesFetchedAt?: string; googlePlacesSourceLocale?: EstateCoreLocale; googlePlacesSchemaVersion?: number; mlitFetchedAt?: string; mlitSourceLocale?: string; dictionaryVersion?: string };
 };
 
 const TYPE_LABELS: Record<EstateCoreLocale, Record<string, string>> = {
@@ -33,6 +34,41 @@ const TYPE_LABELS: Record<EstateCoreLocale, Record<string, string>> = {
   zh: { sale: "自住", rent: "出租", investment: "投资" },
 };
 const PRICE_LABELS: Record<EstateCoreLocale, string> = { ja: "価格", en: "Price", zh: "价格" };
+const HAZARD_LABELS: Record<EstateCoreLocale, Record<string, string>> = {
+  ja: {
+    liquefaction_info: "液状化",
+    flood_inundation_info: "洪水浸水",
+    storm_surge_info: "高潮浸水",
+    tsunami_info: "津波浸水",
+    landslide_warning_info: "土砂災害警戒区域",
+    disaster_hazard_area_info: "災害危険区域",
+    large_scale_fill_info: "大規模盛土造成地",
+    landslide_prevention_info: "地すべり防止地区",
+    steep_slope_info: "急傾斜地崩壊危険区域",
+  },
+  en: {
+    liquefaction_info: "Liquefaction",
+    flood_inundation_info: "Flood inundation",
+    storm_surge_info: "Storm surge inundation",
+    tsunami_info: "Tsunami inundation",
+    landslide_warning_info: "Landslide warning area",
+    disaster_hazard_area_info: "Disaster hazard area",
+    large_scale_fill_info: "Large-scale fill area",
+    landslide_prevention_info: "Landslide prevention area",
+    steep_slope_info: "Steep slope collapse risk area",
+  },
+  zh: {
+    liquefaction_info: "液化风险",
+    flood_inundation_info: "洪水浸水",
+    storm_surge_info: "高潮浸水",
+    tsunami_info: "海啸浸水",
+    landslide_warning_info: "泥石流灾害警戒区",
+    disaster_hazard_area_info: "灾害危险区域",
+    large_scale_fill_info: "大规模填土区域",
+    landslide_prevention_info: "滑坡防治区",
+    steep_slope_info: "陡坡崩塌危险区",
+  },
+};
 const toText = (value: unknown) => String(value ?? "").trim();
 export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
@@ -63,6 +99,10 @@ const lines = (input: unknown): string[] => Array.isArray(input) ? input.map(toT
 const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: EstateDictionaryTerm[]) => { const match = dictionary.find((term) => term.source === text); return match ? value(match[locale] || match.source, "term", "dictionary", match.source) : value(text, "free"); };
 const localizedPlaceValue = (item: any, field: "name" | "address", locale: EstateCoreLocale) => { const localized = item?.localized?.[locale]?.[field]; const source = item?.localized?.ja?.[field] || item?.[field]; return localized ? value(localized, "proper", "provider", source !== localized ? source : undefined) : value(source, "proper"); };
 const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && item !== 0 && String(item).trim() !== "" && String(item).trim() !== "0");
+const hazardValues = (property: Record<string, any>, locale: EstateCoreLocale) => Object.entries(HAZARD_LABELS[locale]).flatMap(([key, label]) => {
+  const text = toText(property[key]);
+  return text ? [value(`${label}: ${text}`, "free", "fallback-ja", key)] : [];
+});
 
 export function buildEstatePropertyLocaleViewModel(property: Record<string, any>, locale: EstateCoreLocale = "ja", dictionary: EstateDictionaryTerm[] = [], dictionaryVersion?: string): EstatePropertyLocaleViewModel {
   const currentLocale = locale === "en" || locale === "zh" ? locale : "ja";
@@ -99,7 +139,15 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     nearbyParks: lines(property.nearby_parks).map((item) => dictionaryText(item, currentLocale, dictionary)),
     features: features.map((item) => dictionaryText(item, currentLocale, dictionary)),
     structure: dictionaryText(toText(structure), currentLocale, dictionary),
+    hazardItems: hazardValues(property, currentLocale),
     places: placeItems.map((item: any) => ({ placeId: toText(item.placeId || item.place_id), name: localizedPlaceValue(item, "name", currentLocale), address: localizedPlaceValue(item, "address", currentLocale), mapsUrl: toText(item.googleMapsUrl || item.googleMapsUri || item.google_maps_url || item.google_maps_uri || item.mapsUrl || item.mapsUri || item.url), walkingMinutes: item.walkingMinutes === null || item.walkingMinutes === undefined || item.walkingMinutes === "" ? undefined : Number.isFinite(Number(item.walkingMinutes)) ? Number(item.walkingMinutes) : undefined })),
-    sources: { googlePlacesFetchedAt: toText(places?.fetched_at || places?.fetchedAt) || undefined, mlitFetchedAt: toText(parseJson(property.mlit_data)?.fetched_at || parseJson(property.mlit_data)?.fetchedAt) || undefined, dictionaryVersion: toText(dictionaryVersion) || undefined },
+    sources: {
+      googlePlacesFetchedAt: toText(places?.fetched_at || places?.fetchedAt) || undefined,
+      googlePlacesSourceLocale: places?.source_locale === "en" || places?.source_locale === "zh" ? places.source_locale : places?.source_locale === "ja" ? "ja" : undefined,
+      googlePlacesSchemaVersion: Number.isFinite(Number(places?.schema_version)) ? Number(places.schema_version) : undefined,
+      mlitFetchedAt: toText(parseJson(property.mlit_data)?.fetched_at || parseJson(property.mlit_data)?.fetchedAt) || undefined,
+      mlitSourceLocale: toText(parseJson(property.mlit_data)?.source_locale) || "ja",
+      dictionaryVersion: toText(dictionaryVersion) || undefined,
+    },
   };
 }
