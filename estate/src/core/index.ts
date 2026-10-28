@@ -100,8 +100,10 @@ const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: Esta
 const localizedPlaceValue = (item: any, field: "name" | "address", locale: EstateCoreLocale) => { const localized = item?.localized?.[locale]?.[field]; const source = item?.localized?.ja?.[field] || item?.[field]; return localized ? value(localized, "proper", "provider", source !== localized ? source : undefined) : value(source, "proper"); };
 const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && item !== 0 && String(item).trim() !== "" && String(item).trim() !== "0");
 const hazardValues = (property: Record<string, any>, locale: EstateCoreLocale) => Object.entries(HAZARD_LABELS[locale]).flatMap(([key, label]) => {
-  const text = toText(property[key]);
-  return text ? [value(`${label}: ${text}`, "free", "fallback-ja", key)] : [];
+  const raw = property[key];
+  if (!raw) return [];
+  const text = toText(raw);
+  return text ? [value(`${label}: ${text}`, "free", "fallback-ja", text)] : [];
 });
 
 export function buildEstatePropertyLocaleViewModel(property: Record<string, any>, locale: EstateCoreLocale = "ja", dictionary: EstateDictionaryTerm[] = [], dictionaryVersion?: string): EstatePropertyLocaleViewModel {
@@ -120,6 +122,11 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
   const structure = firstValue(property, ["structure", "buildingStructure"]);
   const priceProperty = { ...property, property_type: type, price_sale: salePrice, price_rent_monthly: rentPrice };
   const places = parseJson(firstValue(property, ["google_places_data", "googlePlacesData"]));
+  const mlit = parseJson(property.mlit_data);
+  const schemaVersionRaw = places?.schema_version;
+  const googlePlacesSchemaVersion = schemaVersionRaw === null || schemaVersionRaw === undefined || schemaVersionRaw === ""
+    ? undefined
+    : Number.isFinite(Number(schemaVersionRaw)) ? Number(schemaVersionRaw) : undefined;
   const placeItems = Object.values(places || {}).flatMap((group: any) => {
     if (Array.isArray(group?.items)) return group.items;
     if (group && typeof group === "object") return Object.values(group).flatMap((nested: any) => Array.isArray(nested?.items) ? nested.items : []);
@@ -144,9 +151,9 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     sources: {
       googlePlacesFetchedAt: toText(places?.fetched_at || places?.fetchedAt) || undefined,
       googlePlacesSourceLocale: places?.source_locale === "en" || places?.source_locale === "zh" ? places.source_locale : places?.source_locale === "ja" ? "ja" : undefined,
-      googlePlacesSchemaVersion: Number.isFinite(Number(places?.schema_version)) ? Number(places.schema_version) : undefined,
-      mlitFetchedAt: toText(parseJson(property.mlit_data)?.fetched_at || parseJson(property.mlit_data)?.fetchedAt) || undefined,
-      mlitSourceLocale: toText(parseJson(property.mlit_data)?.source_locale) || "ja",
+      googlePlacesSchemaVersion,
+      mlitFetchedAt: toText(mlit?.fetched_at || mlit?.fetchedAt) || undefined,
+      mlitSourceLocale: mlit ? toText(mlit.source_locale) || "ja" : undefined,
       dictionaryVersion: toText(dictionaryVersion) || undefined,
     },
   };
