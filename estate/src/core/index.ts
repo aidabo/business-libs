@@ -81,6 +81,8 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
       const multiplier = match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
       return total + (Number.isFinite(amount) ? amount * multiplier : 0);
     }, 0);
+    const remainder = unitMatches.reduce((remaining, match) => remaining.replace(match[0], ""), raw).match(/-?[\d,]+(?:\.\d+)?/);
+    if (remainder?.[0]) number += Number(remainder[0].replace(/,/g, ""));
   } else {
     const numericPart = typeof value === "number" ? String(value) : raw.match(/-?[\d,]+(?:\.\d+)?/)?.[0] || "";
     number = Number(numericPart.replace(/,/g, ""));
@@ -100,8 +102,8 @@ export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) 
 export const formatEstatePrice = (property: Record<string, any>, locale: EstateCoreLocale) => {
   const isRent = toText(property.property_type ?? property.propertyType).toLowerCase() === "rent";
   const rentSuffix = locale === "en" ? "/mo" : "/月";
-  const salePrice = firstPropertyValue(property, ["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
-  const rentPrice = firstPropertyValue(property, ["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"]);
+  const salePrice = firstValue(property, ["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
+  const rentPrice = firstValue(property, ["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"]);
   return isRent
     ? formatEstateMoney(rentPrice, rentSuffix) || formatEstateMoney(salePrice)
     : formatEstateMoney(salePrice) || formatEstateMoney(rentPrice, rentSuffix);
@@ -117,7 +119,6 @@ const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: Esta
 };
 const localizedPlaceValue = (item: any, field: "name" | "address", locale: EstateCoreLocale) => { const localized = item?.localized?.[locale]?.[field]; const source = item?.localized?.ja?.[field] || item?.[field]; return localized ? value(localized, "proper", "provider", source !== localized ? source : undefined) : value(source, "proper"); };
 const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && item !== 0 && String(item).trim() !== "" && String(item).trim() !== "0");
-const firstPropertyValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && String(item).trim() !== "");
 const hazardValues = (property: Record<string, any>, locale: EstateCoreLocale) => Object.entries(HAZARD_LABELS[locale]).flatMap(([key, label]) => {
   const raw = property[key];
   if (!raw) return [];
