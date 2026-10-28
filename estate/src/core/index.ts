@@ -73,11 +73,18 @@ const toText = (value: unknown) => String(value ?? "").trim();
 export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
-  const numericPart = typeof value === "number" ? String(value) : raw.match(/-?\d+(?:\.\d+)?/)?.[0] || "";
-  let number = Number(numericPart.replace(/,/g, ""));
-  if (raw.includes("億")) number *= 100000000;
-  else if (raw.includes("万")) number *= 10000;
-  else if (raw.includes("千")) number *= 1000;
+  let number: number;
+  const unitMatches = [...raw.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(億|万|千)/g)];
+  if (unitMatches.length > 0) {
+    number = unitMatches.reduce((total, match) => {
+      const amount = Number(match[1].replace(/,/g, ""));
+      const multiplier = match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
+      return total + (Number.isFinite(amount) ? amount * multiplier : 0);
+    }, 0);
+  } else {
+    const numericPart = typeof value === "number" ? String(value) : raw.match(/-?[\d,]+(?:\.\d+)?/)?.[0] || "";
+    number = Number(numericPart.replace(/,/g, ""));
+  }
   if (!Number.isFinite(number) || number <= 0) return /\d/.test(raw) ? "" : raw;
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
