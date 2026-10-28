@@ -137,6 +137,7 @@ export default function Masthead({
         {demoNote ? (
         <p
           role="note"
+          className="jb-demo-note"
           style={{
             margin: "10px 0 0",
             border: `1px solid ${JB.accent}`,
