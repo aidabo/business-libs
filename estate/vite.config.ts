@@ -28,7 +28,7 @@ export default defineConfig({
         core: resolve(__dirname, 'src/core/index.ts'),
       },
       name: 'Estate',
-      fileName: (format, name) => `${name}.${format}.js`,
+      fileName: (format, name) => format === 'es' ? `${name}.js` : `${name}.cjs`,
       formats: ['es', 'cjs'],
     },
     rollupOptions: {

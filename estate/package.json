@@ -1,8 +1,9 @@
 {
   "name": "@ghost-next/estate",
   "version": "0.1.0",
-  "main": "./dist/estate.cjs.js",
-  "module": "./dist/estate.es.js",
+  "type": "module",
+  "main": "./dist/estate.cjs",
+  "module": "./dist/estate.js",
   "types": "./dist/index.d.ts",
   "typesVersions": {
     "*": {
@@ -11,13 +12,13 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/estate.es.js",
-      "require": "./dist/estate.cjs.js"
+      "import": "./dist/estate.js",
+      "require": "./dist/estate.cjs"
     },
     "./core": {
       "types": "./dist/core/index.d.ts",
-      "import": "./dist/core.es.js",
-      "require": "./dist/core.cjs.js"
+      "import": "./dist/core.js",
+      "require": "./dist/core.cjs"
     }
   },
   "files": [

@@ -39,7 +39,7 @@ Exports two named maps for StackPage integration:
 - Falls back to returning the key itself if provider is missing (with a console.warn)
 
 ### Build Configuration
-- **Vite library mode** — entries `src/index.ts` and the pure `src/core/index.ts` subpath; outputs `dist/estate.cjs.js`, `dist/estate.es.js`, `dist/core.cjs.js`, and `dist/core.es.js`
+- **Vite library mode** — entries `src/index.ts` and the pure `src/core/index.ts` subpath; outputs `dist/estate.cjs`, `dist/estate.js`, `dist/core.cjs`, and `dist/core.js`
 - The `estate` entry receives `"use client"`; the `core` entry must remain React/browser independent for server-side View Model assembly.
 - **vite-plugin-dts** generates `dist/index.d.ts` with type declarations
 - **tsc** runs first for type checking (`noEmit: true`), Vite handles bundling

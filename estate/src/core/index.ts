@@ -70,10 +70,13 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
   const buildingName = firstValue(property, ["building_name", "buildingName", "title", "name"]);
   const salePrice = firstValue(property, ["price_sale", "priceJPY", "price_jpy"]);
   const rentPrice = firstValue(property, ["price_rent_monthly", "priceRentMonthly", "current_rent"]);
-  const area = firstValue(property, ["floor_area", "building_area", "area_sqm", "areaSqm", "sqm"]);
+  const area = firstValue(property, ["floor_area", "building_area", "area_sqm", "areaSqm", "sqm", "land_area", "landArea"]);
   const floorPlan = firstValue(property, ["floor_plan", "floorPlan", "rooms"]);
   const access = firstValue(property, ["transport_info", "transportInfo", "transport", "nearest_station", "nearestStation"]);
-  const features = firstValue(property, ["features", "fixtures_and_fittings", "fixturesAndFittings"]);
+  const features = [
+    ...lines(firstValue(property, ["features"])),
+    ...lines(firstValue(property, ["fixtures_and_fittings", "fixturesAndFittings"])),
+  ];
   const structure = firstValue(property, ["structure", "buildingStructure"]);
   const priceProperty = { ...property, property_type: type, price_sale: salePrice, price_rent_monthly: rentPrice };
   const places = parseJson(firstValue(property, ["google_places_data", "googlePlacesData"]));
@@ -94,7 +97,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     nearbyHospitals: lines(property.nearby_hospitals).map((item) => dictionaryText(item, currentLocale, dictionary)),
     nearbySchools: lines(property.nearby_schools).map((item) => dictionaryText(item, currentLocale, dictionary)),
     nearbyParks: lines(property.nearby_parks).map((item) => dictionaryText(item, currentLocale, dictionary)),
-    features: lines(features).map((item) => dictionaryText(item, currentLocale, dictionary)),
+    features: features.map((item) => dictionaryText(item, currentLocale, dictionary)),
     structure: dictionaryText(toText(structure), currentLocale, dictionary),
     places: placeItems.map((item: any) => ({ placeId: toText(item.placeId || item.place_id), name: localizedPlaceValue(item, "name", currentLocale), address: localizedPlaceValue(item, "address", currentLocale), mapsUrl: toText(item.googleMapsUrl || item.googleMapsUri || item.google_maps_url || item.google_maps_uri || item.mapsUrl || item.mapsUri || item.url), walkingMinutes: item.walkingMinutes === null || item.walkingMinutes === undefined || item.walkingMinutes === "" ? undefined : Number.isFinite(Number(item.walkingMinutes)) ? Number(item.walkingMinutes) : undefined })),
     sources: { googlePlacesFetchedAt: toText(places?.fetched_at || places?.fetchedAt) || undefined, mlitFetchedAt: toText(parseJson(property.mlit_data)?.fetched_at || parseJson(property.mlit_data)?.fetchedAt) || undefined, dictionaryVersion: toText(dictionaryVersion) || undefined },
