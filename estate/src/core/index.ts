@@ -73,20 +73,11 @@ const toText = (value: unknown) => String(value ?? "").trim();
 export const formatEstateMoney = (value: unknown, suffix = "") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
-  let number: number;
-  const unitMatches = [...raw.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(億|万|千)/g)];
-  if (unitMatches.length > 0) {
-    number = unitMatches.reduce((total, match) => {
-      const amount = Number(match[1].replace(/,/g, ""));
-      const multiplier = match[2] === "億" ? 100000000 : match[2] === "万" ? 10000 : 1000;
-      return total + (Number.isFinite(amount) ? amount * multiplier : 0);
-    }, 0);
-    const remainder = unitMatches.reduce((remaining, match) => remaining.replace(match[0], ""), raw).match(/-?[\d,]+(?:\.\d+)?/);
-    if (remainder?.[0]) number += Number(remainder[0].replace(/,/g, ""));
-  } else {
-    const numericPart = typeof value === "number" ? String(value) : raw.match(/-?[\d,]+(?:\.\d+)?/)?.[0] || "";
-    number = Number(numericPart.replace(/,/g, ""));
-  }
+  const priceMatch = raw.match(/^[¥￥]?\s*(?:(-?[\d,]+(?:\.\d+)?)\s*億)?\s*(?:(-?[\d,]+(?:\.\d+)?)\s*万)?\s*(?:(-?[\d,]+(?:\.\d+)?)\s*千)?\s*(?:(-?[\d,]+(?:\.\d+)?))?\s*円?/);
+  const amounts = priceMatch?.slice(1).map((part) => part ? Number(part.replace(/,/g, "")) : 0) || [];
+  const number = amounts.length > 0
+    ? amounts[0] * 100000000 + amounts[1] * 10000 + amounts[2] * 1000 + amounts[3]
+    : typeof value === "number" ? value : Number.NaN;
   if (!Number.isFinite(number) || number <= 0) return /\d/.test(raw) ? "" : raw;
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
@@ -102,11 +93,12 @@ export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) 
 export const formatEstatePrice = (property: Record<string, any>, locale: EstateCoreLocale) => {
   const isRent = toText(property.property_type ?? property.propertyType).toLowerCase() === "rent";
   const rentSuffix = locale === "en" ? "/mo" : "/月";
-  const salePrice = firstValue(property, ["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
-  const rentPrice = firstValue(property, ["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"]);
+  const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix)).find(Boolean) || "";
+  const salePrice = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
+  const rentPrice = firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
   return isRent
-    ? formatEstateMoney(rentPrice, rentSuffix) || formatEstateMoney(salePrice)
-    : formatEstateMoney(salePrice) || formatEstateMoney(rentPrice, rentSuffix);
+    ? rentPrice || firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"])
+    : salePrice || firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
 };
 const value = (text: unknown, kind: EstateLocalizedValue["kind"], resolved: EstateLocalizedValue["resolved"] = "fallback-ja", source?: string): EstateLocalizedValue => ({ text: toText(text), kind, resolved, ...(source ? { source } : {}) });
 const parseJson = (input: unknown): any | null => { if (!input) return null; if (typeof input === "object") return input; try { return JSON.parse(String(input)); } catch { return null; } };
