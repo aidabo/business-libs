@@ -17,11 +17,11 @@ function text(value: unknown): string {
   return String(value || "").trim();
 }
 
-function splitLocalizedHazard(value: string, index: number) {
+function splitLocalizedHazard(value: string, index: number, fallbackLabel: string) {
   const separator = value.indexOf(":");
   return {
     key: `localized-${index}`,
-    label: separator >= 0 ? value.slice(0, separator).trim() : "Hazard",
+    label: separator >= 0 ? value.slice(0, separator).trim() : fallbackLabel,
     value: separator >= 0 ? value.slice(separator + 1).trim() : value,
   };
 }
@@ -35,7 +35,7 @@ export default function PropertyHazardCard(props: PropertyInfoCardProps) {
     .map(([key, label]) => ({ key, label, value: text(raw[key]) }))
     .filter((row) => row.value);
   const localizedRows = props.localeViewModel?.hazardItems
-    .map((item, index) => splitLocalizedHazard(item.text, index))
+    .map((item, index) => splitLocalizedHazard(item.text, index, t("Hazard")))
     .filter((row) => row.value) || [];
   const displayRows = localizedRows.length > 0 ? localizedRows : rows;
   const hasStructured = Boolean(model.hazardMapUrl || model.hazardSummary || displayRows.length > 0 || model.floodRisk || model.landslideRisk || model.tsunamiRisk);

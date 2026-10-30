@@ -458,10 +458,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.monthlyRent ??
     effectiveItem?.current_rent ??
     effectiveItem?.expected_rent;
-  const recordDisplayPrice = String(resolvedPropertyType || "").toLowerCase() === "rent"
-    ? recordRentPrice ?? recordSalePrice
-    : recordSalePrice;
-  const resolvedPriceJPY = recordDisplayPrice ?? (effectiveItem ? "" : priceJPY ?? price ?? "");
+  const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
+  // Keep the sale-price field separate from the banner's rent display. Child
+  // price cards use price_jpy to decide whether a Sale price row exists.
+  const resolvedPriceJPY = recordSalePrice ?? (effectiveItem ? "" : priceJPY ?? price ?? "");
   const resolvedPriceValuation =
     effectiveItem?.price_valuation ??
     effectiveItem?.priceValuation ??
@@ -496,16 +496,20 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     if (!Number.isFinite(num) || num === 0) return "";
     return `¥${num.toLocaleString("ja-JP")}`;
   };
+  const displayPriceValue = isRentProperty ? recordRentPrice ?? recordSalePrice : resolvedPriceJPY;
   const rawSalePrice =
-    resolvedPriceJPY === undefined || resolvedPriceJPY === null ? "" : String(resolvedPriceJPY).trim();
+    displayPriceValue === undefined || displayPriceValue === null ? "" : String(displayPriceValue).trim();
   const rawValuationPrice =
     resolvedPriceValuation === undefined || resolvedPriceValuation === null
       ? ""
       : String(resolvedPriceValuation).trim();
   // Falls back to the raw text when it is not a number ("応相談" etc.), so an
   // unparseable price still shows instead of silently disappearing.
-  const displayPriceJPY = rawSalePrice && rawSalePrice !== "0" ? formatJpy(rawSalePrice) || rawSalePrice : "";
-  const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
+  const displayPriceJPY = rawSalePrice && rawSalePrice !== "0"
+    ? (isRentProperty && localeViewModel.price.value.text
+      ? localeViewModel.price.value.text
+      : formatJpy(rawSalePrice) || rawSalePrice)
+    : "";
   const salePriceNum = priceToNum(recordSalePrice);
   const valuationPriceNum = priceToNum(resolvedPriceValuation);
   // 元価格 → 現行価格: strike the appraised/original price through above the current
