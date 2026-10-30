@@ -4,6 +4,7 @@ import type { StackPageRuntimeApi } from "./types";
 import { FieldRow, getEstateFieldGroups, resolveEstateProperty } from "./utils/propertyDisplay";
 import { extractLatLngFromMapUrl } from "./utils/urlBuilders";
 import { useT } from "./hooks/useTranslation";
+import type { EstatePropertyLocaleViewModel } from "./core";
 
 const TRANSLATABLE_VALUES = new Set(["estate.value.yes", "estate.value.no"]);
 function translateValue(value: string, t: (key: string) => string): string {
@@ -37,6 +38,7 @@ export type PropertyInfoCardProps = Record<string, any> & {
   showSource?: boolean;
   showSourceCompany?: boolean;
   __stackpage?: StackPageRuntimeApi;
+  localeViewModel?: EstatePropertyLocaleViewModel;
 };
 
 function filterBasicRows(rows: FieldRow[], props: PropertyInfoCardProps): FieldRow[] {

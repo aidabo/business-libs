@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useT } from "./hooks/useTranslation";
+import { useEstateContext } from "./contexts/EstateContext";
+import { buildEstatePropertyLocaleViewModel } from "./core";
+import type { EstatePropertyLocaleViewModel } from "./core";
 import type { StackPageRuntimeApi } from "./types";
 import { ESTATE_STATE_KEYS, getPageState, setPageState } from "./types";
 import PropertyBasicInfoCard from "./PropertyBasicInfoCard";
@@ -150,6 +153,8 @@ export interface PropertyDetailProps {
   className?: string;
   style?: React.CSSProperties;
   __stackpage?: StackPageRuntimeApi;
+  /** Optional prebuilt model for server/data-source integrations. */
+  localeViewModel?: EstatePropertyLocaleViewModel;
 }
 
 function getUrlItemParam(): string {
@@ -285,6 +290,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   className = "",
   style,
   __stackpage,
+  localeViewModel: providedLocaleViewModel,
 
   // Japan-specific fields
   addressJP,
@@ -322,6 +328,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   ...restProps
 }) => {
   const t = useT();
+  const { locale } = useEstateContext();
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,
@@ -386,6 +393,11 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const combinedError =
     error || (fetchError && !effectiveItem ? { message: fetchError } : null);
 
+  const localeViewModel = useMemo(
+    () => providedLocaleViewModel || buildEstatePropertyLocaleViewModel(effectiveItem || {}, locale),
+    [effectiveItem, locale, providedLocaleViewModel],
+  );
+
   // ── Loading state ──────────────────────────────────────────
   if (isLoading) {
     return <DetailSkeleton />;
@@ -403,10 +415,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   }
 
   const resolvedBuildingName =
-    effectiveItem?.building_name ??
-    effectiveItem?.buildingName ??
-    buildingName ??
-    title ??
+    localeViewModel.title.text ||
+    effectiveItem?.building_name ||
+    effectiveItem?.buildingName ||
+    buildingName ||
     "";
   // ── Resolve display values (Japan fields first, then legacy fallbacks) ─
   // Primary/feature image: the server-derived `feature_image` (first, is_primary
@@ -421,6 +433,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // Japan fields take priority
   const resolvedAddressJP =
     effectiveItem?.addressJP ?? effectiveItem?.address_jp ?? effectiveItem?.address ?? addressJP ?? address ?? "";
+  const resolvedPropertyType =
+    effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
   // Price: the record's own columns win over the props, which carry the
   // widget-config preview values (the rule the resolvers above follow too).
   // price_sale is the current asking price; price_valuation is the original
@@ -438,6 +452,16 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // preview only. With a record in hand its own columns decide: a rent property
   // has no sale price at all, and falling back there would print the sample
   // amount on a rental page instead of leaving the price out.
+  const recordRentPrice: unknown =
+    effectiveItem?.price_rent_monthly ??
+    effectiveItem?.priceRentMonthly ??
+    effectiveItem?.monthlyRent ??
+    effectiveItem?.current_rent ??
+    effectiveItem?.expected_rent ??
+    effectiveItem?.expectedRent;
+  const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
+  // Keep the sale-price field separate from the banner's rent display. Child
+  // price cards use price_jpy to decide whether a Sale price row exists.
   const resolvedPriceJPY = recordSalePrice ?? (effectiveItem ? "" : priceJPY ?? price ?? "");
   const resolvedPriceValuation =
     effectiveItem?.price_valuation ??
@@ -449,8 +473,6 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const resolvedPriceCNY = effectiveItem?.priceCNY ?? effectiveItem?.price_cny ?? priceCNY;
   const resolvedTagJP =
     effectiveItem?.tagJP ?? effectiveItem?.tag_jp ?? tagJP ?? effectiveItem?.tag ?? tag ?? "";
-  const resolvedPropertyType =
-    effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
 
   // Parse a JPY amount to yen. Accepts the 万/億 notation the widget defaults and
   // hand-authored props use ("5,800万円" → 58000000) as well as the raw numeric
@@ -475,17 +497,20 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     if (!Number.isFinite(num) || num === 0) return "";
     return `¥${num.toLocaleString("ja-JP")}`;
   };
+  const displayPriceValue = isRentProperty ? recordRentPrice ?? recordSalePrice : resolvedPriceJPY;
   const rawSalePrice =
-    resolvedPriceJPY === undefined || resolvedPriceJPY === null ? "" : String(resolvedPriceJPY).trim();
+    displayPriceValue === undefined || displayPriceValue === null ? "" : String(displayPriceValue).trim();
   const rawValuationPrice =
     resolvedPriceValuation === undefined || resolvedPriceValuation === null
       ? ""
       : String(resolvedPriceValuation).trim();
   // Falls back to the raw text when it is not a number ("応相談" etc.), so an
   // unparseable price still shows instead of silently disappearing.
-  const displayPriceJPY =
-    rawSalePrice && rawSalePrice !== "0" ? formatJpy(rawSalePrice) || rawSalePrice : "";
-  const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
+  const displayPriceJPY = rawSalePrice && rawSalePrice !== "0"
+    ? (isRentProperty && localeViewModel.price.value.text
+      ? localeViewModel.price.value.text
+      : formatJpy(rawSalePrice) || rawSalePrice)
+    : "";
   const salePriceNum = priceToNum(recordSalePrice);
   const valuationPriceNum = priceToNum(resolvedPriceValuation);
   // 元価格 → 現行価格: strike the appraised/original price through above the current
@@ -509,7 +534,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.areaSqm ?? effectiveItem?.area_sqm ?? effectiveItem?.sqm ?? sqm ?? areaSqm ?? area ?? legacySqm;
   const resolvedTsubo = effectiveItem?.tsubo ?? tsubo;
   const resolvedFloorPlan =
-    effectiveItem?.floorPlan ?? effectiveItem?.floor_plan ?? floorPlan ?? effectiveItem?.rooms ?? rooms ?? "";
+    localeViewModel.floorPlan.text || effectiveItem?.floorPlan || effectiveItem?.floor_plan || floorPlan || effectiveItem?.rooms || rooms || "";
   const resolvedFloorNumber =
     effectiveItem?.floor_number ?? effectiveItem?.floorNumber ?? effectiveItem?.floor_no ?? null;
   const resolvedTotalFloors =
@@ -517,7 +542,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const resolvedYearBuiltJP =
     effectiveItem?.yearBuiltJP ?? effectiveItem?.year_built_jp ?? yearBuiltJP ?? effectiveItem?.yearBuilt ?? yearBuilt ?? "";
   const resolvedTransport =
-    effectiveItem?.transport ?? effectiveItem?.transport_info ?? transport;
+    localeViewModel.access.text || effectiveItem?.transport || effectiveItem?.transport_info || transport;
   const resolvedDeposit =
     effectiveItem?.deposit ?? deposit;
   const resolvedKeyMoney =
@@ -532,7 +557,9 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.pets_allowed ?? effectiveItem?.petsAllowed ?? petsAllowed;
   const resolvedLandRight =
     effectiveItem?.land_right ?? effectiveItem?.landRight ?? landRight;
-  const resolvedFeatures = normalizeFeatureList(effectiveItem?.features ?? features ?? EMPTY_FEATURES);
+  const resolvedFeatures = localeViewModel.features.length > 0
+    ? localeViewModel.features.map((item) => item.text).filter(Boolean)
+    : normalizeFeatureList(effectiveItem?.features ?? features ?? EMPTY_FEATURES);
 
   // ── Resolve location for map ───────────────────────────────
   const resolvedLat = latitude ?? effectiveItem?.latitude ?? effectiveItem?.lat ?? null;
@@ -541,22 +568,10 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.hazard_map_url ??
     hazardMapUrl ??
     "";
-  const resolvedNearbyStores =
-    effectiveItem?.nearby_stores ??
-    nearbyStores ??
-    "";
-  const resolvedNearbyHospitals =
-    effectiveItem?.nearby_hospitals ??
-    nearbyHospitals ??
-    "";
-  const resolvedNearbySchools =
-    effectiveItem?.nearby_schools ??
-    nearbySchools ??
-    "";
-  const resolvedNearbyParks =
-    effectiveItem?.nearby_parks ??
-    nearbyParks ??
-    "";
+  const resolvedNearbyStores = localeViewModel.nearbyStores.map((item) => item.text).join("\n") || effectiveItem?.nearby_stores || nearbyStores || "";
+  const resolvedNearbyHospitals = localeViewModel.nearbyHospitals.map((item) => item.text).join("\n") || effectiveItem?.nearby_hospitals || nearbyHospitals || "";
+  const resolvedNearbySchools = localeViewModel.nearbySchools.map((item) => item.text).join("\n") || effectiveItem?.nearby_schools || nearbySchools || "";
+  const resolvedNearbyParks = localeViewModel.nearbyParks.map((item) => item.text).join("\n") || effectiveItem?.nearby_parks || nearbyParks || "";
   const resolvedNeighborhoodSummary =
     effectiveItem?.mlit_data ??
     neighborhoodSummary ??
@@ -656,7 +671,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-xl font-bold sm:text-2xl break-words">
-              {t(resolvedBuildingName || title)}
+              {localeViewModel.title.text || t(resolvedBuildingName || title)}
             </h2>
             {resolvedAddressJP && (
               <p className="mt-0.5 text-sm opacity-80">{resolvedAddressJP}</p>
@@ -790,7 +805,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
       {/* Row 3: Neighborhood + Hazard — 1→2 cols */}
       <div className="grid gap-4 md:grid-cols-2">
         <PropertyNeighborhoodCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" />
-        <PropertyHazardCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" />
+        <PropertyHazardCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" localeViewModel={localeViewModel} />
       </div>
 
     </div>
