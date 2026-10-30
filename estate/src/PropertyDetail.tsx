@@ -457,7 +457,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.priceRentMonthly ??
     effectiveItem?.monthlyRent ??
     effectiveItem?.current_rent ??
-    effectiveItem?.expected_rent;
+    effectiveItem?.expected_rent ??
+    effectiveItem?.expectedRent;
   const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
   // Keep the sale-price field separate from the banner's rent display. Child
   // price cards use price_jpy to decide whether a Sale price row exists.

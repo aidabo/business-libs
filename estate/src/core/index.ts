@@ -114,7 +114,7 @@ export const formatEstatePrice = (property: Record<string, any>, locale: EstateC
   const rentSuffix = locale === "en" ? "/mo" : "/月";
   const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix)).find(Boolean) || "";
   const salePrice = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
-  const rentPrice = firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent"], rentSuffix);
+  const rentPrice = firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent", "expected_rent", "expectedRent"], rentSuffix);
   const rentFallback = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy"])
     || firstFormatted(["price"], rentSuffix);
   return isRent
