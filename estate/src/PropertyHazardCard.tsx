@@ -17,6 +17,15 @@ function text(value: unknown): string {
   return String(value || "").trim();
 }
 
+function splitLocalizedHazard(value: string, index: number) {
+  const separator = value.indexOf(":");
+  return {
+    key: `localized-${index}`,
+    label: separator >= 0 ? value.slice(0, separator).trim() : "Hazard",
+    value: separator >= 0 ? value.slice(separator + 1).trim() : value,
+  };
+}
+
 export default function PropertyHazardCard(props: PropertyInfoCardProps) {
   const t = useT();
   const model = useEstatePropertyModel(props);
@@ -26,7 +35,7 @@ export default function PropertyHazardCard(props: PropertyInfoCardProps) {
     .map(([key, label]) => ({ key, label, value: text(raw[key]) }))
     .filter((row) => row.value);
   const localizedRows = props.localeViewModel?.hazardItems
-    .map((item, index) => ({ key: `localized-${index}`, label: "", value: item.text }))
+    .map((item, index) => splitLocalizedHazard(item.text, index))
     .filter((row) => row.value) || [];
   const displayRows = localizedRows.length > 0 ? localizedRows : rows;
   const hasStructured = Boolean(model.hazardMapUrl || model.hazardSummary || displayRows.length > 0 || model.floodRisk || model.landslideRisk || model.tsunamiRisk);
@@ -61,7 +70,7 @@ export default function PropertyHazardCard(props: PropertyInfoCardProps) {
           <dl className="grid min-w-0 gap-2 md:grid-cols-2">
             {displayRows.map((row) => (
               <div key={row.key} className="min-w-0 rounded-xl border border-orange-100 bg-orange-50/40 p-3">
-                {row.label ? <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-orange-500">{row.label}</dt> : null}
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-orange-500">{row.label}</dt>
                 <dd className="mt-1 break-words text-sm font-medium leading-6 text-slate-800">{row.value}</dd>
               </div>
             ))}

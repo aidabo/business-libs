@@ -123,7 +123,18 @@ export const formatEstatePrice = (property: Record<string, any>, locale: EstateC
 };
 const value = (text: unknown, kind: EstateLocalizedValue["kind"], resolved: EstateLocalizedValue["resolved"] = "fallback-ja", source?: string): EstateLocalizedValue => ({ text: toText(text), kind, resolved, ...(source ? { source } : {}) });
 const parseJson = (input: unknown): any | null => { if (!input) return null; if (typeof input === "object") return input; try { return JSON.parse(String(input)); } catch { return null; } };
-const lines = (input: unknown): string[] => Array.isArray(input) ? input.map(toText).filter(Boolean) : toText(input).split(/\r?\n|、|,|，/).map((item) => item.trim()).filter(Boolean);
+const lines = (input: unknown): string[] => {
+  if (Array.isArray(input)) return input.map(toText).filter(Boolean);
+  const text = toText(input);
+  if (!text) return [];
+  try {
+    const parsed = JSON.parse(text);
+    if (Array.isArray(parsed)) return lines(parsed);
+  } catch {
+    // Plain text remains supported below.
+  }
+  return text.split(/\r?\n|、|,|，/).map((item) => item.trim()).filter(Boolean);
+};
 const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: EstateDictionaryTerm[]) => {
   const match = dictionary.find((term) => term.source === text);
   if (!match) return value(text, "free");

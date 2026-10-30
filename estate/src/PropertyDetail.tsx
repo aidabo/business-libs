@@ -419,7 +419,6 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     effectiveItem?.building_name ||
     effectiveItem?.buildingName ||
     buildingName ||
-    title ||
     "";
   // ── Resolve display values (Japan fields first, then legacy fallbacks) ─
   // Primary/feature image: the server-derived `feature_image` (first, is_primary
@@ -434,6 +433,8 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // Japan fields take priority
   const resolvedAddressJP =
     effectiveItem?.addressJP ?? effectiveItem?.address_jp ?? effectiveItem?.address ?? addressJP ?? address ?? "";
+  const resolvedPropertyType =
+    effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
   // Price: the record's own columns win over the props, which carry the
   // widget-config preview values (the rule the resolvers above follow too).
   // price_sale is the current asking price; price_valuation is the original
@@ -451,7 +452,16 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   // preview only. With a record in hand its own columns decide: a rent property
   // has no sale price at all, and falling back there would print the sample
   // amount on a rental page instead of leaving the price out.
-  const resolvedPriceJPY = recordSalePrice ?? (effectiveItem ? "" : priceJPY ?? price ?? "");
+  const recordRentPrice: unknown =
+    effectiveItem?.price_rent_monthly ??
+    effectiveItem?.priceRentMonthly ??
+    effectiveItem?.monthlyRent ??
+    effectiveItem?.current_rent ??
+    effectiveItem?.expected_rent;
+  const recordDisplayPrice = String(resolvedPropertyType || "").toLowerCase() === "rent"
+    ? recordRentPrice ?? recordSalePrice
+    : recordSalePrice;
+  const resolvedPriceJPY = recordDisplayPrice ?? (effectiveItem ? "" : priceJPY ?? price ?? "");
   const resolvedPriceValuation =
     effectiveItem?.price_valuation ??
     effectiveItem?.priceValuation ??
@@ -462,8 +472,6 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
   const resolvedPriceCNY = effectiveItem?.priceCNY ?? effectiveItem?.price_cny ?? priceCNY;
   const resolvedTagJP =
     effectiveItem?.tagJP ?? effectiveItem?.tag_jp ?? tagJP ?? effectiveItem?.tag ?? tag ?? "";
-  const resolvedPropertyType =
-    effectiveItem?.property_type ?? effectiveItem?.propertyType ?? propertyType ?? "";
 
   // Parse a JPY amount to yen. Accepts the 万/億 notation the widget defaults and
   // hand-authored props use ("5,800万円" → 58000000) as well as the raw numeric
@@ -496,10 +504,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
       : String(resolvedPriceValuation).trim();
   // Falls back to the raw text when it is not a number ("応相談" etc.), so an
   // unparseable price still shows instead of silently disappearing.
-  const displayPriceJPY =
-    rawSalePrice && rawSalePrice !== "0"
-      ? localeViewModel.price.value.text || formatJpy(rawSalePrice) || rawSalePrice
-      : "";
+  const displayPriceJPY = rawSalePrice && rawSalePrice !== "0" ? formatJpy(rawSalePrice) || rawSalePrice : "";
   const isRentProperty = String(resolvedPropertyType || "").toLowerCase() === "rent";
   const salePriceNum = priceToNum(recordSalePrice);
   const valuationPriceNum = priceToNum(resolvedPriceValuation);
@@ -521,7 +526,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
     ? ""
     : `${(Number(legacySqft) * 0.092903).toFixed(1)}㎡`;
   const resolvedAreaSqm =
-    localeViewModel.area.text || effectiveItem?.areaSqm || effectiveItem?.area_sqm || effectiveItem?.sqm || sqm || areaSqm || area || legacySqm;
+    effectiveItem?.areaSqm ?? effectiveItem?.area_sqm ?? effectiveItem?.sqm ?? sqm ?? areaSqm ?? area ?? legacySqm;
   const resolvedTsubo = effectiveItem?.tsubo ?? tsubo;
   const resolvedFloorPlan =
     localeViewModel.floorPlan.text || effectiveItem?.floorPlan || effectiveItem?.floor_plan || floorPlan || effectiveItem?.rooms || rooms || "";
@@ -661,7 +666,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <h2 className="text-xl font-bold sm:text-2xl break-words">
-              {localeViewModel.title.text || resolvedBuildingName || t(title)}
+              {localeViewModel.title.text || t(resolvedBuildingName || title)}
             </h2>
             {resolvedAddressJP && (
               <p className="mt-0.5 text-sm opacity-80">{resolvedAddressJP}</p>
@@ -741,7 +746,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
           showSource={false}
           showSourceCompany={false}
         />
-        <PropertyFeaturesCard property={detailProperty} items={[detailProperty]} density="compact" localeViewModel={localeViewModel} />
+        <PropertyFeaturesCard property={detailProperty} items={[detailProperty]} density="compact" />
       </div>
 
       {/* Location: Map / Street View + Access / 3D View — each links out to a full screen */}
@@ -794,7 +799,7 @@ const PropertyDetail: React.FC<PropertyDetailProps> = ({
 
       {/* Row 3: Neighborhood + Hazard — 1→2 cols */}
       <div className="grid gap-4 md:grid-cols-2">
-        <PropertyNeighborhoodCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" localeViewModel={localeViewModel} />
+        <PropertyNeighborhoodCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" />
         <PropertyHazardCard property={detailProperty} items={[detailProperty]} density="compact" linkDisplay="button" localeViewModel={localeViewModel} />
       </div>
 
