@@ -101,7 +101,7 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
 export const formatEstateArea = (value: unknown) => {
-  const text = toText(value).replace(/m(?:2|²|\^2)\b/gi, "㎡");
+  const text = toText(value).replace(/m(?:\^2|2|²)(?![0-9])/gi, "㎡");
   if (!text) return "";
   return text.includes("㎡") ? text : `${text}㎡`;
 };
