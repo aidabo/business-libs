@@ -1,5 +1,5 @@
 import { buildGoogleMaps3DUrl, extractLatLngFromMapUrl, extractPlaceIdFromMapUrl } from "./urlBuilders";
-import { formatEstateArea } from "../core";
+import { formatEstateArea, formatEstateTsubo } from "../core";
 
 export type FieldRow = {
   key: string;
@@ -280,7 +280,7 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     floorPlan: stringify(firstValue(source, ["floor_plan", "floorPlan", "rooms"])),
     floorArea: formatArea(firstValue(source, ["floor_area", "floorArea", "sqm", "areaSqm", "area_sqm", "area"])),
     landArea: formatArea(firstValue(source, ["land_area", "landArea"])),
-    tsubo: stringify(firstValue(source, ["tsubo", "land_area_tsubo", "landAreaTsubo"])),
+    tsubo: formatEstateTsubo(firstValue(source, ["tsubo", "land_area_tsubo", "landAreaTsubo"])),
     buildingArea: formatArea(firstValue(source, ["building_area", "buildingArea"])),
     floorNumber: stringify(firstValue(source, ["floor_number", "floorNumber", "floor_no"])),
     totalFloors: stringify(firstValue(source, ["floors_total", "floorsTotal", "total_floors"])),

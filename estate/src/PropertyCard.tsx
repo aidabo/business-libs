@@ -409,7 +409,8 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   })();
 
   const floorPlan = floorPlanProp || floor_plan;
-  const areaSize = formatEstateArea(areaSizeProp || floor_area || sqm);
+  const areaSource = areaSizeProp || floor_area || sqm;
+  const areaSize = areaSource === 0 || areaSource === "0" ? "" : formatEstateArea(areaSource);
   const yearBuilt =
     yearBuiltProp || (year_built ? `${year_built}年` : "");
 

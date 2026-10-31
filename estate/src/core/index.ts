@@ -102,10 +102,17 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
 export const formatEstateArea = (value: unknown) => {
-  const text = toText(value).replace(/m(?:\^2|2|²)(?![0-9])/gi, "㎡");
+  const text = typeof value === "number"
+    ? value.toLocaleString("ja-JP")
+    : toText(value).replace(/m(?:\^2|2|²)(?![0-9])/gi, "㎡");
   if (!text) return "";
   if (text.includes("坪")) return text;
   return text.includes("㎡") ? text : `${text}㎡`;
+};
+export const formatEstateTsubo = (value: unknown) => {
+  const text = toText(value);
+  if (!text) return "";
+  return text.includes("坪") ? text : `${text}坪`;
 };
 export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) => {
   const key = toText(value).toLowerCase();
@@ -185,7 +192,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     propertyType: type && TYPE_LABELS[currentLocale][type] ? value(formatEstateTypeLabel(type, currentLocale), "term", "dictionary", type) : value(type, "free", "fallback-ja"),
     price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: (() => { const text = formatEstatePrice(priceProperty, currentLocale); return value(text, !text || /^¥[0-9]/.test(text) ? "number" : "free"); })() },
     area: value(formatEstateArea(area), "number"),
-    tsubo: value(tsubo, "number"),
+    tsubo: value(formatEstateTsubo(tsubo), "number"),
     floorPlan: value(floorPlan, "proper"),
     access: value(access, "proper"),
     nearbyStores: lines(property.nearby_stores).map((item) => dictionaryText(item, currentLocale, dictionary)),
