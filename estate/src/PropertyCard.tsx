@@ -10,6 +10,7 @@ import {
 } from "./types";
 import { buildPropertyDetailPath } from "./utils/urlBuilders";
 import { useResolvedPropertyRecord } from "./PropertyInfoCardBase";
+import { formatEstateArea } from "./core";
 
 // ── Skeleton loader ─────────────────────────────────────────────────
 
@@ -408,8 +409,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   })();
 
   const floorPlan = floorPlanProp || floor_plan;
-  const areaSize =
-    areaSizeProp || (floor_area ? `${floor_area}㎡` : sqm ? `${sqm}㎡` : "");
+  const areaSize = formatEstateArea(areaSizeProp || floor_area || sqm);
   const yearBuilt =
     yearBuiltProp || (year_built ? `${year_built}年` : "");
 

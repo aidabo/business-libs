@@ -104,6 +104,7 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
 export const formatEstateArea = (value: unknown) => {
   const text = toText(value).replace(/m(?:\^2|2|²)(?![0-9])/gi, "㎡");
   if (!text) return "";
+  if (text.includes("坪")) return text;
   return text.includes("㎡") ? text : `${text}㎡`;
 };
 export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) => {
