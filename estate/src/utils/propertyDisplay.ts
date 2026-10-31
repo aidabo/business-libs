@@ -38,6 +38,7 @@ export type EstatePropertyDisplayModel = {
   floorPlan?: string;
   floorArea?: string;
   landArea?: string;
+  tsubo?: string;
   buildingArea?: string;
   floorNumber?: string;
   totalFloors?: string;
@@ -281,6 +282,7 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     floorPlan: stringify(firstValue(source, ["floor_plan", "floorPlan", "rooms"])),
     floorArea: formatArea(firstValue(source, ["floor_area", "floorArea", "sqm", "areaSqm", "area_sqm", "area"])),
     landArea: formatArea(firstValue(source, ["land_area", "landArea"])),
+    tsubo: stringify(firstValue(source, ["tsubo", "land_area_tsubo", "landAreaTsubo"])),
     buildingArea: formatArea(firstValue(source, ["building_area", "buildingArea"])),
     floorNumber: stringify(firstValue(source, ["floor_number", "floorNumber", "floor_no"])),
     totalFloors: stringify(firstValue(source, ["floors_total", "floorsTotal", "total_floors"])),
@@ -354,6 +356,7 @@ export function getEstateFieldGroups(property: EstatePropertyDisplayModel): Esta
       ...row("floorPlan", "Floor plan", property.floorPlan),
       ...row("floorArea", "Floor area", property.floorArea),
       ...row("landArea", "Land area", property.landArea),
+      ...row("tsubo", "Land area (tsubo)", property.tsubo),
       ...row("buildingArea", "Building area", property.buildingArea),
       ...row("floorNumber", "Floor", property.floorNumber ? `${property.floorNumber}階` : ""),
       ...row("totalFloors", "Total floors", property.totalFloors ? `${property.totalFloors}階建` : ""),

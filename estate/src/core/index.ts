@@ -16,6 +16,7 @@ export type EstatePropertyLocaleViewModel = {
   propertyType: EstateLocalizedValue;
   price: { label: EstateLocalizedValue; value: EstateLocalizedValue };
   area: EstateLocalizedValue;
+  tsubo: EstateLocalizedValue;
   floorPlan: EstateLocalizedValue;
   access: EstateLocalizedValue;
   nearbyStores: EstateLocalizedValue[];
@@ -158,6 +159,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
   const buildingName = firstValue(property, ["building_name", "buildingName", "title", "name"]);
   const area = firstValue(property, ["floor_area", "floorArea", "building_area", "buildingArea", "area_sqm", "areaSqm", "sqm", "area", "land_area", "landArea"]);
   const floorPlan = firstValue(property, ["floor_plan", "floorPlan", "rooms"]);
+  const tsubo = firstValue(property, ["tsubo", "land_area_tsubo", "landAreaTsubo"]);
   const access = firstValue(property, ["transport_info", "transportInfo", "transport", "nearest_station", "nearestStation"]);
   const features = [
     ...lines(firstValue(property, ["features"])),
@@ -182,6 +184,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     propertyType: type && TYPE_LABELS[currentLocale][type] ? value(formatEstateTypeLabel(type, currentLocale), "term", "dictionary", type) : value(type, "free", "fallback-ja"),
     price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: (() => { const text = formatEstatePrice(priceProperty, currentLocale); return value(text, !text || /^¥[0-9]/.test(text) ? "number" : "free"); })() },
     area: value(formatEstateArea(area), "number"),
+    tsubo: value(tsubo, "number"),
     floorPlan: value(floorPlan, "proper"),
     access: value(access, "proper"),
     nearbyStores: lines(property.nearby_stores).map((item) => dictionaryText(item, currentLocale, dictionary)),
