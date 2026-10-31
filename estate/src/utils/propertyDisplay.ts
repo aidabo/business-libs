@@ -1,4 +1,5 @@
 import { buildGoogleMaps3DUrl, extractLatLngFromMapUrl, extractPlaceIdFromMapUrl } from "./urlBuilders";
+import { formatEstateArea } from "../core";
 
 export type FieldRow = {
   key: string;
@@ -161,10 +162,7 @@ function formatMoney(value: unknown): string {
 }
 
 function formatArea(value: unknown): string {
-  if (!isPresent(value)) return "";
-  if (typeof value === "number") return `${value.toLocaleString("ja-JP")}㎡`;
-  const text = stringify(value);
-  return /㎡|坪|m2|m²/i.test(text) ? text : `${text}㎡`;
+  return isPresent(value) ? formatEstateArea(value) : "";
 }
 
 function coordPair(input: Record<string, any>): string {
