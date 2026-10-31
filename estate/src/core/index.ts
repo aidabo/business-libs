@@ -101,7 +101,7 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
   return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
 };
 export const formatEstateArea = (value: unknown) => {
-  const text = toText(value);
+  const text = toText(value).replace(/m(?:2|²|\^2)\b/gi, "㎡");
   if (!text) return "";
   return text.includes("㎡") ? text : `${text}㎡`;
 };
@@ -143,10 +143,12 @@ const dictionaryText = (text: string, locale: EstateCoreLocale, dictionary: Esta
 };
 const localizedPlaceValue = (item: any, field: "name" | "address", locale: EstateCoreLocale) => { const localized = item?.localized?.[locale]?.[field]; const source = item?.localized?.ja?.[field] || item?.[field]; return localized ? value(localized, "proper", "provider", source !== localized ? source : undefined) : value(source, "proper"); };
 const firstValue = (property: Record<string, any>, keys: string[]) => keys.map((key) => property[key]).find((item) => item !== undefined && item !== null && item !== 0 && String(item).trim() !== "" && String(item).trim() !== "0");
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const hazardValues = (property: Record<string, any>, locale: EstateCoreLocale) => Object.entries(HAZARD_LABELS[locale]).flatMap(([key, label]) => {
   const raw = property[key];
   if (!raw) return [];
-  const text = toText(raw);
+  const sourceLabel = HAZARD_LABELS.ja[key as keyof typeof HAZARD_LABELS.ja];
+  const text = toText(raw).replace(new RegExp(`^${escapeRegExp(sourceLabel)}\\s*[:：]\\s*`), "");
   return text ? [value(`${label}: ${text}`, "free", "fallback-ja", text)] : [];
 });
 
