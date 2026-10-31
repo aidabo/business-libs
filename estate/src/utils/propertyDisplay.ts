@@ -1,4 +1,5 @@
 import { buildGoogleMaps3DUrl, extractLatLngFromMapUrl, extractPlaceIdFromMapUrl } from "./urlBuilders";
+import { formatEstateArea, formatEstateTsubo } from "../core";
 
 export type FieldRow = {
   key: string;
@@ -38,6 +39,7 @@ export type EstatePropertyDisplayModel = {
   floorPlan?: string;
   floorArea?: string;
   landArea?: string;
+  tsubo?: string;
   buildingArea?: string;
   floorNumber?: string;
   totalFloors?: string;
@@ -160,10 +162,7 @@ function formatMoney(value: unknown): string {
 }
 
 function formatArea(value: unknown): string {
-  if (!isPresent(value)) return "";
-  if (typeof value === "number") return `${value.toLocaleString("ja-JP")}㎡`;
-  const text = stringify(value);
-  return /㎡|坪|m2|m²/i.test(text) ? text : `${text}㎡`;
+  return isPresent(value) ? formatEstateArea(value) : "";
 }
 
 function coordPair(input: Record<string, any>): string {
@@ -281,6 +280,7 @@ export function resolveEstateProperty(input: EstatePropertyDisplayInput = {}): E
     floorPlan: stringify(firstValue(source, ["floor_plan", "floorPlan", "rooms"])),
     floorArea: formatArea(firstValue(source, ["floor_area", "floorArea", "sqm", "areaSqm", "area_sqm", "area"])),
     landArea: formatArea(firstValue(source, ["land_area", "landArea"])),
+    tsubo: formatEstateTsubo(firstValue(source, ["tsubo", "land_area_tsubo", "landAreaTsubo"])),
     buildingArea: formatArea(firstValue(source, ["building_area", "buildingArea"])),
     floorNumber: stringify(firstValue(source, ["floor_number", "floorNumber", "floor_no"])),
     totalFloors: stringify(firstValue(source, ["floors_total", "floorsTotal", "total_floors"])),
@@ -354,6 +354,7 @@ export function getEstateFieldGroups(property: EstatePropertyDisplayModel): Esta
       ...row("floorPlan", "Floor plan", property.floorPlan),
       ...row("floorArea", "Floor area", property.floorArea),
       ...row("landArea", "Land area", property.landArea),
+      ...row("tsubo", "Land area (tsubo)", property.tsubo),
       ...row("buildingArea", "Building area", property.buildingArea),
       ...row("floorNumber", "Floor", property.floorNumber ? `${property.floorNumber}階` : ""),
       ...row("totalFloors", "Total floors", property.totalFloors ? `${property.totalFloors}階建` : ""),
