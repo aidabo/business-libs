@@ -47,6 +47,8 @@ portal/  publish/  person/
 
 ## 開発の手順
 
+Estateを含むシステム全体の構築と起動は、Frontendの[ローカル全体環境ガイド](https://github.com/aidabo/jibunsee-react/blob/main/docs/development/00-local-full-stack.md)を参照してください。Frontendのhostがこのrepositoryをsymlinkで読み、build済み`dist`を使います。
+
 普段は単体では動かさず、フロントの workspace の中で使う（フロントの root の `workspaces` に `packages/business/*` がある）。
 clone の場所とリンクは [01-workspace](https://github.com/aidabo/jibunsee-react/blob/main/docs/development/01-workspace.md) のとおり。
 
