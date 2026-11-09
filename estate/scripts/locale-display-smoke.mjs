@@ -36,6 +36,8 @@ test("uses locale-aware numeric units and floor/year display", () => {
   assert.equal(formatEstateFloor("4", "en"), "4F");
   assert.equal(formatEstateFloor("1", "en", true), "1 floor");
   assert.equal(formatEstateFloor("4", "en", true), "4 floors");
+  assert.equal(formatEstateFloor("4", "zh"), "4楼");
+  assert.equal(formatEstateFloor("4", "zh", true), "4层");
   assert.equal(formatEstateYear("1998-03", "ja"), "1998-03");
   assert.equal(formatEstateYear("2018", "ja"), "2018年");
 });
@@ -44,6 +46,7 @@ test("normalizes rent aliases and builds the same locale view model contract", (
   assert.equal(isRentLike("賃貸"), true);
   assert.equal(isRentLike("rent_house"), true);
   assert.equal(isRentLike("sale"), false);
+  assert.equal(formatEstatePrice({ property_type: "rent_house", price_rent_monthly: 86000 }, "en"), "¥86,000/mo");
   const view = buildEstatePropertyLocaleViewModel(property, "en");
   assert.equal(view.title.text, "港区レジデンス");
   assert.equal(view.price.value.text, "86,000円（税込）/mo");
@@ -67,7 +70,9 @@ test("keeps Card and Detail on binding, page-state, query, and existing API path
   const detail = await readFile(new URL("../src/PropertyDetail.tsx", import.meta.url), "utf8");
   const resolver = await readFile(new URL("../src/PropertyInfoCardBase.tsx", import.meta.url), "utf8");
 
-  assert.match(card, /useResolvedPropertyRecord/);
+  // These are source-contract checks because the package has no React test harness.
+  // They target executable guards/calls, not only prop declarations.
+  assert.match(card, /useResolvedPropertyRecord\(props, !isListChild\)/);
   assert.match(card, /items\?:/);
   assert.match(card, /selectedPropertyId\?:/);
   assert.match(card, /selectedPropertyIdKey\?:/);
@@ -79,5 +84,8 @@ test("keeps Card and Detail on binding, page-state, query, and existing API path
   assert.match(detail, /\/api\/estate\/properties-public\//);
   assert.match(resolver, /__bindings/);
   assert.match(resolver, /items\?\.sourceId/);
+  assert.match(resolver, /matchRecordInItems\(items, selectedPropertyId, props\.itemIdKey\)/);
+  assert.match(resolver, /!enabled \|\| hasItems \|\| boundToProperty/);
   assert.match(resolver, /\/api\/estate\/properties-public\//);
+  assert.match(detail, /if \(!id \|\| hasBoundItems\)/);
 });
