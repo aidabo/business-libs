@@ -11,7 +11,7 @@ import {
 } from "./types";
 import { buildPropertyDetailPath } from "./utils/urlBuilders";
 import { useResolvedPropertyRecord } from "./PropertyInfoCardBase";
-import { buildEstatePropertyLocaleViewModel, formatEstateArea, formatEstateYear } from "./core";
+import { buildEstatePropertyLocaleViewModel, formatEstateArea, formatEstateYear, formatEstateMoney, isRentLike } from "./core";
 import type { EstatePropertyLocaleViewModel } from "./core";
 
 // ── Skeleton loader ─────────────────────────────────────────────────
@@ -279,11 +279,11 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
     property_type,
     price: priceProp,
     price_jpy,
-    price_sale,
-    price_rent_monthly,
+    price_sale: priceProp || price_sale,
+    price_rent_monthly: priceProp || price_rent_monthly,
     building_name: buildingName || building_name,
     floor_plan: floorPlanProp || floor_plan,
-    floor_area: floor_area ?? sqm ?? areaSizeProp,
+    floor_area: areaSizeProp || floor_area || sqm,
     transport_info: transportInfo || transport_info || transport,
     features,
   }, locale);
@@ -376,12 +376,12 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
     if (/[¥￥円万]/.test(s)) return s;
     const num = Number(s.replace(/[,\s]/g, ""));
     if (!Number.isFinite(num) || num === 0) return "";
-    return `¥${num.toLocaleString("ja-JP")}`;
+    return `¥${num.toLocaleString(locale === "en" ? "en-US" : locale === "zh" ? "zh-CN" : "ja-JP")}`;
   };
-  const isRent = String(property_type || "").toLowerCase() === "rent";
+  const isRent = isRentLike(property_type);
   const saleFmt = formatJpy(priceProp || price_jpy || price_sale);
   const rentFmt = formatJpy(price_rent_monthly);
-  const price = localeViewModel.price.value.text || (isRent
+  const price = (priceProp ? (/[¥￥円万]/.test(String(priceProp)) ? String(priceProp) : formatEstateMoney(priceProp, isRent ? (locale === "en" ? "/mo" : "/月") : "", locale)) : localeViewModel.price.value.text) || (isRent
     ? rentFmt
       ? `${rentFmt} / 月`
       : saleFmt || t("Inquiry")

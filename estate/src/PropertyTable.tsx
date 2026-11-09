@@ -26,7 +26,7 @@ import {
   resolvePropertyPostId,
 } from "./utils/urlBuilders";
 import { resolveEstateProperty } from "./utils/propertyDisplay";
-import { buildEstatePropertyLocaleViewModel, formatEstateFloor, formatEstateYear } from "./core";
+import { buildEstatePropertyLocaleViewModel, formatEstateFloor, formatEstateYear, isRentLike, numberLocale } from "./core";
 import type { EstateCoreLocale } from "./core";
 import { useEstateContext } from "./contexts/EstateContext";
 
@@ -201,7 +201,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
         ? TAG_BY_TYPE.investment
         : TAG_BY_TYPE.sale);
 
-  const isRent = typeKey.includes("rent") || typeKey.includes("賃貸");
+  const isRent = isRentLike(typeKey);
   const priceMain = localeViewModel.price.value.text || (isRent
     ? m.monthlyRent
       ? `${m.monthlyRent} / 月`
@@ -220,7 +220,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
     if (!text) return "";
     if (/[¥￥円万]/.test(text)) return text;
     const number = toNum(text);
-    return number > 0 ? `¥${number.toLocaleString(locale === "en" ? "en-US" : locale === "zh" ? "zh-CN" : "ja-JP")}` : text;
+    return number > 0 ? `¥${number.toLocaleString(numberLocale(locale))}` : text;
   };
   const strikePrice =
     originalPriceNum > currentPriceNum && currentPriceNum > 0
@@ -228,11 +228,11 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
       : "";
 
   const title = m.buildingName || m.title || m.address || t("Property");
-  const station = (localeViewModel.access.text || m.nearestStation || m.transportInfo || "").split(/\r?\n/)[0].trim();
+  const station = (m.nearestStation || localeViewModel.access.text || m.transportInfo || "").split(/\r?\n/)[0].trim();
 
   const infoItems: Array<{ label: string; value: string }> = [
     { label: "Floor plan", value: localeViewModel.floorPlan.text || m.floorPlan || "" },
-    { label: "Floor area", value: localeViewModel.area.text || m.floorArea || "" },
+    { label: "Floor area", value: m.floorArea || "" },
     { label: "Floor", value: formatEstateFloor(m.floorNumber, locale) },
     { label: "Total floors", value: formatEstateFloor(m.totalFloors, locale, true) },
     { label: "Year built", value: formatEstateYear(m.yearBuilt, locale) },
