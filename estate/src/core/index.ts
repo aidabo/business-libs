@@ -77,11 +77,14 @@ export const isRentLike = (value: unknown) => {
   const text = toText(value).toLowerCase();
   return text.includes("rent") || text.includes("賃貸");
 };
+const isAnnotatedMoney = (text: string) => /[¥￥円万億千]|税込|税別|応相談|相談/.test(text);
+const isNegotiableMoney = (text: string) => /応相談|相談/.test(text);
 export const formatEstateMoney = (value: unknown, suffix = "", locale: EstateCoreLocale = "ja") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
-  if (/[¥￥円万億千]|税込|税別|応相談|相談/.test(raw)) {
-    return `${raw}${suffix && !/[／/]\s*(?:月|mo)/.test(raw) ? suffix : ""}`;
+  // Preserve source annotations and Japanese unit notation instead of erasing them during normalization.
+  if (isAnnotatedMoney(raw)) {
+    return `${raw}${suffix && !isNegotiableMoney(raw) && !/[／/]\s*(?:月|mo)/.test(raw) ? suffix : ""}`;
   }
   const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
   const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円?|億|万|千)/g)];
@@ -126,7 +129,9 @@ export const formatEstateFloor = (value: unknown, locale: EstateCoreLocale = "ja
   const text = toText(value);
   if (!text) return "";
   if (!/^\d+(?:\.\d+)?$/.test(text)) return text;
-  if (locale === "en") return `${text} ${total && Number(text) !== 1 ? "floors" : "floor"}`;
+  if (locale === "en") return total
+    ? `${text} ${Number(text) === 1 ? "floor" : "floors"}`
+    : `${text}F`;
   if (locale === "zh") return `${text}${total ? "层" : "楼"}`;
   return `${text}${total ? "階建" : "階"}`;
 };

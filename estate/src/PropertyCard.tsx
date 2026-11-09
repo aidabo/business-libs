@@ -381,7 +381,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   const isRent = isRentLike(property_type);
   const saleFmt = formatJpy(priceProp || price_jpy || price_sale);
   const rentFmt = formatJpy(price_rent_monthly);
-  const price = (priceProp ? (/[¥￥円万]/.test(String(priceProp)) ? String(priceProp) : formatEstateMoney(priceProp, isRent ? (locale === "en" ? "/mo" : "/月") : "", locale)) : localeViewModel.price.value.text) || (isRent
+  const price = (priceProp ? formatEstateMoney(priceProp, isRent ? (locale === "en" ? "/mo" : "/月") : "", locale) : localeViewModel.price.value.text) || (isRent
     ? rentFmt
       ? `${rentFmt} / 月`
       : saleFmt || t("Inquiry")
