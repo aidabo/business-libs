@@ -61,3 +61,23 @@ test("keeps Grid and Table as binding-fed components", async () => {
     assert.doesNotMatch(source, /useEstateHostDataSources/);
   }
 });
+
+test("keeps Card and Detail on binding, page-state, query, and existing API paths", async () => {
+  const card = await readFile(new URL("../src/PropertyCard.tsx", import.meta.url), "utf8");
+  const detail = await readFile(new URL("../src/PropertyDetail.tsx", import.meta.url), "utf8");
+  const resolver = await readFile(new URL("../src/PropertyInfoCardBase.tsx", import.meta.url), "utf8");
+
+  assert.match(card, /useResolvedPropertyRecord/);
+  assert.match(card, /items\?:/);
+  assert.match(card, /selectedPropertyId\?:/);
+  assert.match(card, /selectedPropertyIdKey\?:/);
+  assert.match(card, /onCardClick/);
+  assert.match(detail, /items\?:/);
+  assert.match(detail, /selectedPropertyIdKey\?:/);
+  assert.match(detail, /getPageState\(__stackpage, selectedPropertyIdKey/);
+  assert.match(detail, /new URLSearchParams\(window\.location\.search\)/);
+  assert.match(detail, /\/api\/estate\/properties-public\//);
+  assert.match(resolver, /__bindings/);
+  assert.match(resolver, /items\?\.sourceId/);
+  assert.match(resolver, /\/api\/estate\/properties-public\//);
+});
