@@ -28,6 +28,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "test:locale-display": "yarn build && node scripts/locale-display-smoke.mjs",
     "preview": "vite preview"
   },
   "peerDependencies": {
