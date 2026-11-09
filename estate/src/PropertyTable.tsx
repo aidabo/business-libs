@@ -26,6 +26,9 @@ import {
   resolvePropertyPostId,
 } from "./utils/urlBuilders";
 import { resolveEstateProperty } from "./utils/propertyDisplay";
+import { buildEstatePropertyLocaleViewModel, formatEstateFloor, formatEstateYear, isRentLike, numberLocale } from "./core";
+import type { EstateCoreLocale } from "./core";
+import { useEstateContext } from "./contexts/EstateContext";
 
 export type PropertyImageFit = "cover" | "contain";
 
@@ -168,6 +171,7 @@ interface PropertyRowProps {
   onClick: () => void;
   onToggleSelect: () => void;
   imageFit: PropertyImageFit;
+  locale: EstateCoreLocale;
 }
 
 const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -179,6 +183,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
   onClick,
   onToggleSelect,
   imageFit,
+  locale,
 }) => {
   const t = useT();
   const [imgError, setImgError] = React.useState(false);
@@ -187,6 +192,10 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
   const showImageFallback = imgError || !image;
 
   const typeKey = String(m.propertyType || source.property_type || "").toLowerCase();
+  const localeViewModel = React.useMemo(
+    () => buildEstatePropertyLocaleViewModel({ ...source, property_type: typeKey }, locale),
+    [source, locale, typeKey],
+  );
   const tag =
     TAG_BY_TYPE[typeKey] ||
     (typeKey.includes("rent") || typeKey.includes("賃貸")
@@ -195,12 +204,12 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
         ? TAG_BY_TYPE.investment
         : TAG_BY_TYPE.sale);
 
-  const isRent = typeKey.includes("rent") || typeKey.includes("賃貸");
-  const priceMain = isRent
+  const isRent = isRentLike(typeKey);
+  const priceMain = localeViewModel.price.value.text || (isRent
     ? m.monthlyRent
       ? `${m.monthlyRent} / 月`
       : m.price || m.salePrice || ""
-    : m.salePrice || m.price || "";
+    : m.salePrice || m.price || "");
 
   // Show the original/reference amount only when it is higher than the current
   // amount. This supports explicit originalPrice as well as the existing
@@ -214,7 +223,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
     if (!text) return "";
     if (/[¥￥円万]/.test(text)) return text;
     const number = toNum(text);
-    return number > 0 ? `¥${number.toLocaleString("ja-JP")}` : text;
+    return number > 0 ? `¥${number.toLocaleString(numberLocale(locale))}` : text;
   };
   const strikePrice =
     originalPriceNum > currentPriceNum && currentPriceNum > 0
@@ -222,14 +231,14 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
       : "";
 
   const title = m.buildingName || m.title || m.address || t("Property");
-  const station = (m.nearestStation || m.transportInfo || "").split(/\r?\n/)[0].trim();
+  const station = (m.nearestStation || localeViewModel.access.text || m.transportInfo || "").split(/\r?\n/)[0].trim();
 
   const infoItems: Array<{ label: string; value: string }> = [
-    { label: "Floor plan", value: m.floorPlan || "" },
+    { label: "Floor plan", value: localeViewModel.floorPlan.text || m.floorPlan || "" },
     { label: "Floor area", value: m.floorArea || "" },
-    { label: "Floor", value: m.floorNumber ? `${m.floorNumber}階` : "" },
-    { label: "Total floors", value: m.totalFloors ? `${m.totalFloors}階建` : "" },
-    { label: "Year built", value: m.yearBuilt || "" },
+    { label: "Floor", value: formatEstateFloor(m.floorNumber, locale) },
+    { label: "Total floors", value: formatEstateFloor(m.totalFloors, locale, true) },
+    { label: "Year built", value: formatEstateYear(m.yearBuilt, locale) },
     { label: "Structure", value: m.structure || "" },
     { label: "Land area", value: m.landArea || "" },
     { label: "Building area", value: m.buildingArea || "" },
@@ -383,6 +392,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   __stackpage,
 }) => {
   const t = useT();
+  const { locale } = useEstateContext();
   const [noPostDialogOpen, setNoPostDialogOpen] = React.useState(false);
   const mergedStyle: React.CSSProperties = { backgroundColor, fontSize, ...style };
 
@@ -548,6 +558,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
               onClick={() => handleRowClick(prop)}
               onToggleSelect={() => handleToggleSelect(prop)}
               imageFit={imageFit}
+              locale={locale}
             />
           );
         })}

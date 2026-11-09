@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MapPinIcon } from "@heroicons/react/24/outline";
 import { useT } from "./hooks/useTranslation";
+import { useEstateContext } from "./contexts/EstateContext";
 import type { StackPageRuntimeApi } from "./types";
 import {
   ESTATE_STATE_KEYS,
@@ -10,7 +11,8 @@ import {
 } from "./types";
 import { buildPropertyDetailPath } from "./utils/urlBuilders";
 import { useResolvedPropertyRecord } from "./PropertyInfoCardBase";
-import { formatEstateArea } from "./core";
+import { buildEstatePropertyLocaleViewModel, formatEstateArea, formatEstateYear, formatEstateMoney, isRentLike } from "./core";
+import type { EstatePropertyLocaleViewModel } from "./core";
 
 // ── Skeleton loader ─────────────────────────────────────────────────
 
@@ -180,6 +182,7 @@ export interface PropertyCardProps {
   className?: string;
   style?: React.CSSProperties;
   __stackpage?: StackPageRuntimeApi;
+  localeViewModel?: EstatePropertyLocaleViewModel;
 }
 
 // ── Icons ──────────────────────────────────────────────────────────
@@ -268,8 +271,22 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   className = "",
   style,
   __stackpage,
+  localeViewModel: providedLocaleViewModel,
 }) => {
   const t = useT();
+  const { locale } = useEstateContext();
+  const localeViewModel = providedLocaleViewModel || buildEstatePropertyLocaleViewModel({
+    property_type,
+    price: priceProp,
+    price_jpy,
+    price_sale: priceProp || price_sale,
+    price_rent_monthly: priceProp || price_rent_monthly,
+    building_name: buildingName || building_name,
+    floor_plan: floorPlanProp || floor_plan,
+    floor_area: areaSizeProp || floor_area || sqm,
+    transport_info: transportInfo || transport_info || transport,
+    features,
+  }, locale);
   const [imgError, setImgError] = useState(false);
   // Detail target (id or URL). Inside a grid this comes pre-set from the parent;
   // standalone it needs detailPageId to navigate. Empty → no navigation.
@@ -359,16 +376,16 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
     if (/[¥￥円万]/.test(s)) return s;
     const num = Number(s.replace(/[,\s]/g, ""));
     if (!Number.isFinite(num) || num === 0) return "";
-    return `¥${num.toLocaleString("ja-JP")}`;
+    return `¥${num.toLocaleString(locale === "en" ? "en-US" : locale === "zh" ? "zh-CN" : "ja-JP")}`;
   };
-  const isRent = String(property_type || "").toLowerCase() === "rent";
+  const isRent = isRentLike(property_type);
   const saleFmt = formatJpy(priceProp || price_jpy || price_sale);
   const rentFmt = formatJpy(price_rent_monthly);
-  const price = isRent
+  const price = (priceProp ? formatEstateMoney(priceProp, isRent ? (locale === "en" ? "/mo" : "/月") : "", locale) : localeViewModel.price.value.text) || (isRent
     ? rentFmt
       ? `${rentFmt} / 月`
       : saleFmt || t("Inquiry")
-    : saleFmt || (rentFmt ? `${rentFmt} / 月` : "") || t("Inquiry");
+    : saleFmt || (rentFmt ? `${rentFmt} / 月` : "") || t("Inquiry"));
 
   // Two-price (元金額 → 現金額): show the appraised/reference price struck through
   // above the sale price when it is higher (i.e. the property is priced below it).
@@ -406,13 +423,13 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
     if (candidates.length === 0) return "";
     const withWalk = candidates.find((s) => /徒歩|分|walk|min/i.test(s));
     return (withWalk || candidates[0]).split(/\r?\n/)[0].trim();
-  })();
+  })() || localeViewModel.access.text;
 
-  const floorPlan = floorPlanProp || floor_plan;
+  const floorPlan = floorPlanProp || floor_plan || localeViewModel.floorPlan.text;
   const areaSource = areaSizeProp || floor_area || sqm;
-  const areaSize = areaSource === 0 || areaSource === "0" ? "" : formatEstateArea(areaSource);
+  const areaSize = localeViewModel.area.text || (areaSource === 0 || areaSource === "0" ? "" : formatEstateArea(areaSource, locale));
   const yearBuilt =
-    yearBuiltProp || (year_built ? `${year_built}年` : "");
+    yearBuiltProp || formatEstateYear(year_built, locale);
 
   const mergedStyle: React.CSSProperties = {
     backgroundColor,
@@ -421,6 +438,7 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
   };
 
   const featureItems = normalizeFeatureList(features);
+  const localizedFeatureItems = featureItems.length > 0 ? featureItems : localeViewModel.features.map((item) => item.text).filter(Boolean);
 
   // Similarity "why it matched" chips (from the similar-properties datasource).
   // First chip = the strongest match (rendered filled); rest are lighter.
@@ -557,9 +575,9 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
       {stationRow}
       {transportRow}
       {propertyInfoRow}
-      {featureItems.length > 0 && (
+      {localizedFeatureItems.length > 0 && (
         <div className="flex flex-wrap gap-1.5 pt-1">
-          {featureItems.slice(0, 4).map((feature) => (
+          {localizedFeatureItems.slice(0, 4).map((feature) => (
             <span
               key={feature}
               className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] text-gray-500"
@@ -663,9 +681,9 @@ const PropertyCardBase: React.FC<PropertyCardProps> = ({
       {/* Content area */}
       <div className="p-4 flex flex-col flex-1 space-y-2">
         {/* Building name (bold) */}
-        {(buildingName || building_name) && (
+        {(buildingName || building_name || localeViewModel.title.text) && (
           <div className="text-base font-bold text-gray-900 line-clamp-1">
-            {buildingName || building_name}
+            {buildingName || building_name || localeViewModel.title.text}
           </div>
         )}
 

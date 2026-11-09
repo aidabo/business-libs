@@ -72,9 +72,20 @@ const HAZARD_LABELS: Record<EstateCoreLocale, Record<string, string>> = {
   },
 };
 const toText = (value: unknown) => String(value ?? "").trim();
-export const formatEstateMoney = (value: unknown, suffix = "") => {
+export const numberLocale = (locale: EstateCoreLocale) => locale === "en" ? "en-US" : locale === "zh" ? "zh-CN" : "ja-JP";
+export const isRentLike = (value: unknown) => {
+  const text = toText(value).toLowerCase();
+  return text.includes("rent") || text.includes("賃貸");
+};
+const isAnnotatedMoney = (text: string) => /[¥￥円万億千]|税込|税別|応相談|相談/.test(text);
+const isNegotiableMoney = (text: string) => /応相談|相談/.test(text);
+export const formatEstateMoney = (value: unknown, suffix = "", locale: EstateCoreLocale = "ja") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
+  // Preserve source annotations and Japanese unit notation instead of erasing them during normalization.
+  if (isAnnotatedMoney(raw)) {
+    return `${raw}${suffix && !isNegotiableMoney(raw) && !/[／/]\s*(?:月|mo)/.test(raw) ? suffix : ""}`;
+  }
   const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
   const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円?|億|万|千)/g)];
   let number: number;
@@ -99,11 +110,11 @@ export const formatEstateMoney = (value: unknown, suffix = "") => {
     number = Number(numericPart.replace(/,/g, ""));
   }
   if (!Number.isFinite(number) || number <= 0) return /\d/.test(raw) ? "" : raw;
-  return `¥${Math.round(number).toLocaleString("ja-JP")}${suffix}`;
+  return `¥${Math.round(number).toLocaleString(numberLocale(locale))}${suffix}`;
 };
-export const formatEstateArea = (value: unknown) => {
+export const formatEstateArea = (value: unknown, locale: EstateCoreLocale = "ja") => {
   const text = typeof value === "number"
-    ? value.toLocaleString("ja-JP")
+    ? value.toLocaleString(numberLocale(locale))
     : toText(value).replace(/m(?:\^2|2|²)(?![0-9])/gi, "㎡");
   if (!text) return "";
   if (text.includes("坪")) return text;
@@ -114,14 +125,30 @@ export const formatEstateTsubo = (value: unknown) => {
   if (!text) return "";
   return text.includes("坪") ? text : `${text}坪`;
 };
+export const formatEstateFloor = (value: unknown, locale: EstateCoreLocale = "ja", total = false) => {
+  const text = toText(value);
+  if (!text) return "";
+  if (!/^\d+(?:\.\d+)?$/.test(text)) return text;
+  if (locale === "en") return total
+    ? `${text} ${Number(text) === 1 ? "floor" : "floors"}`
+    : `${text}F`;
+  if (locale === "zh") return `${text}${total ? "层" : "楼"}`;
+  return `${text}${total ? "階建" : "階"}`;
+};
+export const formatEstateYear = (value: unknown, locale: EstateCoreLocale = "ja") => {
+  const text = toText(value);
+  if (!text) return "";
+  if (locale === "en") return text.replace(/年/g, "");
+  return text.includes("年") || !/^\d{4}$/.test(text) ? text : `${text}年`;
+};
 export const formatEstateTypeLabel = (value: unknown, locale: EstateCoreLocale) => {
   const key = toText(value).toLowerCase();
   return TYPE_LABELS[locale][key] || TYPE_LABELS[locale].sale;
 };
 export const formatEstatePrice = (property: Record<string, any>, locale: EstateCoreLocale) => {
-  const isRent = toText(firstValue(property, ["property_type", "propertyType"])).toLowerCase() === "rent";
+  const isRent = isRentLike(firstValue(property, ["property_type", "propertyType"]));
   const rentSuffix = locale === "en" ? "/mo" : "/月";
-  const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix)).find(Boolean) || "";
+  const firstFormatted = (keys: string[], suffix = "") => keys.map((key) => formatEstateMoney(property[key], suffix, locale)).find(Boolean) || "";
   const salePrice = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy", "price"]);
   const rentPrice = firstFormatted(["price_rent_monthly", "priceRentMonthly", "monthlyRent", "current_rent", "expected_rent", "expectedRent"], rentSuffix);
   const rentFallback = firstFormatted(["price_sale", "priceSale", "salePrice", "priceJPY", "price_jpy"])
@@ -191,7 +218,7 @@ export function buildEstatePropertyLocaleViewModel(property: Record<string, any>
     title: value(buildingName, "proper"),
     propertyType: type && TYPE_LABELS[currentLocale][type] ? value(formatEstateTypeLabel(type, currentLocale), "term", "dictionary", type) : value(type, "free", "fallback-ja"),
     price: { label: value(PRICE_LABELS[currentLocale], "term", "dictionary"), value: (() => { const text = formatEstatePrice(priceProperty, currentLocale); return value(text, !text || /^¥[0-9]/.test(text) ? "number" : "free"); })() },
-    area: value(formatEstateArea(area), "number"),
+    area: value(formatEstateArea(area, currentLocale), "number"),
     tsubo: value(formatEstateTsubo(tsubo), "number"),
     floorPlan: value(floorPlan, "proper"),
     access: value(access, "proper"),
