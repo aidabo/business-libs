@@ -1805,6 +1805,7 @@ export const EstateDefaultProps = {
     investmentDetailPageId: "",
     requirePost: false,
     openDetailInNewWindow: true,
+    imageFit: "cover",
     selectable: true,
     inquiryPropertiesKey: "estate.inquiry.properties",
     selectedPropertyIdKey: "estate.selectedPropertyId",
