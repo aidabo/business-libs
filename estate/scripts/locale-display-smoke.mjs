@@ -47,6 +47,7 @@ test("normalizes rent aliases and builds the same locale view model contract", (
   assert.equal(isRentLike("rent_house"), true);
   assert.equal(isRentLike("sale"), false);
   assert.equal(formatEstatePrice({ property_type: "rent_house", price_rent_monthly: 86000 }, "en"), "¥86,000/mo");
+  assert.equal(formatEstatePrice({ property_type: "rent_house", price_rent_monthly: 86000 }, "zh"), "¥86,000/月");
   const view = buildEstatePropertyLocaleViewModel(property, "en");
   assert.equal(view.title.text, "港区レジデンス");
   assert.equal(view.price.value.text, "86,000円（税込）/mo");
@@ -85,7 +86,15 @@ test("keeps Card and Detail on binding, page-state, query, and existing API path
   assert.match(resolver, /__bindings/);
   assert.match(resolver, /items\?\.sourceId/);
   assert.match(resolver, /matchRecordInItems\(items, selectedPropertyId, props\.itemIdKey\)/);
-  assert.match(resolver, /!enabled \|\| hasItems \|\| boundToProperty/);
+  assert.match(
+    resolver,
+    /!enabled \|\| hasItems \|\| boundToProperty/,
+    "binding-fed cards must not self-fetch while items or a bound source is present",
+  );
   assert.match(resolver, /\/api\/estate\/properties-public\//);
-  assert.match(detail, /if \(!id \|\| hasBoundItems\)/);
+  assert.match(
+    detail,
+    /if \(!id \|\| hasBoundItems\)/,
+    "PropertyDetail must not self-fetch when items are already bound",
+  );
 });

@@ -74,3 +74,7 @@ Exports two named maps for StackPage integration:
 - Most components are controlled by binding-fed props. `PropertyCard` and
   `PropertyDetail` may resolve a bound item through page state or `?item`, and
   use the existing public property API only when no bound items are available.
+- Other intentional component-owned API paths include `PropertyInfoCardBase`,
+  `PropertySlider`, `InquiryForm`, `AgentCard`, `InvestmentSimulator`, and
+  `PropertyMatchingPanel`; these paths must not replace HostDataSource items
+  binding for Grid/Table lists.
