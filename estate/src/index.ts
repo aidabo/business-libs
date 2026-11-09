@@ -368,6 +368,7 @@ const propertyTableSchema = {
     investmentDetailPageId: textProp("Investment Detail Page ID or URL"),
     requirePost: booleanProp("Require linked Post (else PropertyDetail-only)"),
     openDetailInNewWindow: booleanProp("Open detail in a new window/tab"),
+    imageFit: enumProp("Image fit", ["cover", "contain"]),
     searchableFields: stringArrayProp("Searchable Fields"),
     properties: {
       title: "Properties",
@@ -1804,6 +1805,7 @@ export const EstateDefaultProps = {
     investmentDetailPageId: "",
     requirePost: false,
     openDetailInNewWindow: true,
+    imageFit: "cover",
     selectable: true,
     inquiryPropertiesKey: "estate.inquiry.properties",
     selectedPropertyIdKey: "estate.selectedPropertyId",

@@ -27,6 +27,8 @@ import {
 } from "./utils/urlBuilders";
 import { resolveEstateProperty } from "./utils/propertyDisplay";
 
+export type PropertyImageFit = "cover" | "contain";
+
 export interface PropertyTableProps {
   properties?: EstateProperty[];
   /** Deprecated (table-era column list). Kept for back-compat; ignored by the
@@ -61,6 +63,11 @@ export interface PropertyTableProps {
   /** Show an inquiry-selection checkbox on each row (for bulk InquiryForm). */
   selectable?: boolean;
   inquiryPropertiesKey?: string;
+  /**
+   * Thumbnail fit: `cover` fills the frame and may crop edges; `contain` keeps
+   * the full image visible and fills remaining space with a gray background.
+   */
+  imageFit?: PropertyImageFit;
   backgroundColor?: string;
   fontSize?: string;
   className?: string;
@@ -160,6 +167,7 @@ interface PropertyRowProps {
   navigable: boolean;
   onClick: () => void;
   onToggleSelect: () => void;
+  imageFit: PropertyImageFit;
 }
 
 const PropertyRow: React.FC<PropertyRowProps> = ({
@@ -170,6 +178,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
   navigable,
   onClick,
   onToggleSelect,
+  imageFit,
 }) => {
   const t = useT();
   const [imgError, setImgError] = React.useState(false);
@@ -242,7 +251,7 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
             src={image}
             alt={title}
             loading="lazy"
-            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+            className={`w-full h-full ${imageFit === "contain" ? "object-contain bg-gray-50" : "object-cover"} transform ${imageFit === "contain" ? "" : "group-hover:scale-105"} transition-transform duration-500`}
             onError={() => setImgError(true)}
           />
         )}
@@ -366,6 +375,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
   openDetailInNewWindow = true,
   selectable = true,
   inquiryPropertiesKey = ESTATE_STATE_KEYS.inquiryProperties,
+  imageFit = "cover",
   backgroundColor,
   fontSize,
   className = "",
@@ -537,6 +547,7 @@ const PropertyTable: React.FC<PropertyTableProps> = ({
               navigable={!!detailTargetForProperty(prop)}
               onClick={() => handleRowClick(prop)}
               onToggleSelect={() => handleToggleSelect(prop)}
+              imageFit={imageFit}
             />
           );
         })}
