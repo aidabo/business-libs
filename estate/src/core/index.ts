@@ -75,11 +75,14 @@ const toText = (value: unknown) => String(value ?? "").trim();
 export const numberLocale = (locale: EstateCoreLocale) => locale === "en" ? "en-US" : locale === "zh" ? "zh-CN" : "ja-JP";
 export const isRentLike = (value: unknown) => {
   const text = toText(value).toLowerCase();
-  return text === "rent" || text.includes("rent") || text.includes("賃貸");
+  return text.includes("rent") || text.includes("賃貸");
 };
 export const formatEstateMoney = (value: unknown, suffix = "", locale: EstateCoreLocale = "ja") => {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
+  if (/[¥￥円万億千]|税込|税別|応相談|相談/.test(raw)) {
+    return `${raw}${suffix && !/[／/]\s*(?:月|mo)/.test(raw) ? suffix : ""}`;
+  }
   const numericText = typeof value === "number" ? String(value) : raw.slice(raw.search(/-?\d/));
   const unitMatches = [...numericText.matchAll(/(-?[\d,]+(?:\.\d+)?)\s*(千万円?|億|万|千)/g)];
   let number: number;
@@ -123,7 +126,7 @@ export const formatEstateFloor = (value: unknown, locale: EstateCoreLocale = "ja
   const text = toText(value);
   if (!text) return "";
   if (!/^\d+(?:\.\d+)?$/.test(text)) return text;
-  if (locale === "en") return `${text} ${total ? "floors" : "floor"}`;
+  if (locale === "en") return `${text} ${total && Number(text) !== 1 ? "floors" : "floor"}`;
   if (locale === "zh") return `${text}${total ? "层" : "楼"}`;
   return `${text}${total ? "階建" : "階"}`;
 };

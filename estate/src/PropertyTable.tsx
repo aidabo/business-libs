@@ -188,11 +188,14 @@ const PropertyRow: React.FC<PropertyRowProps> = ({
   const t = useT();
   const [imgError, setImgError] = React.useState(false);
   const m = resolveEstateProperty(source);
-  const localeViewModel = buildEstatePropertyLocaleViewModel(source, locale);
   const image = resolveRowImage(source);
   const showImageFallback = imgError || !image;
 
   const typeKey = String(m.propertyType || source.property_type || "").toLowerCase();
+  const localeViewModel = React.useMemo(
+    () => buildEstatePropertyLocaleViewModel({ ...source, property_type: typeKey }, locale),
+    [source, locale, typeKey],
+  );
   const tag =
     TAG_BY_TYPE[typeKey] ||
     (typeKey.includes("rent") || typeKey.includes("賃貸")
