@@ -28,6 +28,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "test:estate-contracts": "yarn build && node scripts/locale-display-smoke.mjs",
+    "test:locale-display": "yarn test:estate-contracts",
     "preview": "vite preview"
   },
   "peerDependencies": {

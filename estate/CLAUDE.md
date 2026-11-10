@@ -17,6 +17,9 @@ yarn build                           # tsc && vite build
 
 # Preview production build
 yarn preview
+
+# Build and run locale, ViewModel, and binding-contract smoke tests
+yarn test:estate-contracts
 ```
 
 ## Architecture
@@ -68,4 +71,10 @@ Exports two named maps for StackPage integration:
 ### State & Side Effects
 - No global state library (local `useState` in form components)
 - `InquiryForm` has built-in API call with loading/success/error states and auto-reset
-- Components are fully controlled via props — no internal data fetching
+- Most components are controlled by binding-fed props. `PropertyCard` and
+  `PropertyDetail` may resolve a bound item through page state or `?item`, and
+  use the existing public property API only when no bound items are available.
+- Other intentional component-owned API paths include `PropertyInfoCardBase`,
+  `PropertySlider`, `InquiryForm`, `AgentCard`, `InvestmentSimulator`, and
+  `PropertyMatchingPanel`; these paths must not replace HostDataSource items
+  binding for Grid/Table lists.
